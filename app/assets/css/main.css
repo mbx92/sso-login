@@ -1,0 +1,14 @@
+@import "tailwindcss";
+@plugin "daisyui";
+
+/* Custom styles for SSO app */
+:root {
+  --app-primary: theme(colors.primary);
+}
+
+/* DaisyUI theme customization */
+@layer base {
+  html {
+    @apply scroll-smooth;
+  }
+}

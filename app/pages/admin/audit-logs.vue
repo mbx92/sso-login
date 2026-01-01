@@ -1,298 +1,158 @@
 <template>
   <NuxtLayout name="admin">
-    <div>
-      <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold">Audit Logs</h1>
-        <div class="flex gap-2">
-          <select v-model="filters.action" class="select select-bordered select-sm" @change="loadLogs">
+    <div class="space-y-6">
+      <!-- Page Header -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 class="text-2xl font-semibold text-gray-900">Audit Logs</h1>
+          <p class="text-sm text-gray-500 mt-1">View system activity and security events</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <select
+            v-model="filter"
+            class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+          >
             <option value="">All Actions</option>
-            <option value="AUTH_LOGIN">Login Events</option>
-            <option value="OIDC_TOKEN">Token Events</option>
-            <option value="ADMIN_CLIENT">Client Changes</option>
-            <option value="HRIS_SYNC">HRIS Sync</option>
+            <option value="AUTH_LOGIN">Login</option>
+            <option value="AUTH_LOGOUT">Logout</option>
+            <option value="CREATE">Create</option>
+            <option value="UPDATE">Update</option>
+            <option value="DELETE">Delete</option>
+            <option value="OIDC">OIDC</option>
           </select>
-          <input
-            type="date"
-            v-model="filters.from"
-            class="input input-bordered input-sm"
-            @change="loadLogs"
-          />
-          <span class="self-center">to</span>
-          <input
-            type="date"
-            v-model="filters.to"
-            class="input input-bordered input-sm"
-            @change="loadLogs"
-          />
+          <button
+            @click="loadLogs"
+            class="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          </button>
         </div>
       </div>
 
       <!-- Logs Table -->
-      <div class="card bg-base-100 shadow">
-        <div class="card-body p-0">
-          <div class="overflow-x-auto">
-            <table class="table table-sm">
-              <thead>
-                <tr>
-                  <th>Time</th>
-                  <th>Action</th>
-                  <th>Actor</th>
-                  <th>Target</th>
-                  <th>IP</th>
-                  <th>Details</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="log in logs" :key="log.id" class="hover">
-                  <td class="whitespace-nowrap text-sm">
-                    {{ formatDateTime(log.at) }}
-                  </td>
-                  <td>
-                    <span class="badge badge-sm" :class="getActionBadgeClass(log.action)">
-                      {{ formatAction(log.action) }}
-                    </span>
-                  </td>
-                  <td>
-                    <div v-if="log.actor?.email" class="text-sm">
-                      {{ log.actor.email }}
-                    </div>
-                    <div v-else class="text-sm text-base-content/50">
-                      {{ log.actor?.type || 'System' }}
-                    </div>
-                  </td>
-                  <td>
-                    <div v-if="log.target?.type" class="text-sm">
-                      <span class="badge badge-ghost badge-xs">{{ log.target.type }}</span>
-                      <span v-if="log.target.id" class="ml-1 text-xs text-base-content/50">
-                        {{ log.target.id.substring(0, 8) }}...
-                      </span>
-                    </div>
-                    <span v-else class="text-base-content/50">-</span>
-                  </td>
-                  <td class="text-sm text-base-content/60">
-                    {{ log.context?.ip || '-' }}
-                  </td>
-                  <td>
-                    <button
-                      v-if="Object.keys(log.metadata || {}).length > 0"
-                      class="btn btn-ghost btn-xs"
-                      @click="showDetails(log)"
-                    >
-                      View
-                    </button>
-                  </td>
-                </tr>
-                <tr v-if="logs.length === 0 && !loading">
-                  <td colspan="6" class="text-center py-8 text-base-content/50">
-                    No audit logs found
-                  </td>
-                </tr>
-                <tr v-if="loading">
-                  <td colspan="6" class="text-center py-8">
-                    <span class="loading loading-spinner loading-lg"></span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <!-- Loading State -->
+        <div v-if="loading" class="p-8 text-center">
+          <svg class="animate-spin w-8 h-8 mx-auto text-emerald-500" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <p class="mt-2 text-gray-500">Loading logs...</p>
+        </div>
 
-          <!-- Pagination -->
-          <div class="flex justify-between items-center p-4 border-t">
-            <div class="text-sm text-base-content/60">
-              Showing {{ logs.length }} of {{ pagination.total }} logs
-            </div>
-            <div class="join">
-              <button
-                class="join-item btn btn-sm"
-                :disabled="pagination.page <= 1"
-                @click="changePage(pagination.page - 1)"
-              >
-                «
-              </button>
-              <button class="join-item btn btn-sm">
-                Page {{ pagination.page }}
-              </button>
-              <button
-                class="join-item btn btn-sm"
-                :disabled="pagination.page >= pagination.totalPages"
-                @click="changePage(pagination.page + 1)"
-              >
-                »
-              </button>
-            </div>
-          </div>
+        <!-- Empty State -->
+        <div v-else-if="logs.length === 0" class="p-8 text-center">
+          <svg class="w-12 h-12 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          <p class="text-gray-500">No logs found</p>
+        </div>
+
+        <!-- Table -->
+        <table v-else class="w-full">
+          <thead class="bg-gray-50 border-b border-gray-200">
+            <tr>
+              <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+              <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Actor</th>
+              <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Target</th>
+              <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">IP Address</th>
+              <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200">
+            <tr v-for="log in logs" :key="log.id" class="hover:bg-gray-50">
+              <td class="px-6 py-4">
+                <span :class="[
+                  'px-2.5 py-1 text-xs font-medium rounded-full',
+                  getActionStyle(log.action)
+                ]">
+                  {{ formatAction(log.action) }}
+                </span>
+              </td>
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-2">
+                  <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
+                    <span class="text-gray-600 text-sm font-medium">
+                      {{ log.actor?.email ? log.actor.email.charAt(0).toUpperCase() : '?' }}
+                    </span>
+                  </div>
+                  <div>
+                    <div class="text-sm text-gray-900">{{ log.actor?.email || log.actor?.type || '-' }}</div>
+                    <div v-if="log.actor?.name" class="text-xs text-gray-500">{{ log.actor.name }}</div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4 text-sm text-gray-600">{{ log.target?.type || '-' }}</td>
+              <td class="px-6 py-4 text-sm text-gray-600 font-mono">{{ log.context?.ip || '-' }}</td>
+              <td class="px-6 py-4 text-sm text-gray-500">{{ formatDate(log.at) }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Pagination -->
+        <div class="flex items-center justify-between px-6 py-4 border-t border-gray-200 bg-gray-50">
+          <p class="text-sm text-gray-600">
+            Showing {{ logs.length }} logs
+          </p>
         </div>
       </div>
-
-      <!-- Details Modal -->
-      <dialog ref="detailsModal" class="modal">
-        <div class="modal-box">
-          <h3 class="font-bold text-lg">Log Details</h3>
-          <div class="py-4">
-            <div class="mb-4">
-              <span class="badge" :class="getActionBadgeClass(selectedLog?.action || '')">
-                {{ selectedLog?.action }}
-              </span>
-              <span class="ml-2 text-sm text-base-content/60">
-                {{ formatDateTime(selectedLog?.at || '') }}
-              </span>
-            </div>
-            <div class="space-y-2 text-sm">
-              <div v-if="selectedLog?.actor">
-                <strong>Actor:</strong>
-                <span v-if="selectedLog.actor.email">
-                  {{ selectedLog.actor.name || selectedLog.actor.email }}
-                  <span class="text-base-content/60">({{ selectedLog.actor.email }})</span>
-                </span>
-                <span v-else>{{ selectedLog.actor.type }}</span>
-              </div>
-              <div v-if="selectedLog?.target?.type">
-                <strong>Target:</strong>
-                <span class="capitalize">{{ selectedLog.target.type }}</span>
-                <span v-if="selectedLog.metadata?.email" class="text-base-content/60">
-                  - {{ selectedLog.metadata.email }}
-                </span>
-                <span v-else-if="selectedLog.metadata?.name" class="text-base-content/60">
-                  - {{ selectedLog.metadata.name }}
-                </span>
-                <code v-else class="text-xs bg-base-200 px-1 rounded ml-1">{{ selectedLog.target.id }}</code>
-              </div>
-              <div v-if="selectedLog?.context?.ip">
-                <strong>IP:</strong> 
-                <code class="bg-base-200 px-2 py-0.5 rounded">{{ selectedLog.context.ip }}</code>
-              </div>
-              <div v-if="selectedLog?.context?.userAgent">
-                <strong>User Agent:</strong>
-                <div class="text-xs break-all bg-base-200 p-2 rounded mt-1 font-mono">
-                  {{ selectedLog.context.userAgent }}
-                </div>
-              </div>
-              <div v-if="selectedLog?.context?.requestId">
-                <strong>Request ID:</strong>
-                <code class="text-xs bg-base-200 px-2 py-0.5 rounded">{{ selectedLog.context.requestId }}</code>
-              </div>
-            </div>
-            <div class="divider">Metadata</div>
-            <pre class="bg-base-200 p-4 rounded text-xs overflow-auto max-h-64">{{ JSON.stringify(selectedLog?.metadata, null, 2) }}</pre>
-          </div>
-          <div class="modal-action">
-            <button class="btn" @click="closeDetails">Close</button>
-          </div>
-        </div>
-        <form method="dialog" class="modal-backdrop">
-          <button>close</button>
-        </form>
-      </dialog>
     </div>
   </NuxtLayout>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-
 definePageMeta({
-  layout: false
+  middleware: ['auth']
 })
 
-interface AuditLog {
-  id: string
-  at: string
-  actor: {
-    id?: string
-    email?: string
-    name?: string
-    type: string
-  }
-  action: string
-  target: {
-    type: string | null
-    id: string | null
-  }
-  context: {
-    ip: string | null
-    userAgent: string | null
-    requestId: string | null
-  }
-  metadata: Record<string, unknown>
-}
-
-const logs = ref<AuditLog[]>([])
-const loading = ref(false)
-const selectedLog = ref<AuditLog | null>(null)
-const detailsModal = ref<HTMLDialogElement>()
-
-const filters = ref({
-  action: '',
-  from: '',
-  to: ''
-})
-
-const pagination = ref({
-  page: 1,
-  limit: 50,
-  total: 0,
-  totalPages: 0
-})
-
-onMounted(() => {
-  loadLogs()
-})
+const logs = ref<any[]>([])
+const loading = ref(true)
+const filter = ref('')
 
 async function loadLogs() {
   loading.value = true
   try {
-    const params = new URLSearchParams({
-      page: pagination.value.page.toString(),
-      limit: pagination.value.limit.toString()
-    })
-    if (filters.value.action) params.set('action', filters.value.action)
-    if (filters.value.from) params.set('from', filters.value.from)
-    if (filters.value.to) params.set('to', filters.value.to)
-
-    const res = await $fetch(`/api/admin/audit-logs?${params}`)
-    logs.value = res.data
-    pagination.value = res.pagination
-  } catch (e) {
-    console.error('Failed to load logs:', e)
+    const params = new URLSearchParams()
+    if (filter.value) params.set('action', filter.value)
+    
+    const res = await $fetch(`/api/admin/audit-logs?${params.toString()}`)
+    logs.value = (res as any).data || []
+  } catch (error) {
+    console.error('Failed to load logs:', error)
   } finally {
     loading.value = false
   }
 }
 
-function changePage(page: number) {
-  pagination.value.page = page
-  loadLogs()
-}
-
-function formatDateTime(date: string) {
-  if (!date) return ''
-  return new Date(date).toLocaleString()
-}
-
 function formatAction(action: string) {
-  return action.replace(/_/g, ' ').replace(/^(AUTH|OIDC|ADMIN|HRIS)\s/, '')
+  return action.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
 }
 
-function getActionBadgeClass(action: string) {
-  if (action.includes('SUCCESS') || action.includes('CREATED') || action.includes('COMPLETED')) {
-    return 'badge-success'
-  }
-  if (action.includes('FAILED') || action.includes('DELETED')) {
-    return 'badge-error'
-  }
-  if (action.includes('UPDATED')) {
-    return 'badge-warning'
-  }
-  return 'badge-info'
+function getActionStyle(action: string) {
+  if (action.includes('success')) return 'bg-green-100 text-green-800'
+  if (action.includes('failed')) return 'bg-red-100 text-red-800'
+  if (action.includes('logout')) return 'bg-gray-100 text-gray-800'
+  return 'bg-blue-100 text-blue-800'
 }
 
-function showDetails(log: AuditLog) {
-  selectedLog.value = log
-  detailsModal.value?.showModal()
+function formatDate(dateStr: string) {
+  if (!dateStr) return '-'
+  return new Date(dateStr).toLocaleString('id-ID', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
 }
 
-function closeDetails() {
-  detailsModal.value?.close()
-  selectedLog.value = null
-}
+watch(filter, () => {
+  loadLogs()
+})
+
+onMounted(() => {
+  loadLogs()
+})
 </script>

@@ -4,6 +4,8 @@ import { eq } from 'drizzle-orm'
 import { v4 as uuidv4 } from 'uuid'
 import * as argon2 from 'argon2'
 import { writeAuditLog, AuditEvents } from '../../../services/audit.ts'
+import { getAuthUser } from '../../../utils/auth.ts'
+import { isSuperAdmin } from '../../../utils/roles.ts'
 
 /**
  * Custom parseBody to avoid h3 version conflicts
@@ -45,14 +47,18 @@ interface CreateClientBody {
   scopes?: string[]
   tokenEndpointAuthMethod?: string
   isFirstParty?: boolean
+  siteId?: string  // Optional siteId, superadmin can specify, others auto-set
 }
 
 /**
  * Create a new OIDC client
  * POST /api/admin/clients
+ * 
+ * Admin dapat membuat client yang otomatis terkait dengan site mereka
+ * Superadmin dapat membuat client untuk site manapun
  */
 export default defineEventHandler(async (event) => {
-  // TODO: Add admin auth middleware check
+  const user = getAuthUser(event)
   
   const body = await parseBody(event) as CreateClientBody
 
@@ -99,6 +105,17 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    // Determine siteId for this client
+    // Superadmin can specify, others use their own siteId
+    let clientSiteId: string | null = null
+    if (user) {
+      if (isSuperAdmin(user)) {
+        clientSiteId = body.siteId || null  // Superadmin can make global clients
+      } else if (user.siteId) {
+        clientSiteId = user.siteId  // Non-superadmin always uses their site
+      }
+    }
+
     // Insert client
     const [newClient] = await db.insert(oidcClients).values({
       clientId,
@@ -112,7 +129,8 @@ export default defineEventHandler(async (event) => {
       scopes: body.scopes || ['openid', 'profile', 'email'],
       tokenEndpointAuthMethod: authMethod,
       isFirstParty: body.isFirstParty || false,
-      isActive: true
+      isActive: true,
+      siteId: clientSiteId
     }).returning()
 
     // Audit log

@@ -127,3 +127,27 @@ export function createAuditLogger(requestContext: {
       })
   }
 }
+
+/**
+ * Simple audit log creation (alias for easier use)
+ */
+export async function createAuditLog(params: {
+  userId: string
+  action: string
+  resource: string
+  resourceId: string
+  details: Record<string, unknown>
+  ipAddress: string
+  userAgent: string
+}): Promise<void> {
+  await writeAuditLog({
+    action: params.action as AuditEventType,
+    actorUserId: params.userId === 'system' ? undefined : params.userId,
+    actorType: params.userId === 'system' ? 'system' : 'user',
+    targetType: params.resource,
+    targetId: params.resourceId,
+    ip: params.ipAddress,
+    userAgent: params.userAgent,
+    metadata: params.details
+  })
+}

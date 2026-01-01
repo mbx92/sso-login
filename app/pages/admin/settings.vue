@@ -1,97 +1,159 @@
 <template>
   <NuxtLayout name="admin">
-    <div>
-      <h1 class="text-2xl font-bold mb-6">Settings</h1>
+    <div class="space-y-6">
+      <!-- Page Header -->
+      <div>
+        <h1 class="text-2xl font-semibold text-gray-900">Settings</h1>
+        <p class="text-sm text-gray-500 mt-1">Configure system settings</p>
+      </div>
 
-      <!-- Issuer Info -->
-      <div class="card bg-base-100 shadow mb-6">
-        <div class="card-body">
-          <h2 class="card-title">OIDC Configuration</h2>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+      <!-- Settings Sections -->
+      <div class="space-y-6">
+        <!-- General Settings -->
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+          <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900">General</h3>
+          </div>
+          <div class="p-6 space-y-4">
             <div>
-              <label class="text-sm font-medium text-base-content/60">Issuer URL</label>
-              <div class="bg-base-200 p-3 rounded mt-1">
-                <code>{{ issuer }}</code>
-              </div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Application Name</label>
+              <input
+                v-model="settings.appName"
+                type="text"
+                class="w-full max-w-md px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+              />
             </div>
             <div>
-              <label class="text-sm font-medium text-base-content/60">Discovery Endpoint</label>
-              <div class="bg-base-200 p-3 rounded mt-1">
-                <code>{{ issuer }}/.well-known/openid-configuration</code>
+              <label class="block text-sm font-medium text-gray-700 mb-2">SSO Issuer URL</label>
+              <input
+                v-model="settings.issuerUrl"
+                type="url"
+                class="w-full max-w-md px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Session Settings -->
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+          <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900">Session</h3>
+          </div>
+          <div class="p-6 space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Session Timeout (minutes)</label>
+              <input
+                v-model.number="settings.sessionTimeout"
+                type="number"
+                min="5"
+                max="1440"
+                class="w-32 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Token Expiry (hours)</label>
+              <input
+                v-model.number="settings.tokenExpiry"
+                type="number"
+                min="1"
+                max="168"
+                class="w-32 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Security Settings -->
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+          <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900">Security</h3>
+          </div>
+          <div class="p-6 space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="font-medium text-gray-900">Enforce MFA</p>
+                <p class="text-sm text-gray-500">Require multi-factor authentication for all users</p>
               </div>
+              <button
+                @click="settings.enforceMfa = !settings.enforceMfa"
+                :class="[
+                  'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none',
+                  settings.enforceMfa ? 'bg-emerald-600' : 'bg-gray-200'
+                ]"
+              >
+                <span
+                  :class="[
+                    'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out',
+                    settings.enforceMfa ? 'translate-x-5' : 'translate-x-0'
+                  ]"
+                />
+              </button>
+            </div>
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="font-medium text-gray-900">Allow Password Reset</p>
+                <p class="text-sm text-gray-500">Enable self-service password reset</p>
+              </div>
+              <button
+                @click="settings.allowPasswordReset = !settings.allowPasswordReset"
+                :class="[
+                  'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none',
+                  settings.allowPasswordReset ? 'bg-emerald-600' : 'bg-gray-200'
+                ]"
+              >
+                <span
+                  :class="[
+                    'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out',
+                    settings.allowPasswordReset ? 'translate-x-5' : 'translate-x-0'
+                  ]"
+                />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- HRIS Integration -->
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+          <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900">HRIS Integration</h3>
+          </div>
+          <div class="p-6 space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">HRIS API URL</label>
+              <input
+                v-model="settings.hrisApiUrl"
+                type="url"
+                class="w-full max-w-md px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                placeholder="https://hris.company.com/api"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Sync Interval (minutes)</label>
+              <input
+                v-model.number="settings.syncInterval"
+                type="number"
+                min="5"
+                max="1440"
+                class="w-32 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+              />
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Endpoints -->
-      <div class="card bg-base-100 shadow mb-6">
-        <div class="card-body">
-          <h2 class="card-title">OIDC Endpoints</h2>
-          <div class="overflow-x-auto">
-            <table class="table table-zebra">
-              <thead>
-                <tr>
-                  <th>Endpoint</th>
-                  <th>URL</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="endpoint in endpoints" :key="endpoint.name">
-                  <td class="font-medium">{{ endpoint.name }}</td>
-                  <td><code class="text-sm">{{ endpoint.url }}</code></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- Key Management -->
-      <div class="card bg-base-100 shadow mb-6">
-        <div class="card-body">
-          <h2 class="card-title">Key Management</h2>
-          <div class="alert alert-info mt-4">
-            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <div>
-              <p class="font-medium">JWT Signing Keys</p>
-              <p class="text-sm">Keys are automatically generated on first server start. For production, consider setting up key rotation.</p>
-            </div>
-          </div>
-          <div class="mt-4">
-            <a :href="`${issuer}/.well-known/jwks.json`" target="_blank" class="btn btn-outline btn-sm">
-              View JWKS
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-              </svg>
-            </a>
-          </div>
-        </div>
-      </div>
-
-      <!-- Environment Info -->
-      <div class="card bg-base-100 shadow">
-        <div class="card-body">
-          <h2 class="card-title">Environment</h2>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-            <div>
-              <label class="text-sm font-medium text-base-content/60">Node Environment</label>
-              <div class="bg-base-200 p-3 rounded mt-1">
-                <span class="badge" :class="isProd ? 'badge-error' : 'badge-success'">
-                  {{ isProd ? 'production' : 'development' }}
-                </span>
-              </div>
-            </div>
-            <div>
-              <label class="text-sm font-medium text-base-content/60">Log Level</label>
-              <div class="bg-base-200 p-3 rounded mt-1">
-                <code>{{ logLevel }}</code>
-              </div>
-            </div>
-          </div>
-        </div>
+      <!-- Save Button -->
+      <div class="flex justify-end">
+        <button
+          @click="saveSettings"
+          :disabled="saving"
+          class="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 text-white font-medium rounded-lg transition-colors flex items-center gap-2"
+        >
+          <svg v-if="saving" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          {{ saving ? 'Saving...' : 'Save Changes' }}
+        </button>
       </div>
     </div>
   </NuxtLayout>
@@ -99,21 +161,32 @@
 
 <script setup lang="ts">
 definePageMeta({
-  layout: false
+  middleware: ['auth']
 })
 
-const config = useRuntimeConfig()
-const issuer = config.public.ssoIssuer
-const isProd = process.env.NODE_ENV === 'production'
-const logLevel = 'info' // Would come from runtime config
+const saving = ref(false)
 
-const endpoints = [
-  { name: 'Authorization', url: `${issuer}/oidc/auth` },
-  { name: 'Token', url: `${issuer}/oidc/token` },
-  { name: 'UserInfo', url: `${issuer}/oidc/userinfo` },
-  { name: 'JWKS', url: `${issuer}/oidc/jwks` },
-  { name: 'End Session', url: `${issuer}/oidc/session/end` },
-  { name: 'Introspection', url: `${issuer}/oidc/token/introspection` },
-  { name: 'Revocation', url: `${issuer}/oidc/token/revocation` }
-]
+const settings = ref({
+  appName: 'SSO Identity Provider',
+  issuerUrl: 'https://sso.company.com',
+  sessionTimeout: 60,
+  tokenExpiry: 24,
+  enforceMfa: false,
+  allowPasswordReset: true,
+  hrisApiUrl: '',
+  syncInterval: 60
+})
+
+async function saveSettings() {
+  saving.value = true
+  try {
+    // Simulate save
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    console.log('Settings saved:', settings.value)
+  } catch (error) {
+    console.error('Failed to save settings:', error)
+  } finally {
+    saving.value = false
+  }
+}
 </script>

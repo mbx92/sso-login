@@ -1,14 +1,40 @@
 @import "tailwindcss";
-@plugin "daisyui";
 
-/* Custom styles for SSO app */
+/* Custom styles for SSO Admin Dashboard */
 :root {
-  --app-primary: theme(colors.primary);
+  --app-primary: #10b981;
+  --app-primary-hover: #059669;
 }
 
-/* DaisyUI theme customization */
+/* Smooth scrolling */
 @layer base {
   html {
     @apply scroll-smooth;
   }
+
+  body {
+    @apply antialiased bg-gray-50;
+  }
 }
+
+/* Custom scrollbar for sidebar */
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: var(--ui-border);
+    border-radius: 3px;
+  }
+}
+

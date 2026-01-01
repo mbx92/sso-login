@@ -2,6 +2,7 @@ import { defineEventHandler, getRouterParam, createError } from 'h3'
 import { db, oidcClients } from '../../../db/index.ts'
 import { eq } from 'drizzle-orm'
 import { writeAuditLog, AuditEvents } from '../../../services/audit.ts'
+import { getAuthUser } from '../../../utils/auth'
 
 /**
  * Custom parseBody to avoid h3 version conflicts
@@ -51,8 +52,7 @@ interface UpdateClientBody {
  * PUT /api/admin/clients/:id
  */
 export default defineEventHandler(async (event) => {
-  // TODO: Add admin auth middleware check
-  
+  const user = getAuthUser(event)
   const id = getRouterParam(event, 'id')
   
   if (!id) {
@@ -90,6 +90,14 @@ export default defineEventHandler(async (event) => {
       throw createError({
         statusCode: 404,
         message: 'Client not found'
+      })
+    }
+
+    // Authorization check: non-superadmin can only update clients in their own site
+    if (user?.roleId !== 'superadmin' && user?.siteId && existing.siteId && existing.siteId !== user.siteId) {
+      throw createError({
+        statusCode: 403,
+        message: 'Anda tidak memiliki akses untuk mengubah client ini'
       })
     }
 

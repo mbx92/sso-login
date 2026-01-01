@@ -1,4 +1,4 @@
-import { db, users } from '../../db/index'
+import { db, users, units, userRoles, roles } from '../../db/index'
 import { eq } from 'drizzle-orm'
 import * as argon2 from 'argon2'
 import { v4 as uuidv4 } from 'uuid'
@@ -83,10 +83,24 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Find user by email
+    // Find user by email with unit info to get siteId
     const userResult = await db
-      .select()
+      .select({
+        id: users.id,
+        employeeId: users.employeeId,
+        email: users.email,
+        name: users.name,
+        status: users.status,
+        passwordHash: users.passwordHash,
+        unitId: users.unitId,
+        department: users.department,
+        position: users.position,
+        roleId: users.roleId,
+        roleName: users.roleName,
+        siteIdFromUnit: units.siteId
+      })
       .from(users)
+      .leftJoin(units, eq(users.unitId, units.id))
       .where(eq(users.email, email.toLowerCase()))
       .limit(1)
 
@@ -97,6 +111,23 @@ export default defineEventHandler(async (event) => {
         statusCode: 401,
         message: 'Invalid email or password'
       })
+    }
+
+    // If user doesn't have siteId from unit, try to get from their role
+    let siteId = user.siteIdFromUnit
+    if (!siteId) {
+      // Get siteId from user's role via userRoles table
+      const userRoleResult = await db
+        .select({ siteId: roles.siteId })
+        .from(userRoles)
+        .innerJoin(roles, eq(userRoles.roleId, roles.id))
+        .where(eq(userRoles.userId, user.id))
+        .limit(1)
+      
+      if (userRoleResult[0]?.siteId) {
+        siteId = userRoleResult[0].siteId
+        console.log(`User ${user.email} siteId from role:`, siteId)
+      }
     }
 
     // Check if user is active
@@ -123,8 +154,15 @@ export default defineEventHandler(async (event) => {
       userId: user.id,
       email: user.email,
       employeeId: user.employeeId,
-      name: user.name
+      name: user.name,
+      roleId: user.roleId,
+      roleName: user.roleName,
+      siteId: siteId,
+      department: user.department,
+      position: user.position
     }
+    
+    console.log('Login session data:', sessionData)
 
     // Set session cookie (7 days) using native method
     setNativeCookie(event, 'sso_session', sessionId, {
@@ -173,11 +211,15 @@ export default defineEventHandler(async (event) => {
         email: user.email,
         employeeId: user.employeeId,
         name: user.name,
-        status: user.status
+        status: user.status,
+        roleId: user.roleId,
+        roleName: user.roleName,
+        siteId: siteId
       }
     }
   } catch (error) {
-    console.error('Login error:', (error as Error).message)
+    console.error('Login error:', error)
+    console.error('Error stack:', (error as Error).stack)
     
     if ((error as any).statusCode) {
       throw error
@@ -185,7 +227,7 @@ export default defineEventHandler(async (event) => {
 
     throw createError({
       statusCode: 500,
-      message: 'An error occurred during login'
+      message: `An error occurred during login: ${(error as Error).message || 'Unknown error'}`
     })
   }
 })

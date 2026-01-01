@@ -1,24 +1,17 @@
 export default defineNuxtRouteMiddleware((to, from) => {
-  // Skip middleware on login page
-  if (to.path === '/login') {
+  // Skip middleware on login page and public pages
+  if (to.path === '/login' || to.path === '/' || to.path === '/access-denied') {
     return
   }
 
-  // In client-side only mode, check cookies
-  if (process.client) {
-    const userCookie = useCookie('sso_user')
-    
-    console.log('Auth middleware - user:', userCookie.value ? 'exists' : 'missing')
-    
-    if (!userCookie.value) {
-      console.log('Auth middleware - redirecting to login')
-      // Not authenticated, redirect to login
-      return navigateTo('/login')
-    }
-    
-    console.log('Auth middleware - user authenticated:', userCookie.value)
+  // Check cookie on both client and server side
+  const userCookie = useCookie('sso_user')
+  
+  if (!userCookie.value) {
+    // Not authenticated, redirect to login
+    return navigateTo('/login')
   }
   
-  // User is authenticated or server-side
+  // User is authenticated
   return
 })

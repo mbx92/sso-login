@@ -1,13 +1,18 @@
 import { defineEventHandler, getQuery, createError } from 'h3'
-import { db, oidcClients } from '../../../db/index.ts'
-import { count, like, desc } from 'drizzle-orm'
+import { db, oidcClients, sites } from '../../../db/index.ts'
+import { count, like, desc, eq, and } from 'drizzle-orm'
+import { getAuthUser } from '../../../utils/auth.ts'
+import { isSuperAdmin } from '../../../utils/roles.ts'
 
 /**
  * List OIDC clients with pagination
  * GET /api/admin/clients?page=1&limit=20&search=...
+ * 
+ * Admin hanya bisa melihat client di site mereka
+ * Superadmin bisa melihat semua client
  */
 export default defineEventHandler(async (event) => {
-  // TODO: Add admin auth middleware check
+  const user = getAuthUser(event)
   
   const query = getQuery(event)
   const page = Math.max(1, parseInt(query.page as string) || 1)
@@ -16,10 +21,20 @@ export default defineEventHandler(async (event) => {
   const offset = (page - 1) * limit
 
   try {
-    // Build where clause
-    const whereClause = search
-      ? like(oidcClients.name, `%${search}%`)
-      : undefined
+    // Build where conditions
+    const conditions = []
+    
+    // Search condition
+    if (search) {
+      conditions.push(like(oidcClients.name, `%${search}%`))
+    }
+    
+    // Site filter - non-superadmin only sees clients in their site
+    if (user && !isSuperAdmin(user) && user.siteId) {
+      conditions.push(eq(oidcClients.siteId, user.siteId))
+    }
+    
+    const whereClause = conditions.length > 0 ? and(...conditions) : undefined
 
     // Get total count
     const [{ total }] = await db

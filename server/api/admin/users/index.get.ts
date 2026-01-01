@@ -1,6 +1,8 @@
 import { defineEventHandler, getQuery, createError } from 'h3'
-import { db, users, userRoles, roles } from '../../../db/index.ts'
-import { eq, count, like, or, desc, sql } from 'drizzle-orm'
+import { db, users, userRoles, roles, units } from '../../../db/index.ts'
+import { eq, count, like, or, desc, sql, and } from 'drizzle-orm'
+import { getAuthUser } from '../../../utils/auth'
+import { isSuperAdmin } from '../../../utils/roles'
 
 /**
  * List users with pagination
@@ -14,35 +16,52 @@ export default defineEventHandler(async (event) => {
   const limit = Math.min(100, Math.max(1, parseInt(query.limit as string) || 20))
   const search = (query.search as string)?.trim()
   const offset = (page - 1) * limit
+  const authUser = getAuthUser(event)
 
   try {
     // Build where clause
-    const whereClause = search
-      ? or(
+    const conditions = []
+    
+    if (search) {
+      conditions.push(
+        or(
           like(users.email, `%${search}%`),
           like(users.name, `%${search}%`),
           like(users.employeeId, `%${search}%`)
         )
-      : undefined
+      )
+    }
+    
+    // Filter by user's site if not superadmin AND user has siteId
+    // (jika user tidak punya siteId, tampilkan semua untuk backward compatibility)
+    if (authUser && !isSuperAdmin(authUser) && authUser.siteId) {
+      conditions.push(eq(units.siteId, authUser.siteId))
+    }
+    
+    const whereClause = conditions.length > 0 ? and(...conditions) : undefined
 
     // Get total count
     const [{ total }] = await db
       .select({ total: count() })
       .from(users)
+      .leftJoin(units, eq(users.unitId, units.id))
       .where(whereClause)
 
-    // Get users with their roles
+    // Get users with their unit info
     const userList = await db
       .select({
         id: users.id,
         email: users.email,
         name: users.name,
         employeeId: users.employeeId,
+        unitId: users.unitId,
+        unitName: units.name,
         status: users.status,
         createdAt: users.createdAt,
         updatedAt: users.updatedAt
       })
       .from(users)
+      .leftJoin(units, eq(users.unitId, units.id))
       .where(whereClause)
       .orderBy(desc(users.createdAt))
       .limit(limit)

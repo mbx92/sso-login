@@ -66,15 +66,23 @@ export default defineEventHandler(async (event) => {
       message: `Client "${existing.name}" deleted successfully`
     }
   } catch (error: any) {
+    console.error('Delete client error:', error)
+    console.error('Error details:', {
+      message: error.message,
+      code: error.code,
+      detail: error.detail,
+      constraint: error.constraint
+    })
     event.context.logger?.error({ error }, 'Failed to delete client')
     
     if (error.statusCode) {
       throw error
     }
     
+    // Return more helpful error message
     throw createError({
       statusCode: 500,
-      message: 'Failed to delete client'
+      message: `Failed to delete client: ${error.message || 'Unknown error'}`
     })
   }
 })

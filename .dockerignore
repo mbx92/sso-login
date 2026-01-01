@@ -1,0 +1,60 @@
+# ==============================================================================
+# SSO Login - Docker Ignore
+# ==============================================================================
+# Files and directories to exclude from Docker build context
+# ==============================================================================
+
+# Dependencies
+node_modules
+.pnpm-store
+
+# Build outputs (we rebuild in Docker)
+.output
+.nuxt
+dist
+
+# Development files
+.git
+.gitignore
+.vscode
+.idea
+*.log
+
+# Environment files (use Docker env instead)
+.env
+.env.local
+.env.*.local
+
+# Test files
+coverage
+*.test.ts
+*.spec.ts
+__tests__
+
+# Documentation
+docs
+*.md
+!README.md
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker files (no need to copy into image)
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Data directories
+.data
+*.sqlite
+*.db
+
+# IDE specific
+*.swp
+*.swo
+*~
+
+# Miscellaneous
+LICENSE
+CHANGELOG.md

@@ -268,6 +268,57 @@
                 <label class="ml-2 text-sm text-gray-700">Aktif</label>
               </div>
 
+              <!-- Organization Structure Settings -->
+              <div class="pt-4 border-t border-gray-200">
+                <h4 class="text-sm font-medium text-gray-900 mb-3">Pengaturan Struktur Organisasi</h4>
+                <div class="space-y-3">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <label class="text-sm font-medium text-gray-700">Gunakan Divisi</label>
+                      <p class="text-xs text-gray-500">Aktifkan untuk menggunakan struktur divisi</p>
+                    </div>
+                    <button
+                      type="button"
+                      @click="formData.useDivisions = !formData.useDivisions; if (!formData.useDivisions) formData.useUnits = false"
+                      :class="[
+                        'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
+                        formData.useDivisions ? 'bg-blue-600' : 'bg-gray-200'
+                      ]"
+                    >
+                      <span
+                        :class="[
+                          'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out',
+                          formData.useDivisions ? 'translate-x-5' : 'translate-x-0'
+                        ]"
+                      />
+                    </button>
+                  </div>
+                  <div class="flex items-center justify-between" :class="{ 'opacity-50': !formData.useDivisions }">
+                    <div>
+                      <label class="text-sm font-medium text-gray-700">Gunakan Unit</label>
+                      <p class="text-xs text-gray-500">Aktifkan untuk menggunakan struktur unit (membutuhkan divisi)</p>
+                    </div>
+                    <button
+                      type="button"
+                      @click="if (formData.useDivisions) formData.useUnits = !formData.useUnits"
+                      :disabled="!formData.useDivisions"
+                      :class="[
+                        'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
+                        formData.useUnits ? 'bg-blue-600' : 'bg-gray-200',
+                        !formData.useDivisions ? 'cursor-not-allowed' : ''
+                      ]"
+                    >
+                      <span
+                        :class="[
+                          'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out',
+                          formData.useUnits ? 'translate-x-5' : 'translate-x-0'
+                        ]"
+                      />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
               <div class="pt-4 flex justify-end gap-3 border-t border-gray-200">
                 <button
                   type="button"
@@ -344,6 +395,8 @@ interface Site {
   name: string
   description: string | null
   address: string | null
+  useDivisions: boolean
+  useUnits: boolean
   isActive: boolean
   createdAt: string
   updatedAt: string
@@ -398,6 +451,8 @@ const formData = ref({
   name: '',
   description: '',
   address: '',
+  useDivisions: false,
+  useUnits: false,
   isActive: true
 })
 
@@ -466,6 +521,8 @@ function openCreateModal() {
     name: '',
     description: '',
     address: '',
+    useDivisions: false,
+    useUnits: false,
     isActive: true
   }
   showModal.value = true
@@ -479,6 +536,8 @@ function openEditModal(site: Site) {
     name: site.name,
     description: site.description || '',
     address: site.address || '',
+    useDivisions: site.useDivisions ?? false,
+    useUnits: site.useUnits ?? false,
     isActive: site.isActive
   }
   showModal.value = true

@@ -8,6 +8,8 @@ export const sites = pgTable('sites', {
   name: varchar('name', { length: 255 }).notNull(),
   description: text('description'),
   address: text('address'),
+  useDivisions: boolean('use_divisions').notNull().default(false),
+  useUnits: boolean('use_units').notNull().default(false),
   isActive: boolean('is_active').notNull().default(true),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow()

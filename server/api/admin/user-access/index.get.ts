@@ -33,12 +33,14 @@ export default defineEventHandler(async (event) => {
     }
 
     // Site filter for non-superadmin
+    // Note: users table doesn't have siteId directly, they have unitId -> units.siteId
+    // For simplicity, we filter by client's siteId only (clients in the admin's site)
+    // or clients that are global (siteId is null)
     if (user && !isSuperAdmin(user) && user.siteId) {
-      // Filter: only show access where user is in same site OR client is in same site
       conditions.push(
         or(
-          eq(users.siteId, user.siteId),
-          eq(oidcClients.siteId, user.siteId)
+          eq(oidcClients.siteId, user.siteId),
+          isNull(oidcClients.siteId)
         )
       )
     }

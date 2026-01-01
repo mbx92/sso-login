@@ -8,6 +8,8 @@ const createSiteSchema = z.object({
   name: z.string().min(1, 'Nama site wajib diisi').max(255),
   description: z.string().optional(),
   address: z.string().optional(),
+  useDivisions: z.boolean().default(false),
+  useUnits: z.boolean().default(false),
   isActive: z.boolean().default(true)
 })
 
@@ -46,7 +48,7 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const { code, name, description, address, isActive } = validation.data
+  const { code, name, description, address, useDivisions, useUnits, isActive } = validation.data
 
   try {
     const [newSite] = await db.insert(sites).values({
@@ -54,6 +56,8 @@ export default defineEventHandler(async (event) => {
       name,
       description: description || null,
       address: address || null,
+      useDivisions,
+      useUnits,
       isActive
     }).returning()
 

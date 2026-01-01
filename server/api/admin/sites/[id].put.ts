@@ -9,6 +9,8 @@ const updateSiteSchema = z.object({
   name: z.string().min(1).max(255).optional(),
   description: z.string().optional().nullable(),
   address: z.string().optional().nullable(),
+  useDivisions: z.boolean().optional(),
+  useUnits: z.boolean().optional(),
   isActive: z.boolean().optional()
 })
 

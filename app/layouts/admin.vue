@@ -120,6 +120,21 @@ const userName = computed(() => currentUser.value?.name || 'User')
 const userRole = computed(() => currentUser.value?.roleName || 'User')
 const userInitial = computed(() => userName.value.charAt(0).toUpperCase())
 
+// Site settings for conditional menu items
+const siteSettings = ref<{ useDivisions: boolean; useUnits: boolean } | null>(null)
+
+// Fetch site settings on mount
+onMounted(async () => {
+  try {
+    const response = await $fetch<{ useDivisions: boolean; useUnits: boolean }>('/api/admin/sites/current')
+    siteSettings.value = response
+  } catch (error) {
+    console.error('Failed to fetch site settings:', error)
+    // Default to showing menus if fetch fails
+    siteSettings.value = { useDivisions: true, useUnits: true }
+  }
+})
+
 // SVG icon components
 const HomeIcon = () => h('svg', { class: 'w-5 h-5', fill: 'none', stroke: 'currentColor', viewBox: '0 0 24 24' }, [
   h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'stroke-width': '2', d: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' })
@@ -163,20 +178,29 @@ const LockIcon = () => h('svg', { class: 'w-5 h-5', fill: 'none', stroke: 'curre
 ])
 
 const menuItems = [
-  { label: 'Dashboard', to: '/admin', icon: HomeIcon, superadminOnly: false },
-  { label: 'Sites', to: '/admin/sites', icon: GlobeIcon, superadminOnly: true },
-  { label: 'Divisi', to: '/admin/divisions', icon: BuildingIcon, superadminOnly: false },
-  { label: 'Unit', to: '/admin/units', icon: CubeIcon, superadminOnly: false },
-  { label: 'Users', to: '/admin/users', icon: UsersIcon, superadminOnly: false },
-  { label: 'Roles', to: '/admin/roles', icon: LockIcon, superadminOnly: false },
-  { label: 'OIDC Clients', to: '/admin/clients', icon: KeyIcon, superadminOnly: false },
-  { label: 'User Access', to: '/admin/user-access', icon: ShieldIcon, superadminOnly: false },
+  { label: 'Dashboard', to: '/admin', icon: HomeIcon, superadminOnly: false, requiresDivisions: false, requiresUnits: false },
+  { label: 'Sites', to: '/admin/sites', icon: GlobeIcon, superadminOnly: true, requiresDivisions: false, requiresUnits: false },
+  { label: 'Divisi', to: '/admin/divisions', icon: BuildingIcon, superadminOnly: false, requiresDivisions: true, requiresUnits: false },
+  { label: 'Unit', to: '/admin/units', icon: CubeIcon, superadminOnly: false, requiresDivisions: false, requiresUnits: true },
+  { label: 'Users', to: '/admin/users', icon: UsersIcon, superadminOnly: false, requiresDivisions: false, requiresUnits: false },
+  { label: 'Roles', to: '/admin/roles', icon: LockIcon, superadminOnly: false, requiresDivisions: false, requiresUnits: false },
+  { label: 'OIDC Clients', to: '/admin/clients', icon: KeyIcon, superadminOnly: false, requiresDivisions: false, requiresUnits: false },
+  { label: 'User Access', to: '/admin/user-access', icon: ShieldIcon, superadminOnly: false, requiresDivisions: false, requiresUnits: false },
 ]
 
-// Filter menu based on user role
+// Filter menu based on user role and site settings
 const filteredMenuItems = computed(() => {
   return menuItems.filter(item => {
+    // Check superadmin restriction
     if (item.superadminOnly && !isSuperAdmin.value) {
+      return false
+    }
+    // Check divisions requirement
+    if (item.requiresDivisions && siteSettings.value && !siteSettings.value.useDivisions) {
+      return false
+    }
+    // Check units requirement
+    if (item.requiresUnits && siteSettings.value && !siteSettings.value.useUnits) {
       return false
     }
     return true

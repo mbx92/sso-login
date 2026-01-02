@@ -18,15 +18,20 @@
 
     <!-- Filters -->
     <div class="flex flex-col sm:flex-row gap-4 mb-6">
-      <input
-        v-model="searchQuery"
-        type="text"
-        placeholder="Cari unit..."
-        class="flex-1 max-w-md px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white"
-      />
+      <div class="relative flex-1 max-w-md">
+        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        <input
+          v-model="searchQuery"
+          type="text"
+          placeholder="Cari unit..."
+          class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white text-sm"
+        />
+      </div>
       <select
         v-model="filterDivision"
-        class="px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent appearance-none bg-white bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%236b7280%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%208%204%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.5rem_1.5rem] bg-[right_0.5rem_center] bg-no-repeat"
+        class="px-4 py-2.5 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white text-sm min-w-[180px]"
       >
         <option value="">Semua Divisi</option>
         <option v-for="division in divisions" :key="division.id" :value="division.id">
@@ -304,6 +309,13 @@ const filteredUnits = computed(() => {
   return result
 })
 
+// Filter items for USelect components
+const divisionFilterItems = computed(() => {
+  return [
+    { label: 'Semua Divisi', value: '' },
+    ...divisions.value.map(d => ({ label: d.name, value: d.id }))
+  ]
+})
 async function fetchData() {
   loading.value = true
   try {

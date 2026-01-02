@@ -279,7 +279,7 @@
                     </div>
                     <button
                       type="button"
-                      @click="formData.useDivisions = !formData.useDivisions; if (!formData.useDivisions) formData.useUnits = false"
+                      @click="toggleDivisions"
                       :class="[
                         'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
                         formData.useDivisions ? 'bg-blue-600' : 'bg-gray-200'
@@ -300,7 +300,7 @@
                     </div>
                     <button
                       type="button"
-                      @click="if (formData.useDivisions) formData.useUnits = !formData.useUnits"
+                      @click="toggleUnits"
                       :disabled="!formData.useDivisions"
                       :class="[
                         'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
@@ -545,6 +545,19 @@ function openEditModal(site: Site) {
 
 function closeModal() {
   showModal.value = false
+}
+
+function toggleDivisions() {
+  formData.value.useDivisions = !formData.value.useDivisions
+  if (!formData.value.useDivisions) {
+    formData.value.useUnits = false
+  }
+}
+
+function toggleUnits() {
+  if (formData.value.useDivisions) {
+    formData.value.useUnits = !formData.value.useUnits
+  }
 }
 
 async function submitForm() {

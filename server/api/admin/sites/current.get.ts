@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  // Superadmin doesn't have a specific site
+  // Superadmin doesn't have a specific site - can see all menus
   if (user.roleId === 'superadmin' || !user.siteId) {
     return {
       success: true,
@@ -41,10 +41,14 @@ export default defineEventHandler(async (event) => {
       return {
         success: true,
         site: null,
-        useDivisions: false,
-        useUnits: false
+        useDivisions: true, // Default to showing if site not found
+        useUnits: true
       }
     }
+
+    // Handle case where useDivisions/useUnits columns don't exist yet (before migration)
+    const useDivisions = (site as any).useDivisions ?? true
+    const useUnits = (site as any).useUnits ?? true
 
     return {
       success: true,
@@ -52,17 +56,20 @@ export default defineEventHandler(async (event) => {
         id: site.id,
         code: site.code,
         name: site.name,
-        useDivisions: site.useDivisions,
-        useUnits: site.useUnits
+        useDivisions,
+        useUnits
       },
-      useDivisions: site.useDivisions,
-      useUnits: site.useUnits
+      useDivisions,
+      useUnits
     }
   } catch (error: any) {
     console.error('Error fetching current site:', error)
-    throw createError({
-      statusCode: 500,
-      message: 'Failed to fetch site settings'
-    })
+    // Return defaults instead of throwing error - don't break the UI
+    return {
+      success: true,
+      site: null,
+      useDivisions: true,
+      useUnits: true
+    }
   }
 })

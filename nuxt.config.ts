@@ -18,7 +18,7 @@ export default defineNuxtConfig({
     port: 3000,
   },
 
-  modules: ['@pinia/nuxt', '@vueuse/nuxt'],
+  modules: ['@nuxt/ui', '@pinia/nuxt', '@vueuse/nuxt'],
 
   vite: {
     plugins: [tailwindcss()],

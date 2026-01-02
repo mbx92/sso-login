@@ -1,8 +1,9 @@
 import { defineEventHandler, createError } from 'h3'
-import { db, oidcClients, users, userAppAccess } from '../../db/index.ts'
+import { db, oidcClients, users } from '../../db/index.ts'
 import { eq, and, isNull, gt } from 'drizzle-orm'
 import { createAuthorizationCode } from '../../services/oidc.ts'
 import { writeAuditLog, AuditEvents } from '../../services/audit.ts'
+import { checkUserClientAccess } from '../../utils/access-control.ts'
 
 /**
  * Custom getQuery to avoid h3 version conflicts
@@ -173,25 +174,10 @@ export default defineEventHandler(async (event) => {
 
     // Check if app requires explicit access grant
     if (client.requireAccessGrant) {
-      // Check if user has been granted access to this app
-      const now = new Date()
-      const [accessGrant] = await db
-        .select()
-        .from(userAppAccess)
-        .where(
-          and(
-            eq(userAppAccess.userId, user.id),
-            eq(userAppAccess.clientId, client.id),
-            eq(userAppAccess.isActive, true)
-          )
-        )
-        .limit(1)
+      // Check if user has access (direct or group-based)
+      const hasAccess = await checkUserClientAccess(user.id, client.id)
 
-      // Check if access exists and is not expired
-      const hasValidAccess = accessGrant && 
-        (accessGrant.expiresAt === null || accessGrant.expiresAt > now)
-
-      if (!hasValidAccess) {
+      if (!hasAccess) {
         // User doesn't have access to this app
         await writeAuditLog({
           action: AuditEvents.OIDC_AUTHORIZE_DENIED,

@@ -218,6 +218,45 @@ export const userAppAccess = pgTable('user_app_access', {
   index('user_app_access_is_active_idx').on(table.isActive)
 ])
 
+// ==================== ACCESS GROUPS (Group-based Access Control) ====================
+export const accessGroups = pgTable('access_groups', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  name: varchar('name', { length: 255 }).notNull(),
+  description: text('description'),
+  siteId: uuid('site_id').references(() => sites.id, { onDelete: 'set null' }), // null = global group
+  isActive: boolean('is_active').notNull().default(true),
+  createdBy: uuid('created_by').references(() => users.id, { onDelete: 'set null' }),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow()
+}, (table) => [
+  index('access_groups_site_id_idx').on(table.siteId),
+  index('access_groups_is_active_idx').on(table.isActive)
+])
+
+// ==================== ACCESS GROUP USERS (Users in a group) ====================
+export const accessGroupUsers = pgTable('access_group_users', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  groupId: uuid('group_id').notNull().references(() => accessGroups.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  addedBy: uuid('added_by').references(() => users.id, { onDelete: 'set null' }),
+  addedAt: timestamp('added_at').notNull().defaultNow()
+}, (table) => [
+  index('access_group_users_group_id_idx').on(table.groupId),
+  index('access_group_users_user_id_idx').on(table.userId)
+])
+
+// ==================== ACCESS GROUP CLIENTS (Clients in a group) ====================
+export const accessGroupClients = pgTable('access_group_clients', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  groupId: uuid('group_id').notNull().references(() => accessGroups.id, { onDelete: 'cascade' }),
+  clientId: uuid('client_id').notNull().references(() => oidcClients.id, { onDelete: 'cascade' }),
+  addedBy: uuid('added_by').references(() => users.id, { onDelete: 'set null' }),
+  addedAt: timestamp('added_at').notNull().defaultNow()
+}, (table) => [
+  index('access_group_clients_group_id_idx').on(table.groupId),
+  index('access_group_clients_client_id_idx').on(table.clientId)
+])
+
 // ==================== OIDC KV (Generic persistence for oidc-provider) ====================
 export const oidcKv = pgTable('oidc_kv', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -269,11 +308,13 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   }),
   userRoles: many(userRoles),
   auditLogs: many(auditLogs),
-  appAccess: many(userAppAccess)
+  appAccess: many(userAppAccess),
+  groupMemberships: many(accessGroupUsers)
 }))
 
 export const oidcClientsRelations = relations(oidcClients, ({ many }) => ({
-  userAccess: many(userAppAccess)
+  userAccess: many(userAppAccess),
+  groupAccess: many(accessGroupClients)
 }))
 
 export const userAppAccessRelations = relations(userAppAccess, ({ one }) => ({
@@ -287,6 +328,49 @@ export const userAppAccessRelations = relations(userAppAccess, ({ one }) => ({
   }),
   grantedByUser: one(users, {
     fields: [userAppAccess.grantedBy],
+    references: [users.id]
+  })
+}))
+
+export const accessGroupsRelations = relations(accessGroups, ({ one, many }) => ({
+  site: one(sites, {
+    fields: [accessGroups.siteId],
+    references: [sites.id]
+  }),
+  createdByUser: one(users, {
+    fields: [accessGroups.createdBy],
+    references: [users.id]
+  }),
+  users: many(accessGroupUsers),
+  clients: many(accessGroupClients)
+}))
+
+export const accessGroupUsersRelations = relations(accessGroupUsers, ({ one }) => ({
+  group: one(accessGroups, {
+    fields: [accessGroupUsers.groupId],
+    references: [accessGroups.id]
+  }),
+  user: one(users, {
+    fields: [accessGroupUsers.userId],
+    references: [users.id]
+  }),
+  addedByUser: one(users, {
+    fields: [accessGroupUsers.addedBy],
+    references: [users.id]
+  })
+}))
+
+export const accessGroupClientsRelations = relations(accessGroupClients, ({ one }) => ({
+  group: one(accessGroups, {
+    fields: [accessGroupClients.groupId],
+    references: [accessGroups.id]
+  }),
+  client: one(oidcClients, {
+    fields: [accessGroupClients.clientId],
+    references: [oidcClients.id]
+  }),
+  addedByUser: one(users, {
+    fields: [accessGroupClients.addedBy],
     references: [users.id]
   })
 }))
@@ -334,3 +418,9 @@ export type OidcKvEntry = typeof oidcKv.$inferSelect
 export type NewOidcKvEntry = typeof oidcKv.$inferInsert
 export type UserAppAccess = typeof userAppAccess.$inferSelect
 export type NewUserAppAccess = typeof userAppAccess.$inferInsert
+export type AccessGroup = typeof accessGroups.$inferSelect
+export type NewAccessGroup = typeof accessGroups.$inferInsert
+export type AccessGroupUser = typeof accessGroupUsers.$inferSelect
+export type NewAccessGroupUser = typeof accessGroupUsers.$inferInsert
+export type AccessGroupClient = typeof accessGroupClients.$inferSelect
+export type NewAccessGroupClient = typeof accessGroupClients.$inferInsert

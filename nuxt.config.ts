@@ -20,6 +20,14 @@ export default defineNuxtConfig({
 
   modules: ['@nuxt/ui', '@pinia/nuxt', '@vueuse/nuxt'],
 
+  ui: {
+    theme: {
+      defaultVariants: {
+        size: 'lg'
+      }
+    }
+  },
+
   vite: {
     plugins: [tailwindcss()],
   },

@@ -2,12 +2,13 @@
   <div>
     <div class="mb-6 flex justify-between items-center">
       <h1 class="text-2xl font-bold text-gray-900">Site Management</h1>
-      <button
+      <UButton
         @click="openCreateModal"
-        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        color="primary"
+        icon="i-lucide-plus"
       >
-        + Tambah Site
-      </button>
+        Tambah Site
+      </UButton>
     </div>
 
     <!-- Sites Cards with Tree View -->
@@ -172,18 +173,22 @@
 
         <!-- Site Actions -->
         <div class="px-6 py-3 bg-gray-50 border-t border-gray-100 flex justify-end gap-2">
-          <button
+          <UButton
             @click="openEditModal(site)"
-            class="px-3 py-1.5 text-sm text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+            variant="ghost"
+            color="neutral"
+            size="sm"
           >
             Edit
-          </button>
-          <button
+          </UButton>
+          <UButton
             @click="confirmDelete(site)"
-            class="px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors"
+            variant="ghost"
+            color="error"
+            size="sm"
           >
             Hapus
-          </button>
+          </UButton>
         </div>
       </div>
     </div>
@@ -195,12 +200,13 @@
       </svg>
       <h3 class="text-lg font-medium text-gray-900 mb-2">Belum Ada Site</h3>
       <p class="text-gray-500 mb-4">Mulai dengan menambahkan site pertama Anda</p>
-      <button
+      <UButton
         @click="openCreateModal"
-        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+        color="primary"
+        icon="i-lucide-plus"
       >
-        + Tambah Site
-      </button>
+        Tambah Site
+      </UButton>
     </div>
 
     <!-- Create/Edit Modal -->
@@ -219,54 +225,48 @@
             <form @submit.prevent="submitForm" class="p-6 space-y-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Kode Site</label>
-                <input
+                <UInput
                   v-model="formData.code"
-                  type="text"
-                  required
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Masukkan kode site"
+                  required
+                  class="w-full"
                 />
               </div>
 
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Nama Site</label>
-                <input
+                <UInput
                   v-model="formData.name"
-                  type="text"
-                  required
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Masukkan nama site"
+                  required
+                  class="w-full"
                 />
               </div>
 
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
-                <textarea
+                <UTextarea
                   v-model="formData.description"
-                  rows="3"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  :rows="3"
                   placeholder="Masukkan deskripsi (opsional)"
-                ></textarea>
+                  class="w-full"
+                />
               </div>
 
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Alamat</label>
-                <textarea
+                <UTextarea
                   v-model="formData.address"
-                  rows="3"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  :rows="3"
                   placeholder="Masukkan alamat (opsional)"
-                ></textarea>
+                  class="w-full"
+                />
               </div>
 
-              <div class="flex items-center">
-                <input
-                  v-model="formData.isActive"
-                  type="checkbox"
-                  class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                />
-                <label class="ml-2 text-sm text-gray-700">Aktif</label>
-              </div>
+              <UCheckbox
+                v-model="formData.isActive"
+                label="Aktif"
+              />
 
               <!-- Organization Structure Settings -->
               <div class="pt-4 border-t border-gray-200">
@@ -320,20 +320,22 @@
               </div>
 
               <div class="pt-4 flex justify-end gap-3 border-t border-gray-200">
-                <button
+                <UButton
                   type="button"
                   @click="closeModal"
-                  class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                  variant="outline"
+                  color="neutral"
                 >
                   Batal
-                </button>
-                <button
+                </UButton>
+                <UButton
                   type="submit"
                   :disabled="loading"
-                  class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:bg-gray-400"
+                  :loading="loading"
+                  color="primary"
                 >
-                  {{ loading ? 'Menyimpan...' : (isEditing ? 'Update' : 'Simpan') }}
-                </button>
+                  {{ isEditing ? 'Update' : 'Simpan' }}
+                </UButton>
               </div>
             </form>
           </div>

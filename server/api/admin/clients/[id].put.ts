@@ -45,6 +45,7 @@ interface UpdateClientBody {
   tokenEndpointAuthMethod?: string
   isFirstParty?: boolean
   isActive?: boolean
+  requireAccessGrant?: boolean
 }
 
 /**
@@ -116,6 +117,7 @@ export default defineEventHandler(async (event) => {
     if (body.tokenEndpointAuthMethod !== undefined) updates.tokenEndpointAuthMethod = body.tokenEndpointAuthMethod
     if (body.isFirstParty !== undefined) updates.isFirstParty = body.isFirstParty
     if (body.isActive !== undefined) updates.isActive = body.isActive
+    if (body.requireAccessGrant !== undefined) updates.requireAccessGrant = body.requireAccessGrant
 
     // Update client
     const [updated] = await db
@@ -153,6 +155,7 @@ export default defineEventHandler(async (event) => {
         tokenEndpointAuthMethod: updated.tokenEndpointAuthMethod,
         isFirstParty: updated.isFirstParty,
         isActive: updated.isActive,
+        requireAccessGrant: updated.requireAccessGrant,
         createdAt: updated.createdAt,
         updatedAt: updated.updatedAt
       }

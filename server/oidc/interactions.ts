@@ -1,5 +1,5 @@
 import { db, users } from '../db/index.ts'
-import { eq } from 'drizzle-orm'
+import { eq, or } from 'drizzle-orm'
 import * as argon2 from 'argon2'
 import { logger } from '../services/logger.ts'
 import { writeAuditLog, AuditEvents } from '../services/audit.ts'

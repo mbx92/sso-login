@@ -8,26 +8,18 @@
           <p class="text-sm text-gray-500 mt-1">View system activity and security events</p>
         </div>
         <div class="flex items-center gap-2">
-          <select
+          <USelect
             v-model="filter"
-            class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-          >
-            <option value="">All Actions</option>
-            <option value="AUTH_LOGIN">Login</option>
-            <option value="AUTH_LOGOUT">Logout</option>
-            <option value="CREATE">Create</option>
-            <option value="UPDATE">Update</option>
-            <option value="DELETE">Delete</option>
-            <option value="OIDC">OIDC</option>
-          </select>
-          <button
+            :items="filterOptions"
+            placeholder="All Actions"
+            class="w-40"
+          />
+          <UButton
             @click="loadLogs"
-            class="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-          </button>
+            variant="outline"
+            color="neutral"
+            icon="i-lucide-refresh-cw"
+          />
         </div>
       </div>
 
@@ -109,7 +101,17 @@ definePageMeta({
 
 const logs = ref<any[]>([])
 const loading = ref(true)
-const filter = ref('')
+const filter = ref<string | null>(null)
+
+const filterOptions = [
+  { label: 'All Actions', value: null },
+  { label: 'Login', value: 'AUTH_LOGIN' },
+  { label: 'Logout', value: 'AUTH_LOGOUT' },
+  { label: 'Create', value: 'CREATE' },
+  { label: 'Update', value: 'UPDATE' },
+  { label: 'Delete', value: 'DELETE' },
+  { label: 'OIDC', value: 'OIDC' }
+]
 
 async function loadLogs() {
   loading.value = true

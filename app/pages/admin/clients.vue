@@ -7,15 +7,13 @@
           <h1 class="text-2xl font-semibold text-gray-900">OIDC Clients</h1>
           <p class="text-sm text-gray-500 mt-1">Manage OAuth/OIDC client applications</p>
         </div>
-        <button
+        <UButton
           @click="showCreateModal = true"
-          class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors"
+          color="primary"
+          icon="i-lucide-plus"
         >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-          </svg>
           New Client
-        </button>
+        </UButton>
       </div>
 
       <!-- Clients Grid -->
@@ -33,66 +31,142 @@
         </svg>
         <h3 class="text-lg font-medium text-gray-900 mb-2">No clients yet</h3>
         <p class="text-gray-500 mb-4">Create your first OIDC client to get started</p>
-        <button
+        <UButton
           @click="showCreateModal = true"
-          class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors"
+          color="primary"
         >
           Create Client
-        </button>
+        </UButton>
       </div>
 
-      <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div
           v-for="client in clients"
           :key="client.id"
-          class="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow"
+          class="group bg-white rounded-xl border border-gray-200 hover:border-primary-500/50 hover:shadow-lg hover:shadow-primary-500/5 transition-all duration-300 flex flex-col"
         >
-          <div class="flex items-start justify-between mb-4">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
-                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-                </svg>
+          <!-- Card Header -->
+          <div class="p-6 pb-4 flex items-start justify-between gap-4">
+            <div class="flex items-center gap-4">
+              <div 
+                class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-colors"
+                :class="client.isActive ? 'bg-primary-50 text-primary-600' : 'bg-gray-100 text-gray-500'"
+              >
+                <UIcon 
+                  name="i-lucide-box" 
+                  class="w-6 h-6" 
+                />
               </div>
-              <div>
-                <h3 class="font-semibold text-gray-900">{{ client.name || client.clientId }}</h3>
-                <p class="text-xs text-gray-500">{{ client.clientId }}</p>
+              <div class="min-w-0">
+                <h3 class="font-bold text-gray-900 truncate group-hover:text-primary-600 transition-colors">
+                  {{ client.name || client.clientId }}
+                </h3>
+                <div class="flex items-center gap-2 mt-1">
+                  <UBadge 
+                    :color="client.clientSecretHash ? 'primary' : 'neutral'" 
+                    variant="subtle"
+                    size="xs"
+                  >
+                    {{ client.clientSecretHash ? 'Confidential' : 'Public' }}
+                  </UBadge>
+                  <UBadge
+                    :color="client.isActive ? 'primary' : 'neutral'"
+                    variant="subtle"
+                    size="xs"
+                    class="capitalize"
+                  >
+                    {{ client.isActive ? 'Active' : 'Inactive' }}
+                  </UBadge>
+                </div>
               </div>
             </div>
-            <div class="flex items-center gap-1">
-              <button
+            
+            <div class="flex gap-1">
+              <UButton
                 @click="editClient(client)"
-                class="p-1.5 text-gray-400 hover:text-blue-600 rounded hover:bg-gray-100 transition-colors"
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                </svg>
-              </button>
-              <button
+                variant="ghost"
+                color="neutral"
+                icon="i-lucide-settings-2"
+                size="sm"
+                title="Edit Configuration"
+              />
+              <UButton
                 @click="confirmDelete(client)"
-                class="p-1.5 text-gray-400 hover:text-red-600 rounded hover:bg-gray-100 transition-colors"
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-              </button>
+                variant="ghost"
+                color="error"
+                icon="i-lucide-trash-2"
+                size="sm"
+                title="Delete Client"
+              />
             </div>
           </div>
-          
-          <div class="space-y-2 text-sm">
+
+          <!-- Card Body -->
+          <div class="px-6 py-4 border-t border-gray-100 flex-1 space-y-3">
             <div>
-              <span class="text-gray-500">Type:</span>
-              <span :class="[
-                'ml-2 px-2 py-0.5 rounded text-xs font-medium',
-                client.clientSecretHash ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-700'
-              ]">
-                {{ client.clientSecretHash ? 'confidential' : 'public' }}
-              </span>
+              <p class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Client ID</p>
+              <div class="flex items-center gap-2 group/id">
+                <code class="text-sm bg-gray-50 px-2 py-1 rounded border border-gray-100 text-gray-700 truncate font-mono">
+                  {{ client.clientId }}
+                </code>
+                <UButton
+                  @click="copyToClipboard(client.clientId)"
+                  variant="ghost"
+                  color="neutral"
+                  size="xs"
+                  icon="i-lucide-copy"
+                  class="opacity-0 group-hover/id:opacity-100 transition-opacity"
+                />
+              </div>
             </div>
-            <div class="text-gray-500 truncate">
-              <span>Redirect:</span>
-              <span class="ml-2 text-gray-700">{{ (client.redirectUris || [])[0] || '-' }}</span>
+            
+            <div>
+              <p class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Redirect URIs</p>
+              <div class="text-sm text-gray-600">
+                <div v-if="client.redirectUris?.length" class="flex flex-col gap-1">
+                  <div class="flex items-center gap-2 text-gray-700">
+                    <UIcon name="i-lucide-arrow-right-circle" class="size-4 shrink-0 text-gray-400" />
+                    <span class="truncate">{{ client.redirectUris[0] }}</span>
+                  </div>
+                  <span v-if="client.redirectUris.length > 1" class="text-xs text-gray-400 pl-6">
+                    +{{ client.redirectUris.length - 1 }} more URIs
+                  </span>
+                </div>
+                <span v-else class="text-gray-400 italic">No redirect URIs configured</span>
+              </div>
             </div>
+
+            <!-- Access Control Toggle -->
+            <div class="pt-2 border-t border-gray-100">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-xs font-medium text-gray-700">Access Control</p>
+                  <p class="text-xs text-gray-500 mt-0.5">
+                    {{ client.requireAccessGrant ? 'Restricted access' : 'Open to all users' }}
+                  </p>
+                </div>
+                <USwitch
+                  :model-value="client.requireAccessGrant"
+                  @update:model-value="toggleAccessControl(client)"
+                  size="sm"
+                  :color="client.requireAccessGrant ? 'primary' : 'neutral'"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Card Footer -->
+          <div class="px-6 py-3 bg-gray-50/50 border-t border-gray-100 rounded-b-xl flex justify-between items-center">
+             <div class="text-xs text-gray-400 flex items-center gap-1">
+               <UIcon name="i-lucide-clock" class="size-3" />
+               Updated {{ new Date(client.updatedAt).toLocaleDateString() }}
+             </div>
+             <USwitch
+               :model-value="client.isActive"
+               @update:model-value="toggleStatus(client)"
+               size="md"
+               color="primary"
+             />
           </div>
         </div>
       </div>
@@ -107,58 +181,59 @@
           <form @submit.prevent="showEditModal ? updateClient() : createClient()" class="p-6 space-y-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">Client Name</label>
-              <input
+              <UInput
                 v-model="form.clientName"
-                type="text"
-                required
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                 placeholder="My Application"
+                required
+                class="w-full"
               />
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">Redirect URIs (one per line)</label>
-              <textarea
+              <UTextarea
                 v-model="form.redirectUris"
-                rows="3"
-                required
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                :rows="3"
                 placeholder="https://myapp.com/callback"
-              ></textarea>
+                required
+                class="w-full"
+              />
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">Client Type</label>
-              <select
+              <USelect
                 v-model="form.clientType"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-              >
-                <option value="public">Public</option>
-                <option value="confidential">Confidential</option>
-              </select>
-            </div>
-            <div class="flex items-center gap-2">
-              <input
-                v-model="form.accessControlEnabled"
-                type="checkbox"
-                id="accessControl"
-                class="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500"
+                :items="clientTypeOptions"
+                class="w-full"
               />
-              <label for="accessControl" class="text-sm text-gray-700">Enable Access Control</label>
             </div>
+            <UCheckbox
+              v-model="form.accessControlEnabled"
+              label="Enable Access Control"
+              class="mb-2"
+            />
+            <UCheckbox
+              v-model="form.isActive"
+              label="Active"
+            />
             <div class="flex gap-3 pt-4">
-              <button
+              <UButton
                 type="button"
                 @click="closeModal"
-                class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                variant="outline"
+                color="neutral"
+                class="flex-1"
               >
                 Cancel
-              </button>
-              <button
+              </UButton>
+              <UButton
                 type="submit"
                 :disabled="saving"
-                class="flex-1 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 text-white rounded-lg transition-colors"
+                :loading="saving"
+                color="primary"
+                class="flex-1"
               >
-                {{ saving ? 'Saving...' : (showEditModal ? 'Update' : 'Create') }}
-              </button>
+                {{ showEditModal ? 'Update' : 'Create' }}
+              </UButton>
             </div>
           </form>
         </div>
@@ -177,19 +252,23 @@
             <h3 class="text-lg font-semibold text-gray-900 mb-2">Delete Client</h3>
             <p class="text-gray-500 mb-6">Are you sure you want to delete "{{ clientToDelete?.clientName }}"? This action cannot be undone.</p>
             <div class="flex gap-3">
-              <button
+              <UButton
                 @click="showDeleteModal = false"
-                class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                variant="outline"
+                color="neutral"
+                class="flex-1"
               >
                 Cancel
-              </button>
-              <button
+              </UButton>
+              <UButton
                 @click="deleteClient"
                 :disabled="deleting"
-                class="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white rounded-lg transition-colors"
+                :loading="deleting"
+                color="error"
+                class="flex-1"
               >
-                {{ deleting ? 'Deleting...' : 'Delete' }}
-              </button>
+                Delete
+              </UButton>
             </div>
           </div>
         </div>
@@ -270,12 +349,13 @@
           </div>
           
           <div class="mt-6">
-            <button
+            <UButton
               @click="closeSecretModal"
-              class="w-full px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors"
+              color="primary"
+              class="w-full"
             >
               I've saved the credentials
-            </button>
+            </UButton>
           </div>
         </div>
       </div>
@@ -358,8 +438,15 @@ const form = ref({
   clientName: '',
   redirectUris: '',
   clientType: 'public',
-  accessControlEnabled: false
+  accessControlEnabled: false,
+  isActive: true
 })
+
+// Client type options for USelect
+const clientTypeOptions = [
+  { label: 'Public', value: 'public' },
+  { label: 'Confidential', value: 'confidential' }
+]
 
 async function loadClients() {
   loading.value = true
@@ -380,7 +467,8 @@ function closeModal() {
     clientName: '',
     redirectUris: '',
     clientType: 'public',
-    accessControlEnabled: false
+    accessControlEnabled: false,
+    isActive: true
   }
   editingClient.value = null
 }
@@ -391,7 +479,8 @@ function editClient(client: any) {
     clientName: client.name || '',
     redirectUris: (client.redirectUris || []).join('\n'),
     clientType: client.clientSecretHash ? 'confidential' : 'public',
-    accessControlEnabled: client.requireAccessGrant || false
+    accessControlEnabled: client.requireAccessGrant || false,
+    isActive: client.isActive
   }
   showEditModal.value = true
 }
@@ -410,7 +499,8 @@ async function createClient() {
         clientName: form.value.clientName,
         redirectUris: form.value.redirectUris.split('\n').filter(u => u.trim()),
         tokenEndpointAuthMethod: form.value.clientType === 'public' ? 'none' : 'client_secret_basic',
-        accessControlEnabled: form.value.accessControlEnabled
+        accessControlEnabled: form.value.accessControlEnabled,
+        isActive: form.value.isActive
       }
     }) as any
     closeModal()
@@ -456,7 +546,8 @@ async function updateClient() {
         clientName: form.value.clientName,
         redirectUris: form.value.redirectUris.split('\n').filter(u => u.trim()),
         clientType: form.value.clientType,
-        accessControlEnabled: form.value.accessControlEnabled
+        accessControlEnabled: form.value.accessControlEnabled,
+        isActive: form.value.isActive
       }
     })
     closeModal()
@@ -482,6 +573,53 @@ async function deleteClient() {
     console.error('Failed to delete client:', error)
   } finally {
     deleting.value = false
+  }
+}
+
+async function toggleStatus(client: any) {
+  // Optimistic update
+  const originalStatus = client.isActive
+  client.isActive = !client.isActive
+
+  try {
+    await $fetch(`/api/admin/clients/${client.id}`, {
+      method: 'PUT',
+      body: {
+        isActive: client.isActive
+      }
+    })
+    showToast(client.isActive ? 'Client activated' : 'Client deactivated', 'success')
+  } catch (error) {
+    // Revert on error
+    client.isActive = originalStatus
+    console.error('Failed to update status:', error)
+    showToast('Failed to update status', 'error')
+  }
+}
+
+async function toggleAccessControl(client: any) {
+  // Optimistic update
+  const originalValue = client.requireAccessGrant
+  client.requireAccessGrant = !client.requireAccessGrant
+
+  try {
+    await $fetch(`/api/admin/clients/${client.id}`, {
+      method: 'PUT',
+      body: {
+        requireAccessGrant: client.requireAccessGrant
+      }
+    })
+    
+    const message = client.requireAccessGrant 
+      ? 'Access control enabled - only granted users can access this app'
+      : 'Access control disabled - all users can access this app'
+    
+    showToast(message, 'success')
+  } catch (error) {
+    // Revert on error
+    client.requireAccessGrant = originalValue
+    console.error('Failed to update access control:', error)
+    showToast('Failed to update access control', 'error')
   }
 }
 

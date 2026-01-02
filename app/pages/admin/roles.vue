@@ -7,15 +7,13 @@
           <h1 class="text-2xl font-semibold text-gray-900">Roles & Permissions</h1>
           <p class="text-sm text-gray-500 mt-1">Kelola role dan hak akses pengguna</p>
         </div>
-        <button
+        <UButton
           @click="showCreateModal = true"
-          class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors"
+          color="primary"
+          icon="i-lucide-plus"
         >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-          </svg>
           Tambah Role
-        </button>
+        </UButton>
       </div>
 
       <!-- Roles Grid -->
@@ -33,12 +31,12 @@
         </svg>
         <h3 class="text-lg font-medium text-gray-900 mb-2">Belum ada role</h3>
         <p class="text-gray-500 mb-4">Buat role pertama untuk mengatur hak akses</p>
-        <button
+        <UButton
           @click="showCreateModal = true"
-          class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors"
+          color="primary"
         >
           Buat Role
-        </button>
+        </UButton>
       </div>
 
       <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -69,22 +67,20 @@
               </div>
             </div>
             <div v-if="!role.isSystem" class="flex items-center gap-1">
-              <button
+              <UButton
                 @click="editRole(role)"
-                class="p-1.5 text-gray-400 hover:text-blue-600 rounded hover:bg-gray-100 transition-colors"
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                </svg>
-              </button>
-              <button
+                variant="ghost"
+                color="neutral"
+                icon="i-lucide-pencil"
+                size="xs"
+              />
+              <UButton
                 @click="confirmDelete(role)"
-                class="p-1.5 text-gray-400 hover:text-red-600 rounded hover:bg-gray-100 transition-colors"
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-              </button>
+                variant="ghost"
+                color="error"
+                icon="i-lucide-trash-2"
+                size="xs"
+              />
             </div>
           </div>
           
@@ -122,35 +118,28 @@
             <div class="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Nama Role *</label>
-                <input
+                <UInput
                   v-model="form.name"
-                  type="text"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                   placeholder="Contoh: Admin Site"
                 />
               </div>
               
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
-                <textarea
+                <UTextarea
                   v-model="form.description"
-                  rows="2"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  :rows="2"
                   placeholder="Deskripsi role ini..."
-                ></textarea>
+                />
               </div>
               
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Site (opsional)</label>
-                <select
+                <USelect
                   v-model="form.siteId"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                >
-                  <option :value="null">Global (Semua Site)</option>
-                  <option v-for="site in sites" :key="site.id" :value="site.id">
-                    {{ site.name }}
-                  </option>
-                </select>
+                  :items="siteOptions"
+                  placeholder="Global (Semua Site)"
+                />
               </div>
               
               <div>
@@ -168,19 +157,14 @@
                       </button>
                     </div>
                     <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                      <label 
-                        v-for="perm in category.permissions" 
+                      <UCheckbox
+                        v-for="perm in category.permissions"
                         :key="perm.value"
-                        class="flex items-center gap-2 cursor-pointer"
-                      >
-                        <input
-                          type="checkbox"
-                          :value="perm.value"
-                          v-model="form.permissions"
-                          class="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
-                        />
-                        <span class="text-sm text-gray-700 capitalize">{{ perm.action }}</span>
-                      </label>
+                        :model-value="form.permissions.includes(perm.value)"
+                        @update:model-value="(val) => val ? form.permissions.push(perm.value) : form.permissions = form.permissions.filter(p => p !== perm.value)"
+                        :label="perm.action"
+                        class="capitalize"
+                      />
                     </div>
                   </div>
                 </div>
@@ -188,19 +172,21 @@
             </div>
             
             <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
-              <button
+              <UButton
                 @click="closeModal"
-                class="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                variant="outline"
+                color="neutral"
               >
                 Batal
-              </button>
-              <button
+              </UButton>
+              <UButton
                 @click="showEditModal ? updateRole() : createRole()"
                 :disabled="saving"
-                class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors disabled:opacity-50"
+                :loading="saving"
+                color="primary"
               >
-                {{ saving ? 'Menyimpan...' : (showEditModal ? 'Simpan Perubahan' : 'Buat Role') }}
-              </button>
+                {{ showEditModal ? 'Simpan Perubahan' : 'Buat Role' }}
+              </UButton>
             </div>
           </div>
         </div>
@@ -279,6 +265,14 @@ const form = ref({
   description: '',
   permissions: [] as string[],
   siteId: null as string | null
+})
+
+// Site options for USelect
+const siteOptions = computed(() => {
+  return [
+    { label: 'Global (Semua Site)', value: null },
+    ...sites.value.map(s => ({ label: s.name, value: s.id }))
+  ]
 })
 
 const permissionCategories = computed(() => {

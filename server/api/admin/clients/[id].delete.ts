@@ -1,8 +1,16 @@
-import { defineEventHandler, getRouterParam, createError, getHeader } from 'h3'
+import { defineEventHandler, getRouterParam, createError } from 'h3'
 import { db, oidcClients } from '../../../db/index.ts'
 import { eq } from 'drizzle-orm'
 import { writeAuditLog, AuditEvents } from '../../../services/audit.ts'
 import { getAuthUser } from '../../../utils/auth'
+
+/**
+ * Custom getHeader function to avoid h3 version conflicts
+ */
+function getHeader(event: any, name: string): string | undefined {
+  const req = event.node?.req || event.req
+  return req.headers[name.toLowerCase()]
+}
 
 /**
  * Delete an OIDC client

@@ -102,7 +102,7 @@
         </div>
 
         <!-- Sessions Card -->
-        <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+        <NuxtLink to="/admin/sessions" class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm hover:shadow-md hover:border-violet-200 transition-all cursor-pointer">
           <div class="flex items-center gap-4">
             <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-violet-100">
               <svg class="w-6 h-6 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -118,9 +118,9 @@
             <svg class="w-4 h-4 text-violet-500 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
             </svg>
-            <span class="text-gray-500">Authenticated</span>
+            <span class="text-gray-500">View details →</span>
           </div>
-        </div>
+        </NuxtLink>
       </div>
 
       <!-- Recent Activity -->
@@ -189,26 +189,45 @@ const syncLoading = ref(false)
 // Fetch dashboard data
 async function fetchStats() {
   try {
-    const [usersRes, clientsRes, logsRes] = await Promise.all([
+    // Get today's date range for login count
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const todayISO = today.toISOString()
+    
+    const [usersRes, clientsRes, logsRes, loginsTodayRes] = await Promise.all([
       $fetch('/api/admin/users'),
       $fetch('/api/admin/clients'),
-      $fetch('/api/admin/audit-logs?limit=5')
+      $fetch('/api/admin/audit-logs?limit=10'),
+      $fetch(`/api/admin/audit-logs?limit=100&action=AUTH_LOGIN_SUCCESS&from=${todayISO}`)
     ])
     
-    const users = (usersRes as any).users || []
-    const clients = (clientsRes as any).clients || []
-    const logs = (logsRes as any).logs || []
+    // API returns { data: [...], pagination: {...} }
+    const users = (usersRes as any).data || []
+    const clients = (clientsRes as any).data || []
+    const logs = (logsRes as any).data || []
+    const loginsTodayLogs = (loginsTodayRes as any).data || []
+    const usersPagination = (usersRes as any).pagination || {}
+    const clientsPagination = (clientsRes as any).pagination || {}
+    
+    // Count unique sessions from today's logins (unique user IDs that logged in today)
+    const uniqueLoggedInUsers = new Set(loginsTodayLogs.map((l: any) => l.actor?.id).filter(Boolean))
     
     stats.value = {
-      totalUsers: users.length,
-      activeUsers: users.filter((u: any) => u.isActive).length,
-      totalClients: clients.length,
+      totalUsers: usersPagination.total || users.length,
+      activeUsers: users.filter((u: any) => u.status === 'active').length,
+      totalClients: clientsPagination.total || clients.length,
       activeClients: clients.length,
-      loginsToday: logs.filter((l: any) => l.action === 'login_success').length,
-      activeSessions: 0
+      loginsToday: loginsTodayLogs.length,
+      activeSessions: uniqueLoggedInUsers.size
     }
     
-    recentLogs.value = logs.slice(0, 5)
+    // Map logs to the expected format for the UI
+    recentLogs.value = logs.slice(0, 5).map((log: any) => ({
+      id: log.id,
+      action: log.action,
+      userEmail: log.actor?.email || log.metadata?.email || 'Unknown',
+      createdAt: log.at
+    }))
   } catch (error) {
     console.error('Failed to fetch stats:', error)
   }

@@ -5,30 +5,23 @@
         <h1 class="text-2xl font-bold text-gray-900">Master Divisi</h1>
         <p class="text-sm text-gray-500 mt-1">Kelola data divisi organisasi</p>
       </div>
-      <button
+      <UButton
         @click="openCreateModal"
-        class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
+        color="primary"
+        icon="i-lucide-plus"
       >
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-        </svg>
         Tambah Divisi
-      </button>
+      </UButton>
     </div>
 
     <!-- Search -->
     <div class="mb-6">
-      <div class="relative max-w-md">
-        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-        </svg>
-        <input
-          v-model="searchQuery"
-          type="text"
-          placeholder="Cari divisi..."
-          class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white text-sm"
-        />
-      </div>
+      <UInput
+        v-model="searchQuery"
+        placeholder="Cari divisi..."
+        icon="i-lucide-search"
+        class="max-w-md"
+      />
     </div>
 
     <!-- Table -->
@@ -84,25 +77,21 @@
                 </span>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <div class="flex items-center gap-2">
-                  <button
+                <div class="flex items-center gap-1">
+                  <UButton
                     @click="openEditModal(division)"
-                    class="p-2 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
-                    title="Edit"
-                  >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                  </button>
-                  <button
+                    variant="ghost"
+                    color="neutral"
+                    icon="i-lucide-pencil"
+                    size="sm"
+                  />
+                  <UButton
                     @click="confirmDelete(division)"
-                    class="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                    title="Hapus"
-                  >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                  </button>
+                    variant="ghost"
+                    color="error"
+                    icon="i-lucide-trash-2"
+                    size="sm"
+                  />
                 </div>
               </td>
             </tr>
@@ -124,71 +113,62 @@
               <!-- Site Selector for Superadmin -->
               <div v-if="isSuperAdmin">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Site</label>
-                <select
+                <USelect
                   v-model="form.siteId"
-                  required
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                >
-                  <option value="" disabled>Pilih Site</option>
-                  <option v-for="site in sites" :key="site.id" :value="site.id">
-                    {{ site.name }}
-                  </option>
-                </select>
+                  :items="siteOptions"
+                  placeholder="Pilih Site"
+                  :ui="{ base: 'w-full' }"
+                />
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Kode Divisi</label>
-                <input
+                <UInput
                   v-model="form.code"
-                  type="text"
-                  required
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                   placeholder="DIV001"
+                  required
+                  :ui="{ root: 'w-full' }"
                 />
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Nama Divisi</label>
-                <input
+                <UInput
                   v-model="form.name"
-                  type="text"
-                  required
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                   placeholder="Nama divisi"
+                  required
+                  :ui="{ root: 'w-full' }"
                 />
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
-                <textarea
+                <UTextarea
                   v-model="form.description"
-                  rows="3"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  :rows="3"
                   placeholder="Deskripsi divisi (opsional)"
-                ></textarea>
-              </div>
-              <div class="flex items-center gap-2">
-                <input
-                  v-model="form.isActive"
-                  type="checkbox"
-                  id="isActive"
-                  class="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500"
+                  :ui="{ root: 'w-full' }"
                 />
-                <label for="isActive" class="text-sm text-gray-700">Aktif</label>
               </div>
+              <UCheckbox
+                v-model="form.isActive"
+                label="Aktif"
+              />
             </div>
             <div class="flex justify-end gap-3 mt-6">
-              <button
+              <UButton
                 type="button"
                 @click="closeModal"
-                class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                variant="outline"
+                color="neutral"
               >
                 Batal
-              </button>
-              <button
+              </UButton>
+              <UButton
                 type="submit"
                 :disabled="saving"
-                class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50"
+                :loading="saving"
+                color="primary"
               >
-                {{ saving ? 'Menyimpan...' : 'Simpan' }}
-              </button>
+                Simpan
+              </UButton>
             </div>
           </form>
         </div>
@@ -276,6 +256,11 @@ watch(userSiteId, (newSiteId) => {
     form.value.siteId = newSiteId
   }
 }, { immediate: true })
+
+// Site options for USelect
+const siteOptions = computed(() => {
+  return sites.value.map(s => ({ label: s.name, value: s.id }))
+})
 
 // Error modal state
 const showErrorModal = ref(false)

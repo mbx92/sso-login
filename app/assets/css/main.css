@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "@nuxt/ui";
 
 /* Custom styles for SSO Admin Dashboard */
 :root {
@@ -38,3 +39,14 @@
   }
 }
 
+/* Nuxt UI Full Width Override */
+@layer components {
+  /* Make all form inputs full width */
+  [data-part="root"]:has(input),
+  [data-part="root"]:has(textarea),
+  [data-part="base"]:has(select),
+  .w-full [data-part="root"],
+  .w-full [data-part="base"] {
+    width: 100%;
+  }
+}

@@ -5,49 +5,35 @@
         <h1 class="text-2xl font-bold text-gray-900">Manajemen User</h1>
         <p class="text-sm text-gray-500 mt-1">Kelola data pengguna sistem</p>
       </div>
-      <button
+      <UButton
         @click="openCreateModal"
-        class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
+        color="primary"
+        icon="i-lucide-plus"
       >
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-        </svg>
         Tambah User
-      </button>
+      </UButton>
     </div>
 
-    <!-- Filters -->
     <div class="flex flex-col sm:flex-row gap-4 mb-6">
-      <div class="relative flex-1 max-w-md">
-        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-        </svg>
-        <input
-          v-model="searchQuery"
-          type="text"
-          placeholder="Cari user..."
-          class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white text-sm"
-          @keyup.enter="fetchUsers"
-        />
-      </div>
-      <select
+      <UInput
+        v-model="searchQuery"
+        placeholder="Cari user..."
+        icon="i-lucide-search"
+        class="flex-1 max-w-md"
+        @keyup.enter="fetchUsers"
+      />
+      <USelect
         v-model="filterUnit"
-        class="px-4 py-2.5 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white text-sm min-w-[180px]"
-      >
-        <option value="">Semua Unit</option>
-        <option v-for="unit in units" :key="unit.id" :value="unit.id">
-          {{ unit.name }}
-        </option>
-      </select>
-      <select
+        :items="unitFilterItems"
+        placeholder="Semua Unit"
+        class="min-w-[180px]"
+      />
+      <USelect
         v-model="filterStatus"
-        class="px-4 py-2.5 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white text-sm min-w-[180px]"
-      >
-        <option value="">Semua Status</option>
-        <option value="active">Aktif</option>
-        <option value="inactive">Nonaktif</option>
-        <option value="pending">Pending</option>
-      </select>
+        :items="statusFilterItems"
+        placeholder="Semua Status"
+        class="min-w-[180px]"
+      />
     </div>
 
     <!-- Table -->
@@ -115,25 +101,21 @@
                 {{ formatDate(user.createdAt) }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <div class="flex items-center gap-2">
-                  <button
+                <div class="flex items-center gap-1">
+                  <UButton
                     @click="openEditModal(user)"
-                    class="p-2 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
-                    title="Edit"
-                  >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                  </button>
-                  <button
+                    variant="ghost"
+                    color="neutral"
+                    icon="i-lucide-pencil"
+                    size="sm"
+                  />
+                  <UButton
                     @click="confirmDelete(user)"
-                    class="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                    title="Hapus"
-                  >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                  </button>
+                    variant="ghost"
+                    color="error"
+                    icon="i-lucide-trash-2"
+                    size="sm"
+                  />
                 </div>
               </td>
             </tr>
@@ -177,22 +159,21 @@
             <div class="space-y-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
-                <input
+                <UInput
                   v-model="form.name"
-                  type="text"
-                  required
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                   placeholder="Nama lengkap"
+                  required
+                  class="w-full"
                 />
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                <input
+                <UInput
                   v-model="form.email"
                   type="email"
-                  required
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                   placeholder="user@example.com"
+                  required
+                  class="w-full"
                 />
               </div>
               <div>
@@ -200,63 +181,57 @@
                   Password
                   <span v-if="editingUser" class="text-gray-400 font-normal">(kosongkan jika tidak diubah)</span>
                 </label>
-                <input
+                <UInput
                   v-model="form.password"
                   type="password"
                   :required="!editingUser"
-                  minlength="8"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                   placeholder="Minimal 8 karakter"
+                  class="w-full"
                 />
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Employee ID</label>
-                <input
+                <UInput
                   v-model="form.employeeId"
-                  type="text"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                   placeholder="EMP001 (opsional)"
+                  class="w-full"
                 />
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Unit</label>
-                <select
+                <USelect
                   v-model="form.unitId"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                >
-                  <option value="">Tidak ada unit</option>
-                  <option v-for="unit in units" :key="unit.id" :value="unit.id">
-                    {{ unit.divisionName ? `${unit.divisionName} - ${unit.name}` : unit.name }}
-                  </option>
-                </select>
+                  :items="unitOptions"
+                  placeholder="Pilih unit"
+                  class="w-full"
+                />
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                <select
+                <USelect
                   v-model="form.status"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                >
-                  <option value="active">Aktif</option>
-                  <option value="inactive">Nonaktif</option>
-                  <option value="pending">Pending</option>
-                </select>
+                  :items="statusOptions"
+                  class="w-full"
+                />
               </div>
             </div>
             <div class="flex justify-end gap-3 mt-6">
-              <button
+              <UButton
                 type="button"
                 @click="closeModal"
-                class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                variant="outline"
+                color="neutral"
               >
                 Batal
-              </button>
-              <button
+              </UButton>
+              <UButton
                 type="submit"
                 :disabled="saving"
-                class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50"
+                :loading="saving"
+                color="primary"
               >
-                {{ saving ? 'Menyimpan...' : 'Simpan' }}
-              </button>
+                Simpan
+              </UButton>
             </div>
           </form>
         </div>
@@ -273,19 +248,21 @@
             Apakah Anda yakin ingin menghapus user <strong>{{ deletingUser?.name }}</strong>?
           </p>
           <div class="flex justify-end gap-3">
-            <button
+            <UButton
               @click="showDeleteModal = false"
-              class="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+              variant="outline"
+              color="neutral"
             >
               Batal
-            </button>
-            <button
+            </UButton>
+            <UButton
               @click="deleteUser"
               :disabled="deleting"
-              class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
+              :loading="deleting"
+              color="error"
             >
-              {{ deleting ? 'Menghapus...' : 'Hapus' }}
-            </button>
+              Hapus
+            </UButton>
           </div>
         </div>
       </div>
@@ -320,8 +297,8 @@ const users = ref<User[]>([])
 const units = ref<Unit[]>([])
 const loading = ref(true)
 const searchQuery = ref('')
-const filterUnit = ref('')
-const filterStatus = ref('')
+const filterUnit = ref<string | null>(null)
+const filterStatus = ref<string | null>(null)
 const showModal = ref(false)
 const showDeleteModal = ref(false)
 const saving = ref(false)
@@ -363,13 +340,30 @@ const filteredUsers = computed(() => {
 // Filter items for USelect components
 const unitFilterItems = computed(() => {
   return [
-    { label: 'Semua Unit', value: '' },
+    { label: 'Semua Unit', value: null },
     ...units.value.map(u => ({ label: u.name, value: u.id }))
   ]
 })
 
 const statusFilterItems = [
-  { label: 'Semua Status', value: '' },
+  { label: 'Semua Status', value: null },
+  { label: 'Aktif', value: 'active' },
+  { label: 'Nonaktif', value: 'inactive' },
+  { label: 'Pending', value: 'pending' }
+]
+
+// Options for form selects
+const unitOptions = computed(() => {
+  return [
+    { label: 'Tidak ada unit', value: null },
+    ...units.value.map(u => ({ 
+      label: u.divisionName ? `${u.divisionName} - ${u.name}` : u.name, 
+      value: u.id 
+    }))
+  ]
+})
+
+const statusOptions = [
   { label: 'Aktif', value: 'active' },
   { label: 'Nonaktif', value: 'inactive' },
   { label: 'Pending', value: 'pending' }

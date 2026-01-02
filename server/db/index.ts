@@ -21,6 +21,14 @@ export const db = drizzle(queryClient, { schema })
 
 // Export schema for convenience
 export * from './schema'
+export { 
+  accessGroups, 
+  accessGroupUsers, 
+  accessGroupClients,
+  accessGroupsRelations,
+  accessGroupUsersRelations,
+  accessGroupClientsRelations
+} from './schema'
 
 // Export postgres client for raw queries if needed
 export { queryClient }

@@ -5,6 +5,7 @@ import { eq } from 'drizzle-orm'
 import { logger } from '../services/logger.ts'
 import { writeAuditLog, AuditEvents } from '../services/audit.ts'
 import * as argon2 from 'argon2'
+import { shouldUseSecureCookies } from '../utils/cookie'
 
 /**
  * Find OIDC client from database
@@ -168,12 +169,12 @@ export function createProviderConfig(issuer: string, sessionSecret: string): Con
       short: {
         httpOnly: true,
         sameSite: 'lax' as const,
-        secure: process.env.NODE_ENV === 'production'
+        secure: shouldUseSecureCookies()
       },
       long: {
         httpOnly: true,
         sameSite: 'lax' as const,
-        secure: process.env.NODE_ENV === 'production',
+        secure: shouldUseSecureCookies(),
         maxAge: 86400 * 14 * 1000 // 14 days
       }
     },

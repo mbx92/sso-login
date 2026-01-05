@@ -3,6 +3,7 @@ import { db, oidcClients } from '../../db/index.ts'
 import { eq } from 'drizzle-orm'
 import { writeAuditLog, AuditEvents } from '../../services/audit.ts'
 import { serialize } from 'cookie'
+import { shouldUseSecureCookies } from '../../utils/cookie'
 
 /**
  * Custom redirect using native Node.js response
@@ -94,7 +95,7 @@ export default defineEventHandler(async (event) => {
   // Clear SSO session cookie
   setNativeCookie(event, 'sso_session', '', {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: shouldUseSecureCookies(),
     sameSite: 'lax',
     path: '/',
     maxAge: 0 // Delete cookie
@@ -103,7 +104,7 @@ export default defineEventHandler(async (event) => {
   // Clear sso_user cookie too
   setNativeCookie(event, 'sso_user', '', {
     httpOnly: false,
-    secure: process.env.NODE_ENV === 'production',
+    secure: shouldUseSecureCookies(),
     sameSite: 'lax',
     path: '/',
     maxAge: 0 // Delete cookie

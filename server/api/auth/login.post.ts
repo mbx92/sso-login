@@ -4,6 +4,7 @@ import * as argon2 from 'argon2'
 import { v4 as uuidv4 } from 'uuid'
 import { writeAuditLog, AuditEvents } from '../../services/audit'
 import { serialize } from 'cookie'
+import { shouldUseSecureCookies } from '../../utils/cookie'
 
 interface LoginBody {
   email: string
@@ -167,7 +168,7 @@ export default defineEventHandler(async (event) => {
     // Set session cookie (7 days) using native method
     setNativeCookie(event, 'sso_session', sessionId, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: shouldUseSecureCookies(),
       sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 7,
       path: '/'
@@ -176,7 +177,7 @@ export default defineEventHandler(async (event) => {
     // Store session data in cookie (not httpOnly so client can read it)
     setNativeCookie(event, 'sso_user', JSON.stringify(sessionData), {
       httpOnly: false,
-      secure: process.env.NODE_ENV === 'production',
+      secure: shouldUseSecureCookies(),
       sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 7,
       path: '/'

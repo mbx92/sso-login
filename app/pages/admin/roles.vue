@@ -121,6 +121,7 @@
                 <UInput
                   v-model="form.name"
                   placeholder="Contoh: Admin Site"
+                  class="w-full"
                 />
               </div>
               
@@ -130,6 +131,7 @@
                   v-model="form.description"
                   :rows="2"
                   placeholder="Deskripsi role ini..."
+                  class="w-full"
                 />
               </div>
               
@@ -139,6 +141,7 @@
                   v-model="form.siteId"
                   :items="siteOptions"
                   placeholder="Global (Semua Site)"
+                  class="w-full"
                 />
               </div>
               

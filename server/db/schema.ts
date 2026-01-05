@@ -66,6 +66,7 @@ export const users = pgTable('users', {
   avatarUrl: text('avatar_url'),
   roleId: varchar('role_id', { length: 50 }),
   roleName: varchar('role_name', { length: 100 }),
+  lastActivityAt: timestamp('last_activity_at'), // For online status tracking
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow()
 }, (table) => [
@@ -73,7 +74,8 @@ export const users = pgTable('users', {
   index('users_employee_id_idx').on(table.employeeId),
   index('users_status_idx').on(table.status),
   index('users_department_idx').on(table.department),
-  index('users_unit_id_idx').on(table.unitId)
+  index('users_unit_id_idx').on(table.unitId),
+  index('users_last_activity_idx').on(table.lastActivityAt)
 ])
 
 // ==================== PERMISSIONS LIST ====================

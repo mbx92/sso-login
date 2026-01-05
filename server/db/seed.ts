@@ -1,9 +1,10 @@
-import { db, users, roles, userRoles } from './index'
+import { db, users, roles, userRoles, sites } from './index'
 import { eq } from 'drizzle-orm'
 import * as argon2 from 'argon2'
 
 /**
  * Seed the database with initial data:
+ * - Default site (Headquarters)
  * - Default roles (superadmin, admin, user)
  * - Superadmin user from environment variables
  */
@@ -15,10 +16,25 @@ export async function seedDatabase(): Promise<void> {
   const superadminPassword = process.env.SUPERADMIN_PASSWORD || 'change-me'
 
   try {
+    // Create default site
+    console.log('🏢 Creating default site...')
+    const existingSite = await db.select().from(sites).where(eq(sites.code, 'HQ')).limit(1)
+    if (existingSite.length === 0) {
+      await db.insert(sites).values({
+        code: 'HQ',
+        name: 'Headquarters',
+        description: 'Default headquarters site',
+        isActive: true
+      })
+      console.log('  ✅ Created default site: Headquarters')
+    } else {
+      console.log('  ⏭️  Default site already exists: Headquarters')
+    }
+
     // Create default roles
     const defaultRoles = [
-      { name: 'superadmin', description: 'Full system access - can manage clients, users, roles, and settings' },
-      { name: 'admin', description: 'Administrative access - can view users and audit logs' },
+      { name: 'superadmin', description: 'Full system access - can manage sites, clients, users, roles, and all settings' },
+      { name: 'admin', description: 'Administrative access - can manage users and view audit logs' },
       { name: 'user', description: 'Regular user - basic SSO access' }
     ]
 

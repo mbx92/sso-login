@@ -24,7 +24,7 @@ services:
       - SSO_ISSUER=${SSO_ISSUER:-http://localhost:3000}
       - SESSION_SECRET=${SESSION_SECRET:-change-me-to-a-secure-random-string-at-least-32-chars}
       - SUPERADMIN_EMAIL=${SUPERADMIN_EMAIL:-admin@example.com}
-      - SUPERADMIN_PASSWORD=${SUPERADMIN_PASSWORD:-change-me-immediately}
+      - SUPERADMIN_PASSWORD=${SUPERADMIN_PASSWORD:-Admin@123}
       - HRIS_API_BASE_URL=${HRIS_API_BASE_URL:-}
       - HRIS_API_TOKEN=${HRIS_API_TOKEN:-}
       - LOG_LEVEL=${LOG_LEVEL:-info}

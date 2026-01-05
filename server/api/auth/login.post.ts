@@ -69,7 +69,7 @@ export default defineEventHandler(async (event) => {
     if (!body) {
       throw createError({
         statusCode: 400,
-        message: 'Request body is required'
+        statusMessage: 'Request body is required'
       })
     }
 
@@ -79,7 +79,7 @@ export default defineEventHandler(async (event) => {
     if (!email || !password) {
       throw createError({
         statusCode: 400,
-        message: 'Email and password are required'
+        statusMessage: 'Email and password are required'
       })
     }
 
@@ -109,7 +109,7 @@ export default defineEventHandler(async (event) => {
     if (!user || !user.passwordHash) {
       throw createError({
         statusCode: 401,
-        message: 'Invalid email or password'
+        statusMessage: 'Invalid email or password'
       })
     }
 
@@ -134,7 +134,7 @@ export default defineEventHandler(async (event) => {
     if (user.status !== 'active') {
       throw createError({
         statusCode: 403,
-        message: 'Account is not active'
+        statusMessage: 'Account is not active'
       })
     }
 
@@ -144,7 +144,7 @@ export default defineEventHandler(async (event) => {
     if (!isPasswordValid) {
       throw createError({
         statusCode: 401,
-        message: 'Invalid email or password'
+        statusMessage: 'Invalid email or password'
       })
     }
 
@@ -227,7 +227,7 @@ export default defineEventHandler(async (event) => {
 
     throw createError({
       statusCode: 500,
-      message: `An error occurred during login: ${(error as Error).message || 'Unknown error'}`
+      statusMessage: `An error occurred during login: ${(error as Error).message || 'Unknown error'}`
     })
   }
 })

@@ -220,7 +220,7 @@ async function doLogin() {
     }
   } catch (err: any) {
     console.error('Login error:', err)
-    errorMsg.value = err.data?.message || err.message || 'Login failed. Please try again.'
+    errorMsg.value = err.data?.statusMessage || err.data?.message || err.message || 'Login failed. Please try again.'
     isLoading.value = false
   }
 }

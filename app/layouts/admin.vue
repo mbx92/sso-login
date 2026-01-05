@@ -115,7 +115,7 @@ const currentUser = computed(() => {
   }
 })
 
-const isSuperAdmin = computed(() => currentUser.value?.roleId === 'superadmin')
+const isSuperAdmin = computed(() => currentUser.value?.roleName?.toLowerCase() === 'superadmin')
 const userName = computed(() => currentUser.value?.name || 'User')
 const userRole = computed(() => currentUser.value?.roleName || 'User')
 const userInitial = computed(() => userName.value.charAt(0).toUpperCase())

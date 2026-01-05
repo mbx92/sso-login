@@ -30,6 +30,8 @@ interface ActiveSession {
   userAgent: string
   loginAt: string
   expiresAt: string | null
+  isOnline: boolean
+  lastActivityAt: string | null
 }
 
 /**
@@ -84,12 +86,15 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // Fetch user details
+    // Fetch user details including lastActivityAt
     const userList = userIds.size > 0 ? await db
-      .select({ id: users.id, name: users.name, email: users.email })
+      .select({ id: users.id, name: users.name, email: users.email, lastActivityAt: users.lastActivityAt })
       .from(users)
       .where(inArray(users.id, Array.from(userIds)))
       : []
+    
+    // Calculate online threshold (5 minutes ago)
+    const onlineThreshold = new Date(Date.now() - 5 * 60 * 1000)
     
     const userMap = new Map(userList.map(u => [u.id, u]))
 
@@ -167,7 +172,9 @@ export default defineEventHandler(async (event) => {
         ip: loginInfo?.ip || 'Unknown',
         userAgent: loginInfo?.userAgent || 'Unknown',
         loginAt: loginInfo?.loginAt?.toISOString() || new Date().toISOString(),
-        expiresAt: session.expiresAt?.toISOString() || null
+        expiresAt: session.expiresAt?.toISOString() || null,
+        isOnline: user?.lastActivityAt ? user.lastActivityAt > onlineThreshold : false,
+        lastActivityAt: user?.lastActivityAt?.toISOString() || null
       })
     }
 

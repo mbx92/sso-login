@@ -65,6 +65,10 @@ COPY --from=builder --chown=nuxtjs:nodejs /app/package.json ./package.json
 # Copy drizzle config and migrations (for db:migrate command)
 COPY --from=builder --chown=nuxtjs:nodejs /app/drizzle.config.ts ./drizzle.config.ts
 COPY --from=builder --chown=nuxtjs:nodejs /app/server/db ./server/db
+COPY --from=builder --chown=nuxtjs:nodejs /app/tsconfig.json ./tsconfig.json
+
+# Install migration dependencies (tsx + drizzle-orm + postgres driver)
+RUN npm install -g tsx && npm install drizzle-orm postgres
 
 # Set environment variables
 ENV NODE_ENV=production

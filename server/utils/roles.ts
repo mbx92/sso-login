@@ -15,6 +15,13 @@ export type UserRole = typeof ROLES[keyof typeof ROLES]
  */
 export function isSuperAdmin(user: any): boolean {
   if (!user) return false
+  
+  // Check new roles array
+  if (Array.isArray(user.roles) && user.roles.includes(ROLES.SUPERADMIN)) {
+    return true
+  }
+
+  // Legacy check
   return user.roleName === ROLES.SUPERADMIN || user.roleId === ROLES.SUPERADMIN
 }
 
@@ -23,6 +30,13 @@ export function isSuperAdmin(user: any): boolean {
  */
 export function isAdmin(user: any): boolean {
   if (!user) return false
+  
+  // Check new roles array
+  if (Array.isArray(user.roles) && (user.roles.includes(ROLES.ADMIN) || user.roles.includes(ROLES.SUPERADMIN))) {
+    return true
+  }
+
+  // Legacy check
   return isSuperAdmin(user) || 
          user.roleName === ROLES.ADMIN || 
          user.roleId === ROLES.ADMIN

@@ -1,6 +1,6 @@
 import 'dotenv/config'
 import { db, users, roles, userRoles, sites } from './index'
-import { eq } from 'drizzle-orm'
+import { eq, and } from 'drizzle-orm'
 import * as argon2 from 'argon2'
 
 /**
@@ -51,10 +51,13 @@ export async function seedDatabase(): Promise<void> {
     }
 
     // Create superadmin user
-    console.log('👤 Creating superadmin user...')
+    console.log('👤 Checking superadmin user...')
+    let userId: string
+
     const existingUser = await db.select().from(users).where(eq(users.email, superadminEmail)).limit(1)
     
     if (existingUser.length === 0) {
+      console.log('👤 Creating superadmin user...')
       // Hash password using argon2id
       const passwordHash = await argon2.hash(superadminPassword, {
         type: argon2.argon2id,
@@ -70,19 +73,35 @@ export async function seedDatabase(): Promise<void> {
         status: 'active',
         passwordHash
       }).returning()
-
-      // Assign superadmin role
-      const [superadminRole] = await db.select().from(roles).where(eq(roles.name, 'superadmin')).limit(1)
-      if (superadminRole) {
-        await db.insert(userRoles).values({
-          userId: newUser.id,
-          roleId: superadminRole.id
-        })
-      }
-
+      userId = newUser.id
       console.log(`  ✅ Created superadmin user: ${superadminEmail}`)
     } else {
       console.log(`  ⏭️  Superadmin user already exists: ${superadminEmail}`)
+      userId = existingUser[0].id
+    }
+
+    // Always ensure superadmin has the superadmin role
+    const [superadminRole] = await db.select().from(roles).where(eq(roles.name, 'superadmin')).limit(1)
+    
+    if (superadminRole) {
+      // Check if already has role
+      const [hasRole] = await db.select()
+        .from(userRoles)
+        .where(and(
+          eq(userRoles.userId, userId),
+          eq(userRoles.roleId, superadminRole.id)
+        ))
+        .limit(1)
+
+      if (!hasRole) {
+        await db.insert(userRoles).values({
+          userId: userId,
+          roleId: superadminRole.id
+        })
+        console.log('  ✅ Assigned superadmin role to user')
+      } else {
+        console.log('  ⏭️  User already has superadmin role')
+      }
     }
 
     console.log('🌱 Database seed completed!')

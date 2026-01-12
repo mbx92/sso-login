@@ -149,6 +149,16 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    // Get user roles
+    const userRoleNamesResult = await db
+      .select({ name: roles.name })
+      .from(userRoles)
+      .innerJoin(roles, eq(userRoles.roleId, roles.id))
+      .where(eq(userRoles.userId, user.id))
+    
+    const userRolesList = userRoleNamesResult.map(r => r.name)
+    console.log(`User ${user.email} roles list:`, userRolesList)
+
     // Create session
     const sessionId = uuidv4()
     const sessionData = {
@@ -156,8 +166,9 @@ export default defineEventHandler(async (event) => {
       email: user.email,
       employeeId: user.employeeId,
       name: user.name,
-      roleId: user.roleId,
-      roleName: user.roleName,
+      roles: userRolesList, // New roles array
+      roleId: user.roleId, // Keep for backward compatibility
+      roleName: user.roleName, // Keep for backward compatibility
       siteId: siteId,
       department: user.department,
       position: user.position
@@ -215,6 +226,7 @@ export default defineEventHandler(async (event) => {
         status: user.status,
         roleId: user.roleId,
         roleName: user.roleName,
+        roles: userRolesList,
         siteId: siteId
       }
     }

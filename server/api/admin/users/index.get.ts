@@ -1,6 +1,5 @@
-import { defineEventHandler, getQuery, createError } from 'h3'
-import { db, users, userRoles, roles, units } from '../../../db/index.ts'
-import { eq, count, like, or, desc, sql, and } from 'drizzle-orm'
+import { db, users, userRoles, roles, units } from '../../../db/index'
+import { eq, count, like, or, desc, sql, and, inArray } from 'drizzle-orm'
 import { getAuthUser } from '../../../utils/auth'
 import { isSuperAdmin } from '../../../utils/roles'
 
@@ -67,22 +66,32 @@ export default defineEventHandler(async (event) => {
       .limit(limit)
       .offset(offset)
 
-    // Get roles for each user
-    const usersWithRoles = await Promise.all(
-      userList.map(async (user) => {
-        const userRolesResult = await db
-          .select({ roleName: roles.name })
-          .from(userRoles)
-          .innerJoin(roles, eq(userRoles.roleId, roles.id))
-          .where(eq(userRoles.userId, user.id))
+    // Get roles for all users in one query
+    const userIds = userList.map(u => u.id)
+    const rolesMap = new Map<string, string[]>()
+    
+    if (userIds.length > 0) {
+      const allRoles = await db
+        .select({
+          userId: userRoles.userId,
+          roleName: roles.name
+        })
+        .from(userRoles)
+        .innerJoin(roles, eq(userRoles.roleId, roles.id))
+        .where(inArray(userRoles.userId, userIds))
+      
+      for (const r of allRoles) {
+        const current = rolesMap.get(r.userId) || []
+        current.push(r.roleName)
+        rolesMap.set(r.userId, current)
+      }
+    }
 
-        return {
-          ...user,
-          roles: userRolesResult.map(r => r.roleName)
-        }
-      })
-    )
-
+    const usersWithRoles = userList.map(user => ({
+      ...user,
+      roles: rolesMap.get(user.id) || []
+    }))
+    
     return {
       data: usersWithRoles,
       pagination: {

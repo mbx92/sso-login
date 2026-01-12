@@ -1,5 +1,5 @@
-import { db, roles, sites, PERMISSIONS } from '../../../db'
-import { eq, and, isNull, or, desc } from 'drizzle-orm'
+import { db, roles, sites, userRoles, PERMISSIONS } from '../../../db'
+import { eq, and, isNull, or, desc, count, sql } from 'drizzle-orm'
 import { getAuthUser } from '../../../utils/auth'
 import { isSuperAdmin } from '../../../utils/roles'
 
@@ -38,9 +38,25 @@ export default defineEventHandler(async (event) => {
       .where(whereClause)
       .orderBy(desc(roles.createdAt))
     
+    // Get user counts for each role
+    const userCounts = await db
+      .select({
+        roleId: userRoles.roleId,
+        count: count()
+      })
+      .from(userRoles)
+      .groupBy(userRoles.roleId)
+    
+    const countMap = new Map(userCounts.map(uc => [uc.roleId, uc.count]))
+    
+    const rolesWithCount = roleList.map(role => ({
+      ...role,
+      userCount: countMap.get(role.id) || 0
+    }))
+    
     // Return available permissions list too
     return {
-      data: roleList,
+      data: rolesWithCount,
       permissions: Object.entries(PERMISSIONS).map(([key, value]) => ({
         key,
         value,

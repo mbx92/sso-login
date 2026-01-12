@@ -43,6 +43,13 @@
       "when": 1767192200000,
       "tag": "0005_add_site_settings",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1768223151318,
+      "tag": "0006_red_pete_wisdom",
+      "breakpoints": true
     }
   ]
 }

@@ -86,6 +86,22 @@
           
           <p v-if="role.description" class="text-sm text-gray-600 mb-3">{{ role.description }}</p>
           
+          <!-- User count and manage button -->
+          <div class="flex items-center justify-between mb-3 py-2 px-3 bg-gray-50 rounded-lg">
+            <span class="text-sm text-gray-600">
+              <span class="font-medium">{{ role.userCount || 0 }}</span> user
+            </span>
+            <UButton
+              @click="openUsersModal(role)"
+              variant="ghost"
+              color="primary"
+              icon="i-lucide-users"
+              size="xs"
+            >
+              Kelola User
+            </UButton>
+          </div>
+          
           <div class="flex flex-wrap gap-1">
             <span 
               v-for="perm in (role.permissions || []).slice(0, 5)" 
@@ -217,6 +233,114 @@
         @confirm="showErrorModal = false"
         @cancel="showErrorModal = false"
       />
+
+      <!-- Manage Users Modal -->
+      <div v-if="showUsersModal" class="fixed inset-0 z-50 overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen px-4">
+          <div class="fixed inset-0 bg-black/50" @click="closeUsersModal"></div>
+          <div class="relative bg-white rounded-xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200">
+              <h3 class="text-lg font-semibold text-gray-900">Kelola User</h3>
+              <p class="text-sm text-gray-500">
+                Role: <strong>{{ usersRole?.name }}</strong>
+              </p>
+            </div>
+            
+            <div v-if="loadingUsers" class="p-6 text-center text-gray-500">
+              <svg class="animate-spin h-6 w-6 mx-auto mb-2" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Memuat users...
+            </div>
+            
+            <div v-else class="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
+              <!-- Current Users -->
+              <div>
+                <h4 class="text-sm font-medium text-gray-700 mb-2">User dengan role ini ({{ roleUsers.length }})</h4>
+                <div v-if="roleUsers.length === 0" class="text-sm text-gray-400 py-2">
+                  Belum ada user dengan role ini
+                </div>
+                <div v-else class="space-y-2">
+                  <div
+                    v-for="user in roleUsers"
+                    :key="user.id"
+                    class="flex items-center justify-between p-3 rounded-lg border border-gray-200 bg-gray-50"
+                  >
+                    <div class="flex items-center gap-3">
+                      <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
+                        <span class="text-emerald-700 text-sm font-semibold">{{ user.name?.charAt(0).toUpperCase() }}</span>
+                      </div>
+                      <div>
+                        <p class="font-medium text-gray-900 text-sm">{{ user.name }}</p>
+                        <p class="text-xs text-gray-500">{{ user.email }}</p>
+                      </div>
+                    </div>
+                    <UButton
+                      @click="removeUserFromRole(user)"
+                      variant="ghost"
+                      color="error"
+                      icon="i-lucide-x"
+                      size="xs"
+                      :loading="savingUser"
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Add Users -->
+              <div class="border-t border-gray-200 pt-4">
+                <h4 class="text-sm font-medium text-gray-700 mb-2">Tambah User</h4>
+                <UInput
+                  v-model="userSearchQuery"
+                  placeholder="Cari user..."
+                  icon="i-lucide-search"
+                  class="mb-3"
+                />
+                
+                <div v-if="filteredAvailableUsers.length === 0" class="text-sm text-gray-400 py-2">
+                  {{ userSearchQuery ? 'Tidak ditemukan user' : 'Semua user sudah memiliki role ini' }}
+                </div>
+                <div v-else class="space-y-2 max-h-48 overflow-y-auto">
+                  <div
+                    v-for="user in filteredAvailableUsers"
+                    :key="user.id"
+                    class="flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer"
+                    @click="addUserToRole(user)"
+                  >
+                    <div class="flex items-center gap-3">
+                      <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                        <span class="text-blue-700 text-sm font-semibold">{{ user.name?.charAt(0).toUpperCase() }}</span>
+                      </div>
+                      <div>
+                        <p class="font-medium text-gray-900 text-sm">{{ user.name }}</p>
+                        <p class="text-xs text-gray-500">{{ user.email }}</p>
+                      </div>
+                    </div>
+                    <UButton
+                      variant="ghost"
+                      color="primary"
+                      icon="i-lucide-plus"
+                      size="xs"
+                      :loading="savingUser"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="px-6 py-4 border-t border-gray-200 flex justify-end">
+              <UButton
+                @click="closeUsersModal"
+                variant="outline"
+                color="neutral"
+              >
+                Selesai
+              </UButton>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </NuxtLayout>
 </template>
@@ -236,6 +360,15 @@ interface Role {
   isSystem: boolean
   createdAt: string
   updatedAt: string
+  userCount?: number
+}
+
+interface RoleUser {
+  id: string
+  email: string
+  name: string
+  employeeId: string | null
+  status: string
 }
 
 interface Site {
@@ -262,6 +395,15 @@ const showErrorModal = ref(false)
 const errorMessage = ref('')
 const editingRole = ref<Role | null>(null)
 const roleToDelete = ref<Role | null>(null)
+
+// Users management for role
+const showUsersModal = ref(false)
+const usersRole = ref<Role | null>(null)
+const roleUsers = ref<RoleUser[]>([])
+const allUsers = ref<RoleUser[]>([])
+const loadingUsers = ref(false)
+const savingUser = ref(false)
+const userSearchQuery = ref('')
 
 const form = ref({
   name: '',
@@ -422,6 +564,90 @@ async function deleteRole() {
     showDeleteModal.value = false
     errorMessage.value = error.data?.message || 'Gagal menghapus role'
     showErrorModal.value = true
+  }
+}
+
+// === Users Management for Role ===
+async function openUsersModal(role: Role) {
+  usersRole.value = role
+  showUsersModal.value = true
+  loadingUsers.value = true
+  
+  try {
+    // Fetch users with this role
+    const roleUsersResponse = await $fetch<{ data: RoleUser[] }>(`/api/admin/roles/${role.id}/users`)
+    roleUsers.value = roleUsersResponse.data || []
+    
+    // Fetch all users (for adding)
+    if (allUsers.value.length === 0) {
+      const usersResponse = await $fetch<{ data: RoleUser[] }>('/api/admin/users?limit=100')
+      allUsers.value = usersResponse.data || []
+    }
+  } catch (error) {
+    console.error('Failed to fetch users:', error)
+  } finally {
+    loadingUsers.value = false
+  }
+}
+
+function closeUsersModal() {
+  showUsersModal.value = false
+  usersRole.value = null
+  roleUsers.value = []
+  userSearchQuery.value = ''
+}
+
+const filteredAvailableUsers = computed(() => {
+  const assignedIds = new Set(roleUsers.value.map(u => u.id))
+  let available = allUsers.value.filter(u => !assignedIds.has(u.id))
+  
+  if (userSearchQuery.value.trim()) {
+    const query = userSearchQuery.value.toLowerCase()
+    available = available.filter(u => 
+      u.name.toLowerCase().includes(query) || 
+      u.email.toLowerCase().includes(query)
+    )
+  }
+  
+  return available.slice(0, 20) // Limit to 20 results
+})
+
+function isUserInRole(userId: string): boolean {
+  return roleUsers.value.some(u => u.id === userId)
+}
+
+async function addUserToRole(user: RoleUser) {
+  if (!usersRole.value) return
+  
+  savingUser.value = true
+  try {
+    await $fetch(`/api/admin/roles/${usersRole.value.id}/users`, {
+      method: 'POST',
+      body: { userId: user.id }
+    })
+    roleUsers.value.push(user)
+    await loadRoles() // Refresh role list to update user count
+  } catch (error: any) {
+    alert(error.data?.message || 'Gagal menambahkan user')
+  } finally {
+    savingUser.value = false
+  }
+}
+
+async function removeUserFromRole(user: RoleUser) {
+  if (!usersRole.value) return
+  
+  savingUser.value = true
+  try {
+    await $fetch(`/api/admin/roles/${usersRole.value.id}/users/${user.id}`, {
+      method: 'DELETE'
+    })
+    roleUsers.value = roleUsers.value.filter(u => u.id !== user.id)
+    await loadRoles() // Refresh role list to update user count
+  } catch (error: any) {
+    alert(error.data?.message || 'Gagal menghapus user')
+  } finally {
+    savingUser.value = false
   }
 }
 

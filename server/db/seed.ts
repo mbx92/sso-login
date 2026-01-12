@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import { db, users, roles, userRoles, sites } from './index'
 import { eq } from 'drizzle-orm'
 import * as argon2 from 'argon2'
@@ -92,8 +93,10 @@ export async function seedDatabase(): Promise<void> {
 }
 
 // Run seed if executed directly
-if (import.meta.url === `file://${process.argv[1]}`) {
-  seedDatabase()
-    .then(() => process.exit(0))
-    .catch(() => process.exit(1))
-}
+seedDatabase()
+  .then(() => process.exit(0))
+  .catch((e) => {
+    console.error('Fatal error:', e)
+    process.exit(1)
+  })
+

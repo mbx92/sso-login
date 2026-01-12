@@ -45,6 +45,7 @@
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employee ID</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unit</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Roles</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dibuat</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
@@ -52,7 +53,7 @@
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
             <tr v-if="loading">
-              <td colspan="6" class="px-6 py-12 text-center">
+              <td colspan="7" class="px-6 py-12 text-center">
                 <div class="flex items-center justify-center gap-2 text-gray-500">
                   <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -63,7 +64,7 @@
               </td>
             </tr>
             <tr v-else-if="filteredUsers.length === 0">
-              <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+              <td colspan="7" class="px-6 py-12 text-center text-gray-500">
                 Tidak ada data user
               </td>
             </tr>
@@ -85,6 +86,29 @@
               <td class="px-6 py-4 whitespace-nowrap">
                 <span class="text-sm text-gray-600">{{ user.unitName || '-' }}</span>
               </td>
+              <td class="px-6 py-4">
+                <div class="flex flex-wrap gap-1">
+                  <span
+                    v-for="role in (user.roles || []).slice(0, 2)"
+                    :key="role"
+                    class="inline-flex px-2 py-0.5 text-xs font-medium rounded-full bg-blue-100 text-blue-800"
+                  >
+                    {{ role }}
+                  </span>
+                  <span
+                    v-if="(user.roles || []).length > 2"
+                    class="inline-flex px-2 py-0.5 text-xs font-medium rounded-full bg-gray-100 text-gray-600"
+                  >
+                    +{{ (user.roles || []).length - 2 }}
+                  </span>
+                  <span
+                    v-if="(user.roles || []).length === 0"
+                    class="text-xs text-gray-400"
+                  >
+                    No roles
+                  </span>
+                </div>
+              </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <span
                   :class="[
@@ -102,6 +126,14 @@
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex items-center gap-1">
+                  <UButton
+                    @click="openRolesModal(user)"
+                    variant="ghost"
+                    color="primary"
+                    icon="i-lucide-shield"
+                    size="sm"
+                    title="Manage Roles"
+                  />
                   <UButton
                     @click="openEditModal(user)"
                     variant="ghost"
@@ -267,6 +299,68 @@
         </div>
       </div>
     </div>
+
+    <!-- Manage Roles Modal -->
+    <div v-if="showRolesModal" class="fixed inset-0 z-50 overflow-y-auto">
+      <div class="flex items-center justify-center min-h-screen px-4">
+        <div class="fixed inset-0 bg-black/50" @click="closeRolesModal"></div>
+        <div class="relative bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+          <h3 class="text-lg font-semibold text-gray-900 mb-2">Kelola Roles</h3>
+          <p class="text-sm text-gray-500 mb-4">
+            Assign roles untuk <strong>{{ rolesUser?.name }}</strong>
+          </p>
+          
+          <div v-if="loadingRoles" class="py-8 text-center text-gray-500">
+            <svg class="animate-spin h-6 w-6 mx-auto mb-2" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Memuat roles...
+          </div>
+          
+          <div v-else class="space-y-2 max-h-64 overflow-y-auto">
+            <div
+              v-for="role in allRoles"
+              :key="role.id"
+              class="flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer"
+              @click="toggleUserRole(role)"
+            >
+              <div class="flex items-center gap-3">
+                <div :class="[
+                  'w-5 h-5 rounded border-2 flex items-center justify-center transition-colors',
+                  isRoleAssigned(role.id) 
+                    ? 'bg-emerald-500 border-emerald-500' 
+                    : 'border-gray-300'
+                ]">
+                  <svg v-if="isRoleAssigned(role.id)" class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <div>
+                  <p class="font-medium text-gray-900">{{ role.name }}</p>
+                  <p v-if="role.description" class="text-xs text-gray-500">{{ role.description }}</p>
+                </div>
+              </div>
+              <span v-if="role.isSystem" class="text-xs text-purple-600 bg-purple-50 px-2 py-0.5 rounded">Sistem</span>
+            </div>
+            
+            <div v-if="allRoles.length === 0" class="py-4 text-center text-gray-500">
+              Tidak ada role tersedia
+            </div>
+          </div>
+          
+          <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200">
+            <UButton
+              @click="closeRolesModal"
+              variant="outline"
+              color="neutral"
+            >
+              Selesai
+            </UButton>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -291,6 +385,14 @@ interface User {
   unitName: string | null
   status: string
   createdAt: string
+  roles?: string[]
+}
+
+interface Role {
+  id: string
+  name: string
+  description: string | null
+  isSystem: boolean
 }
 
 const users = ref<User[]>([])
@@ -306,6 +408,14 @@ const deleting = ref(false)
 const editingUser = ref<User | null>(null)
 const deletingUser = ref<User | null>(null)
 const currentPage = ref(1)
+
+// Roles management
+const showRolesModal = ref(false)
+const rolesUser = ref<User | null>(null)
+const allRoles = ref<Role[]>([])
+const userAssignedRoles = ref<Role[]>([])
+const loadingRoles = ref(false)
+const savingRole = ref(false)
 
 const pagination = ref({
   page: 1,
@@ -503,6 +613,67 @@ function formatDate(dateStr: string) {
     month: 'short',
     day: 'numeric'
   })
+}
+
+// === Roles Management ===
+async function openRolesModal(user: User) {
+  rolesUser.value = user
+  showRolesModal.value = true
+  loadingRoles.value = true
+  
+  try {
+    // Fetch all available roles
+    if (allRoles.value.length === 0) {
+      const rolesResponse = await $fetch<{ data: Role[] }>('/api/admin/roles')
+      allRoles.value = rolesResponse.data || []
+    }
+    
+    // Fetch user's assigned roles
+    const userRolesResponse = await $fetch<{ data: Role[] }>(`/api/admin/users/${user.id}/roles`)
+    userAssignedRoles.value = userRolesResponse.data || []
+  } catch (error) {
+    console.error('Failed to fetch roles:', error)
+  } finally {
+    loadingRoles.value = false
+  }
+}
+
+function closeRolesModal() {
+  showRolesModal.value = false
+  rolesUser.value = null
+  userAssignedRoles.value = []
+}
+
+function isRoleAssigned(roleId: string): boolean {
+  return userAssignedRoles.value.some(r => r.id === roleId)
+}
+
+async function toggleUserRole(role: Role) {
+  if (!rolesUser.value) return
+  
+  savingRole.value = true
+  try {
+    if (isRoleAssigned(role.id)) {
+      // Remove role
+      await $fetch(`/api/admin/users/${rolesUser.value.id}/roles/${role.id}`, {
+        method: 'DELETE'
+      })
+      userAssignedRoles.value = userAssignedRoles.value.filter(r => r.id !== role.id)
+    } else {
+      // Assign role
+      await $fetch(`/api/admin/users/${rolesUser.value.id}/roles`, {
+        method: 'POST',
+        body: { roleId: role.id }
+      })
+      userAssignedRoles.value.push(role)
+    }
+    // Refresh users list to update roles display
+    await fetchUsers()
+  } catch (error: any) {
+    alert(error.data?.message || 'Gagal mengubah role')
+  } finally {
+    savingRole.value = false
+  }
 }
 
 onMounted(() => {

@@ -115,9 +115,31 @@ const currentUser = computed(() => {
   }
 })
 
-const isSuperAdmin = computed(() => currentUser.value?.roleName?.toLowerCase() === 'superadmin')
+const isSuperAdmin = computed(() => {
+  const user = currentUser.value
+  if (!user) return false
+  
+  // Check new roles array
+  if (Array.isArray(user.roles) && user.roles.includes('superadmin')) {
+    return true
+  }
+  
+  // Legacy check for backward compatibility
+  return user.roleName?.toLowerCase() === 'superadmin'
+})
 const userName = computed(() => currentUser.value?.name || 'User')
-const userRole = computed(() => currentUser.value?.roleName || 'User')
+const userRole = computed(() => {
+  const user = currentUser.value
+  if (!user) return 'User'
+  
+  // Show first role from roles array
+  if (Array.isArray(user.roles) && user.roles.length > 0) {
+    return user.roles[0]
+  }
+  
+  // Legacy fallback
+  return user.roleName || 'User'
+})
 const userInitial = computed(() => userName.value.charAt(0).toUpperCase())
 
 // Site settings for conditional menu items

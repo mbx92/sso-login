@@ -9,8 +9,9 @@ export interface AuthUser {
   email: string
   name: string
   employeeId?: string | null
-  roleId?: string | null
-  roleName?: string | null
+  roles?: string[] // New: array of role names
+  roleId?: string | null // Legacy
+  roleName?: string | null // Legacy
   siteId?: string | null
   department?: string | null
   position?: string | null

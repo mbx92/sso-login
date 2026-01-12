@@ -1,5 +1,5 @@
-import { db, users } from "../../db/index";
-import { desc, count, ilike, or, and, eq } from "drizzle-orm";
+import { db, users, userRoles, roles, units } from "../../db/index";
+import { desc, count, ilike, or, and, eq, inArray } from "drizzle-orm";
 
 function parseQuery(event: any): Record<string, string> {
   const url = event.node.req.url || "";
@@ -44,16 +44,17 @@ export default defineEventHandler(async (event) => {
         email: users.email,
         name: users.name,
         employeeId: users.employeeId,
+        unitId: users.unitId,
+        unitName: units.name,
         status: users.status,
         department: users.department,
         position: users.position,
         avatarUrl: users.avatarUrl,
-        roleId: users.roleId,
-        roleName: users.roleName,
         createdAt: users.createdAt,
         updatedAt: users.updatedAt,
       })
       .from(users)
+      .leftJoin(units, eq(users.unitId, units.id))
       .where(searchCondition)
       .orderBy(desc(users.createdAt))
       .limit(limit)
@@ -65,8 +66,34 @@ export default defineEventHandler(async (event) => {
       .from(users)
       .where(searchCondition);
 
+    // Get roles for all users in one query
+    const userIds = userList.map(u => u.id)
+    const rolesMap = new Map<string, string[]>()
+    
+    if (userIds.length > 0) {
+      const allRoles = await db
+        .select({
+          userId: userRoles.userId,
+          roleName: roles.name
+        })
+        .from(userRoles)
+        .innerJoin(roles, eq(userRoles.roleId, roles.id))
+        .where(inArray(userRoles.userId, userIds))
+      
+      for (const r of allRoles) {
+        const current = rolesMap.get(r.userId) || []
+        current.push(r.roleName)
+        rolesMap.set(r.userId, current)
+      }
+    }
+
+    const usersWithRoles = userList.map(user => ({
+      ...user,
+      roles: rolesMap.get(user.id) || []
+    }))
+
     return {
-      data: userList,
+      data: usersWithRoles,
       pagination: {
         total,
         page,

@@ -1,7 +1,7 @@
 import { db, users } from '../../../db'
 import { createAuditLog } from '../../../services/audit'
 import { z } from 'zod'
-import bcrypt from 'bcryptjs'
+import * as argon2 from 'argon2'
 
 const createUserSchema = z.object({
   email: z.string().email('Email tidak valid'),
@@ -26,17 +26,21 @@ export default defineEventHandler(async (event) => {
   const { email, name, password, employeeId, unitId, status } = validation.data
 
   try {
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 12)
+    // Hash password using argon2id
+    const passwordHash = await argon2.hash(password, {
+      type: argon2.argon2id,
+      memoryCost: 65536, // 64 MB
+      timeCost: 3,
+      parallelism: 4
+    })
 
     const [newUser] = await db.insert(users).values({
       email: email.toLowerCase(),
       name,
-      password: hashedPassword,
+      passwordHash: passwordHash,
       employeeId: employeeId || null,
       unitId: unitId || null,
-      status,
-      source: 'manual'
+      status
     }).returning({
       id: users.id,
       email: users.email,

@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm'
 import { db, users } from '../../../db'
 import { createAuditLog } from '../../../services/audit'
 import { z } from 'zod'
-import bcrypt from 'bcryptjs'
+import * as argon2 from 'argon2'
 
 const updateUserSchema = z.object({
   email: z.string().email('Email tidak valid').optional(),
@@ -40,9 +40,14 @@ export default defineEventHandler(async (event) => {
     updatedAt: new Date()
   }
 
-  // Hash password if provided
+  // Hash password if provided using argon2id
   if (password) {
-    updateData.password = await bcrypt.hash(password, 12)
+    updateData.passwordHash = await argon2.hash(password, {
+      type: argon2.argon2id,
+      memoryCost: 65536, // 64 MB
+      timeCost: 3,
+      parallelism: 4
+    })
   }
 
   // Lowercase email if provided

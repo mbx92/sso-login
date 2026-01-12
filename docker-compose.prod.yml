@@ -1,0 +1,52 @@
+# ==============================================================================
+# SSO Login - Docker Compose Production Configuration
+# ==============================================================================
+# Usage: docker compose -f docker-compose.prod.yml --env-file docker.env up -d
+# ==============================================================================
+
+services:
+  # ============================================================================
+  # SSO Application
+  # ============================================================================
+  sso-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sso-login-app
+    restart: unless-stopped
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - DATABASE_URL=postgres://${DB_USER:-postgres}:${DB_PASSWORD:-postgres}@${DB_HOST:-postgres}:${DB_PORT:-5432}/${DB_NAME:-sso_db}
+      - SSO_ISSUER=${SSO_ISSUER:-https://sso.baliroyalhospital.co.id}
+      - COOKIE_SECURE=${COOKIE_SECURE:-true}
+      - SESSION_SECRET=${SESSION_SECRET}
+      - SUPERADMIN_EMAIL=${SUPERADMIN_EMAIL:-admin@example.com}
+      - SUPERADMIN_PASSWORD=${SUPERADMIN_PASSWORD:-Admin@123}
+      - HRIS_API_BASE_URL=${HRIS_API_BASE_URL:-}
+      - HRIS_API_TOKEN=${HRIS_API_TOKEN:-}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    networks:
+      - postgres_default
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:3000/api/health",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+# ==============================================================================
+# Networks - Use existing PostgreSQL network
+# ==============================================================================
+networks:
+  postgres_default:
+    external: true

@@ -236,7 +236,15 @@ const deleting = ref(false)
 const editingDivision = ref<Division | null>(null)
 const deletingDivision = ref<Division | null>(null)
 
-const isSuperAdmin = computed(() => currentUser.value?.roleId === 'superadmin')
+const isSuperAdmin = computed(() => {
+  const user = currentUser.value
+  if (!user) return false
+  // Check roles array (new format) or roleId/roleName (legacy)
+  if (Array.isArray(user.roles)) {
+    return user.roles.includes('superadmin')
+  }
+  return user.roleId === 'superadmin' || user.roleName === 'superadmin'
+})
 const userSiteId = computed(() => currentUser.value?.siteId || '')
 
 // Sites for superadmin

@@ -389,7 +389,15 @@ const currentUser = computed(() => {
   }
 })
 
-const isSuperAdmin = computed(() => currentUser.value?.roleId === 'superadmin')
+const isSuperAdmin = computed(() => {
+  const user = currentUser.value
+  if (!user) return false
+  // Check roles array (new format) or roleId/roleName (legacy)
+  if (Array.isArray(user.roles)) {
+    return user.roles.includes('superadmin')
+  }
+  return user.roleId === 'superadmin' || user.roleName === 'superadmin'
+})
 
 interface Site {
   id: string

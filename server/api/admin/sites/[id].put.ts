@@ -3,6 +3,7 @@ import { db, sites } from '../../../db'
 import { createAuditLog } from '../../../services/audit'
 import { z } from 'zod'
 import { getAuthUser } from '../../../utils/auth'
+import { isSuperAdmin } from '../../../utils/roles'
 
 const updateSiteSchema = z.object({
   code: z.string().min(1).max(50).optional(),
@@ -19,7 +20,7 @@ export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, 'id')
   
   // Authorization: Only superadmin can update sites
-  if (user?.roleId !== 'superadmin') {
+  if (!isSuperAdmin(user)) {
     throw createError({
       statusCode: 403,
       message: 'Hanya superadmin yang dapat mengubah site'

@@ -2,6 +2,7 @@ import { db, sites } from '../../../db'
 import { createAuditLog } from '../../../services/audit'
 import { z } from 'zod'
 import { getAuthUser } from '../../../utils/auth'
+import { isSuperAdmin } from '../../../utils/roles'
 
 const createSiteSchema = z.object({
   code: z.string().min(1, 'Kode site wajib diisi').max(50),
@@ -17,7 +18,7 @@ export default defineEventHandler(async (event) => {
   const user = getAuthUser(event)
   
   // Authorization: Only superadmin can create sites
-  if (user?.roleId !== 'superadmin') {
+  if (!isSuperAdmin(user)) {
     throw createError({
       statusCode: 403,
       message: 'Hanya superadmin yang dapat membuat site baru'

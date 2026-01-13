@@ -2,13 +2,14 @@ import { eq } from 'drizzle-orm'
 import { db, sites } from '../../../db'
 import { createAuditLog } from '../../../services/audit'
 import { getAuthUser } from '../../../utils/auth'
+import { isSuperAdmin } from '../../../utils/roles'
 
 export default defineEventHandler(async (event) => {
   const user = getAuthUser(event)
   const id = getRouterParam(event, 'id')
   
   // Authorization: Only superadmin can delete sites
-  if (user?.roleId !== 'superadmin') {
+  if (!isSuperAdmin(user)) {
     throw createError({
       statusCode: 403,
       message: 'Hanya superadmin yang dapat menghapus site'

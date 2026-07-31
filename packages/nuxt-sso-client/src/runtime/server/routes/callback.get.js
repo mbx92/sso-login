@@ -1,0 +1,90 @@
+import {
+  defineEventHandler,
+  getCookie,
+  deleteCookie,
+  getQuery,
+  sendRedirect,
+} from 'h3'
+import { $fetch } from 'ofetch'
+import { getSsoConfig, failLoginRedirect, successRedirectUrl } from '../utils/sso.js'
+
+function readPkceCookie(event, cookieName) {
+  const raw = getCookie(event, cookieName)
+  if (!raw) return null
+  try {
+    return JSON.parse(raw)
+  }
+  catch {
+    return null
+  }
+}
+
+export default defineEventHandler(async (event) => {
+  const sso = getSsoConfig()
+  const query = getQuery(event)
+
+  if (!sso.enabled) {
+    return sendRedirect(event, failLoginRedirect(sso, 'SSO belum dikonfigurasi'), 302)
+  }
+
+  if (query.error) {
+    return sendRedirect(
+      event,
+      failLoginRedirect(sso, String(query.error_description || query.error)),
+      302,
+    )
+  }
+
+  const code = query.code
+  const state = query.state
+  const pkce = readPkceCookie(event, sso.pkceCookie)
+  deleteCookie(event, sso.pkceCookie, { path: '/' })
+
+  if (!code || !state || !pkce?.codeVerifier || pkce.state !== state) {
+    return sendRedirect(event, failLoginRedirect(sso, 'SSO state tidak valid. Coba lagi.'), 302)
+  }
+
+  try {
+    const tokenRes = await $fetch(`${sso.issuer}/api/oidc/token`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        grant_type: 'authorization_code',
+        code: String(code),
+        redirect_uri: sso.redirectUri,
+        client_id: sso.clientId,
+        client_secret: sso.clientSecret,
+        code_verifier: pkce.codeVerifier,
+      }).toString(),
+    })
+
+    const userInfo = await $fetch(`${sso.issuer}/api/oidc/userinfo`, {
+      headers: { Authorization: `Bearer ${tokenRes.access_token}` },
+    })
+
+    const email = String(userInfo?.email || '').toLowerCase().trim()
+    if (!email) {
+      return sendRedirect(event, failLoginRedirect(sso, 'SSO tidak mengembalikan email'), 302)
+    }
+
+    const resolveUser = (await import('#mbx-sso-resolve-user')).default
+    const result = await resolveUser(event, {
+      userInfo: { ...userInfo, email },
+      tokens: tokenRes,
+      sso,
+    })
+
+    const redirectTo = result?.redirectTo || sso.successRedirect
+    return sendRedirect(event, successRedirectUrl(sso, redirectTo), 302)
+  }
+  catch (error) {
+    console.error('[@mbx92/nuxt-sso-client] callback error:', error)
+    const message =
+      error?.data?.statusMessage ||
+      error?.data?.message ||
+      error?.statusMessage ||
+      error?.message ||
+      'Login SSO gagal'
+    return sendRedirect(event, failLoginRedirect(sso, message), 302)
+  }
+})

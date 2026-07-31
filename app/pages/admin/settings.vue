@@ -3,20 +3,20 @@
     <div class="space-y-6">
       <!-- Page Header -->
       <div>
-        <h1 class="text-2xl font-semibold text-gray-900">Settings</h1>
-        <p class="text-sm text-gray-500 mt-1">Configure system settings</p>
+        <h1 class="text-2xl font-semibold text-ink">Settings</h1>
+        <p class="text-sm text-steel mt-1">Configure system settings</p>
       </div>
 
       <!-- Settings Sections -->
       <div class="space-y-6">
         <!-- General Settings -->
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-          <div class="px-6 py-4 border-b border-gray-200">
-            <h3 class="text-lg font-semibold text-gray-900">General</h3>
+        <div class="bg-canvas rounded-xl border border-hairline shadow-none overflow-hidden">
+          <div class="px-6 py-4 border-b border-hairline">
+            <h3 class="text-lg font-semibold text-ink">General</h3>
           </div>
           <div class="p-6 space-y-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Application Name</label>
+              <label class="block text-sm font-medium text-charcoal mb-2">Application Name</label>
               <UInput
                 v-model="settings.appName"
                 placeholder="Application name"
@@ -24,7 +24,7 @@
               />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">SSO Issuer URL</label>
+              <label class="block text-sm font-medium text-charcoal mb-2">SSO Issuer URL</label>
               <UInput
                 v-model="settings.issuerUrl"
                 type="url"
@@ -36,13 +36,13 @@
         </div>
 
         <!-- Session Settings -->
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-          <div class="px-6 py-4 border-b border-gray-200">
-            <h3 class="text-lg font-semibold text-gray-900">Session</h3>
+        <div class="bg-canvas rounded-xl border border-hairline shadow-none overflow-hidden">
+          <div class="px-6 py-4 border-b border-hairline">
+            <h3 class="text-lg font-semibold text-ink">Session</h3>
           </div>
           <div class="p-6 space-y-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Session Timeout (minutes)</label>
+              <label class="block text-sm font-medium text-charcoal mb-2">Session Timeout (minutes)</label>
               <UInput
                 v-model.number="settings.sessionTimeout"
                 type="number"
@@ -52,7 +52,7 @@
               />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Token Expiry (hours)</label>
+              <label class="block text-sm font-medium text-charcoal mb-2">Token Expiry (hours)</label>
               <UInput
                 v-model.number="settings.tokenExpiry"
                 type="number"
@@ -65,22 +65,22 @@
         </div>
 
         <!-- Security Settings -->
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-          <div class="px-6 py-4 border-b border-gray-200">
-            <h3 class="text-lg font-semibold text-gray-900">Security</h3>
+        <div class="bg-canvas rounded-xl border border-hairline shadow-none overflow-hidden">
+          <div class="px-6 py-4 border-b border-hairline">
+            <h3 class="text-lg font-semibold text-ink">Security</h3>
           </div>
           <div class="p-6 space-y-4">
             <div class="flex items-center justify-between">
               <div>
-                <p class="font-medium text-gray-900">Enforce MFA</p>
-                <p class="text-sm text-gray-500">Require multi-factor authentication for all users</p>
+                <p class="font-medium text-ink">Enforce MFA</p>
+                <p class="text-sm text-steel">Require multi-factor authentication for all users</p>
               </div>
               <USwitch v-model="settings.enforceMfa" />
             </div>
             <div class="flex items-center justify-between">
               <div>
-                <p class="font-medium text-gray-900">Allow Password Reset</p>
-                <p class="text-sm text-gray-500">Enable self-service password reset</p>
+                <p class="font-medium text-ink">Allow Password Reset</p>
+                <p class="text-sm text-steel">Enable self-service password reset</p>
               </div>
               <USwitch v-model="settings.allowPasswordReset" />
             </div>
@@ -88,13 +88,13 @@
         </div>
 
         <!-- HRIS Integration -->
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-          <div class="px-6 py-4 border-b border-gray-200">
-            <h3 class="text-lg font-semibold text-gray-900">HRIS Integration</h3>
+        <div class="bg-canvas rounded-xl border border-hairline shadow-none overflow-hidden">
+          <div class="px-6 py-4 border-b border-hairline">
+            <h3 class="text-lg font-semibold text-ink">HRIS Integration</h3>
           </div>
           <div class="p-6 space-y-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">HRIS API URL</label>
+              <label class="block text-sm font-medium text-charcoal mb-2">HRIS API URL</label>
               <UInput
                 v-model="settings.hrisApiUrl"
                 type="url"
@@ -103,7 +103,7 @@
               />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Sync Interval (minutes)</label>
+              <label class="block text-sm font-medium text-charcoal mb-2">Sync Interval (minutes)</label>
               <UInput
                 v-model.number="settings.syncInterval"
                 type="number"
@@ -131,34 +131,30 @@
   </NuxtLayout>
 </template>
 
-<script setup lang="ts">
+<script setup>
 definePageMeta({
-  middleware: ['auth']
-})
-
-const saving = ref(false)
-
+  middleware: ["auth"]
+});
+const saving = ref(false);
 const settings = ref({
-  appName: 'SSO Identity Provider',
-  issuerUrl: 'https://sso.company.com',
+  appName: "SSO Identity Provider",
+  issuerUrl: "https://sso.company.com",
   sessionTimeout: 60,
   tokenExpiry: 24,
   enforceMfa: false,
   allowPasswordReset: true,
-  hrisApiUrl: '',
+  hrisApiUrl: "",
   syncInterval: 60
-})
-
+});
 async function saveSettings() {
-  saving.value = true
+  saving.value = true;
   try {
-    // Simulate save
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    console.log('Settings saved:', settings.value)
+    await new Promise((resolve) => setTimeout(resolve, 1e3));
+    console.log("Settings saved:", settings.value);
   } catch (error) {
-    console.error('Failed to save settings:', error)
+    console.error("Failed to save settings:", error);
   } finally {
-    saving.value = false
+    saving.value = false;
   }
 }
 </script>

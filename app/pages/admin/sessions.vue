@@ -4,13 +4,13 @@
       <!-- Page Header -->
       <div class="flex items-center justify-between">
         <div>
-          <h1 class="text-2xl font-semibold text-gray-900">Active Sessions</h1>
-          <p class="text-sm text-gray-500 mt-1">Monitor users currently logged in to applications</p>
+          <h1 class="text-2xl font-semibold text-ink">Active Sessions</h1>
+          <p class="text-sm text-steel mt-1">Monitor users currently logged in to applications</p>
         </div>
         <button
           @click="fetchSessions"
           :disabled="loading"
-          class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+          class="inline-flex items-center gap-2 px-4 py-2 border border-hairline text-charcoal rounded-lg hover:bg-surface transition-colors disabled:opacity-50"
         >
           <svg v-if="loading" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -29,143 +29,143 @@
         <button 
           @click="showOnlineOnly = !showOnlineOnly"
           :class="[
-            'bg-white rounded-xl border p-5 shadow-sm text-left transition-all',
-            showOnlineOnly ? 'border-green-500 ring-2 ring-green-500/20' : 'border-gray-200 hover:border-green-200'
+            'bg-canvas rounded-xl border p-5 shadow-none text-left transition-all',
+            showOnlineOnly ? 'border-success-text ring-2 ring-success-text/20' : 'border-hairline active:border-hairline'
           ]"
         >
           <div class="flex items-center gap-4">
-            <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-green-100">
+            <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-success-bg">
               <div class="relative">
-                <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-6 h-6 text-success-text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.636 18.364a9 9 0 010-12.728m12.728 0a9 9 0 010 12.728m-9.9-2.829a5 5 0 010-7.07m7.072 0a5 5 0 010 7.07M13 12a1 1 0 11-2 0 1 1 0 012 0z" />
                 </svg>
-                <span class="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                <span class="absolute -top-1 -right-1 w-2 h-2 bg-success-text rounded-full animate-pulse"></span>
               </div>
             </div>
             <div>
-              <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Online Now</p>
-              <p class="text-2xl font-semibold text-gray-900">{{ onlineUsers }}</p>
+              <p class="text-sm font-medium text-steel uppercase tracking-wide">Online Now</p>
+              <p class="text-2xl font-semibold text-ink">{{ onlineUsers }}</p>
             </div>
           </div>
-          <p class="mt-2 text-xs text-gray-500">{{ showOnlineOnly ? 'Click to show all' : 'Click to filter' }}</p>
+          <p class="mt-2 text-xs text-steel">{{ showOnlineOnly ? 'Click to show all' : 'Click to filter' }}</p>
         </button>
 
-        <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+        <div class="bg-canvas rounded-xl border border-hairline p-5 shadow-none">
           <div class="flex items-center gap-4">
-            <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-emerald-100">
-              <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-surface">
+              <svg class="w-6 h-6 text-ink" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
               </svg>
             </div>
             <div>
-              <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Active Users</p>
-              <p class="text-2xl font-semibold text-gray-900">{{ uniqueUsers }}</p>
+              <p class="text-sm font-medium text-steel uppercase tracking-wide">Active Users</p>
+              <p class="text-2xl font-semibold text-ink">{{ uniqueUsers }}</p>
             </div>
           </div>
         </div>
 
-        <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+        <div class="bg-canvas rounded-xl border border-hairline p-5 shadow-none">
           <div class="flex items-center gap-4">
-            <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-blue-100">
-              <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-surface">
+              <svg class="w-6 h-6 text-ink" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
               </svg>
             </div>
             <div>
-              <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Total Sessions</p>
-              <p class="text-2xl font-semibold text-gray-900">{{ sessions.length }}</p>
+              <p class="text-sm font-medium text-steel uppercase tracking-wide">Total Sessions</p>
+              <p class="text-2xl font-semibold text-ink">{{ sessions.length }}</p>
             </div>
           </div>
         </div>
 
-        <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+        <div class="bg-canvas rounded-xl border border-hairline p-5 shadow-none">
           <div class="flex items-center gap-4">
-            <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-violet-100">
-              <svg class="w-6 h-6 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-surface">
+              <svg class="w-6 h-6 text-ink" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
               </svg>
             </div>
             <div>
-              <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Applications</p>
-              <p class="text-2xl font-semibold text-gray-900">{{ uniqueApps }}</p>
+              <p class="text-sm font-medium text-steel uppercase tracking-wide">Applications</p>
+              <p class="text-2xl font-semibold text-ink">{{ uniqueApps }}</p>
             </div>
           </div>
         </div>
       </div>
 
       <!-- Sessions Table -->
-      <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-200">
-          <h3 class="text-lg font-semibold text-gray-900">Session Details</h3>
+      <div class="bg-canvas rounded-xl border border-hairline shadow-none overflow-hidden">
+        <div class="px-6 py-4 border-b border-hairline">
+          <h3 class="text-lg font-semibold text-ink">Session Details</h3>
         </div>
         
         <div v-if="loading" class="p-8 text-center">
-          <svg class="animate-spin w-8 h-8 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24">
+          <svg class="animate-spin w-8 h-8 mx-auto text-stone" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
-          <p class="mt-2 text-gray-500">Loading sessions...</p>
+          <p class="mt-2 text-steel">Loading sessions...</p>
         </div>
 
         <div v-else-if="sessions.length === 0" class="p-8 text-center">
-          <svg class="w-12 h-12 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-12 h-12 mx-auto text-muted mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
           </svg>
-          <p class="text-gray-500">No active sessions</p>
+          <p class="text-steel">No active sessions</p>
         </div>
 
         <div v-else class="overflow-x-auto">
           <table class="w-full">
-            <thead class="bg-gray-50">
+            <thead class="bg-surface">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Application</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">IP Address</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Browser</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Login Time</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expires</th>
-                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-steel uppercase tracking-wider">User</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-steel uppercase tracking-wider">Application</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-steel uppercase tracking-wider">IP Address</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-steel uppercase tracking-wider">Browser</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-steel uppercase tracking-wider">Login Time</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-steel uppercase tracking-wider">Expires</th>
+                <th class="px-6 py-3 text-right text-xs font-medium text-steel uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200">
-              <tr v-for="session in filteredSessions" :key="session.id" class="hover:bg-gray-50">
+            <tbody class="divide-y divide-hairline-soft">
+              <tr v-for="session in filteredSessions" :key="session.id" class="hover:bg-surface">
                 <td class="px-6 py-4">
                   <div class="flex items-center gap-3">
                     <!-- Avatar with online indicator -->
                     <div class="relative">
-                      <div class="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-semibold">
+                      <div class="w-10 h-10 rounded-full bg-surface flex items-center justify-center text-ink font-semibold">
                         {{ getInitials(session.userName) }}
                       </div>
                       <!-- Online indicator chip -->
                       <span 
                         v-if="session.isOnline" 
-                        class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"
+                        class="absolute bottom-0 right-0 w-3 h-3 bg-success-text border-2 border-white rounded-full"
                         title="Online"
                       ></span>
                       <span 
                         v-else 
-                        class="absolute bottom-0 right-0 w-3 h-3 bg-gray-300 border-2 border-white rounded-full"
+                        class="absolute bottom-0 right-0 w-3 h-3 bg-muted border-2 border-white rounded-full"
                         title="Offline"
                       ></span>
                     </div>
                     <div>
-                      <p class="text-sm font-medium text-gray-900">{{ session.userName }}</p>
-                      <p class="text-xs text-gray-500">{{ session.userEmail }}</p>
+                      <p class="text-sm font-medium text-ink">{{ session.userName }}</p>
+                      <p class="text-xs text-steel">{{ session.userEmail }}</p>
                     </div>
                   </div>
                 </td>
                 <td class="px-6 py-4">
                   <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
-                      <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="w-8 h-8 rounded-lg bg-surface flex items-center justify-center">
+                      <svg class="w-4 h-4 text-ink" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                       </svg>
                     </div>
-                    <span class="text-sm text-gray-900">{{ session.clientName }}</span>
+                    <span class="text-sm text-ink">{{ session.clientName }}</span>
                   </div>
                 </td>
                 <td class="px-6 py-4">
-                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-surface text-charcoal">
                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
                     </svg>
@@ -173,24 +173,24 @@
                   </span>
                 </td>
                 <td class="px-6 py-4">
-                  <span class="text-sm text-gray-500 max-w-[200px] truncate block" :title="session.userAgent">
+                  <span class="text-sm text-steel max-w-[200px] truncate block" :title="session.userAgent">
                     {{ getBrowserInfo(session.userAgent) }}
                   </span>
                 </td>
                 <td class="px-6 py-4">
-                  <span class="text-sm text-gray-900">{{ formatDateTime(session.loginAt) }}</span>
+                  <span class="text-sm text-ink">{{ formatDateTime(session.loginAt) }}</span>
                 </td>
                 <td class="px-6 py-4">
-                  <span v-if="session.expiresAt" class="text-sm text-gray-500">
+                  <span v-if="session.expiresAt" class="text-sm text-steel">
                     {{ formatRelativeTime(session.expiresAt) }}
                   </span>
-                  <span v-else class="text-sm text-gray-400">Never</span>
+                  <span v-else class="text-sm text-stone">Never</span>
                 </td>
                 <td class="px-6 py-4 text-right">
                   <button
                     @click="openRevokeModal(session)"
                     :disabled="revokingId === session.id"
-                    class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors disabled:opacity-50"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#d45656] bg-[#d45656]/10 rounded-lg hover:bg-[#d45656]/10 transition-colors disabled:opacity-50"
                   >
                     <svg v-if="revokingId === session.id" class="animate-spin w-3 h-3" fill="none" viewBox="0 0 24 24">
                       <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -216,37 +216,37 @@
         <div class="absolute inset-0 bg-black/50" @click="closeRevokeModal"></div>
         
         <!-- Modal -->
-        <div class="relative bg-white rounded-2xl shadow-xl max-w-md w-full mx-4 p-6">
+        <div class="relative bg-canvas rounded-2xl shadow-mm-2 max-w-md w-full mx-4 p-6">
           <!-- Icon -->
           <div class="flex justify-center mb-4">
-            <div class="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center">
-              <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="w-16 h-16 rounded-full bg-[#d45656]/10 flex items-center justify-center">
+              <svg class="w-8 h-8 text-[#d45656]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
             </div>
           </div>
           
           <!-- Title -->
-          <h3 class="text-lg font-semibold text-gray-900 text-center mb-2">Revoke Session</h3>
+          <h3 class="text-lg font-semibold text-ink text-center mb-2">Revoke Session</h3>
           
           <!-- Message -->
-          <p class="text-gray-600 text-center mb-6">
-            Are you sure you want to revoke the session for <strong class="text-gray-900">{{ sessionToRevoke?.userName }}</strong>? 
-            They will be logged out from <strong class="text-gray-900">{{ sessionToRevoke?.clientName }}</strong>.
+          <p class="text-steel text-center mb-6">
+            Are you sure you want to revoke the session for <strong class="text-ink">{{ sessionToRevoke?.userName }}</strong>? 
+            They will be logged out from <strong class="text-ink">{{ sessionToRevoke?.clientName }}</strong>.
           </p>
           
           <!-- Actions -->
           <div class="flex gap-3">
             <button
               @click="closeRevokeModal"
-              class="flex-1 py-2.5 px-4 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
+              class="flex-1 py-2.5 px-4 border border-hairline text-charcoal font-medium rounded-lg hover:bg-surface transition-colors"
             >
               Cancel
             </button>
             <button
               @click="confirmRevoke"
               :disabled="revokingId !== null"
-              class="flex-1 py-2.5 px-4 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              class="flex-1 py-2.5 px-4 bg-[#d45656] active:bg-[#b33e3e] text-white font-medium rounded-full transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
             >
               <svg v-if="revokingId" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -262,7 +262,7 @@
     <!-- Error Toast -->
     <Teleport to="body">
       <div v-if="errorMessage" class="fixed bottom-4 right-4 z-50">
-        <div class="bg-red-600 text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-3">
+        <div class="bg-[#d45656] text-white px-4 py-3 rounded-lg shadow-mm-2 flex items-center gap-3">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
@@ -278,143 +278,103 @@
   </NuxtLayout>
 </template>
 
-<script setup lang="ts">
+<script setup>
 definePageMeta({
-  middleware: ['auth']
-})
-
-interface Session {
-  id: string
-  userId: string
-  userName: string
-  userEmail: string
-  clientId: string
-  clientName: string
-  ip: string
-  userAgent: string
-  loginAt: string
-  expiresAt: string | null
-  isOnline: boolean
-  lastActivityAt: string | null
-}
-
-const sessions = ref<Session[]>([])
-const loading = ref(false)
-const revokingId = ref<string | null>(null)
-const showRevokeModal = ref(false)
-const sessionToRevoke = ref<Session | null>(null)
-const errorMessage = ref('')
-const showOnlineOnly = ref(false)
-
+  middleware: ["auth"]
+});
+const sessions = ref([]);
+const loading = ref(false);
+const revokingId = ref(null);
+const showRevokeModal = ref(false);
+const sessionToRevoke = ref(null);
+const errorMessage = ref("");
+const showOnlineOnly = ref(false);
 const filteredSessions = computed(() => {
   if (showOnlineOnly.value) {
-    return sessions.value.filter(s => s.isOnline)
+    return sessions.value.filter((s) => s.isOnline);
   }
-  return sessions.value
-})
-
+  return sessions.value;
+});
 const uniqueUsers = computed(() => {
-  return new Set(sessions.value.map(s => s.userId)).size
-})
-
+  return new Set(sessions.value.map((s) => s.userId)).size;
+});
 const onlineUsers = computed(() => {
-  return sessions.value.filter(s => s.isOnline).length
-})
-
+  return sessions.value.filter((s) => s.isOnline).length;
+});
 const uniqueApps = computed(() => {
-  return new Set(sessions.value.map(s => s.clientId)).size
-})
-
-function getInitials(name: string): string {
-  return name
-    .split(' ')
-    .map(part => part[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2)
+  return new Set(sessions.value.map((s) => s.clientId)).size;
+});
+function getInitials(name) {
+  return name.split(" ").map((part) => part[0]).join("").toUpperCase().slice(0, 2);
 }
-
-function getBrowserInfo(userAgent: string): string {
-  if (!userAgent || userAgent === 'Unknown') return 'Unknown'
-  
-  // Simple browser detection
-  if (userAgent.includes('Chrome') && !userAgent.includes('Edg')) return 'Chrome'
-  if (userAgent.includes('Firefox')) return 'Firefox'
-  if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) return 'Safari'
-  if (userAgent.includes('Edg')) return 'Edge'
-  if (userAgent.includes('MSIE') || userAgent.includes('Trident')) return 'IE'
-  
-  // Return first 30 chars if unknown
-  return userAgent.substring(0, 30) + '...'
+function getBrowserInfo(userAgent) {
+  if (!userAgent || userAgent === "Unknown") return "Unknown";
+  if (userAgent.includes("Chrome") && !userAgent.includes("Edg")) return "Chrome";
+  if (userAgent.includes("Firefox")) return "Firefox";
+  if (userAgent.includes("Safari") && !userAgent.includes("Chrome")) return "Safari";
+  if (userAgent.includes("Edg")) return "Edge";
+  if (userAgent.includes("MSIE") || userAgent.includes("Trident")) return "IE";
+  return userAgent.substring(0, 30) + "...";
 }
-
-function formatDateTime(dateStr: string): string {
-  return new Date(dateStr).toLocaleString('id-ID', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
+function formatDateTime(dateStr) {
+  return new Date(dateStr).toLocaleString("id-ID", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
 }
-
-function formatRelativeTime(dateStr: string): string {
-  const date = new Date(dateStr)
-  const now = new Date()
-  const diffMs = date.getTime() - now.getTime()
-  const diffMins = Math.round(diffMs / 60000)
-  const diffHours = Math.round(diffMs / 3600000)
-  const diffDays = Math.round(diffMs / 86400000)
-  
-  if (diffMins < 0) return 'Expired'
-  if (diffMins < 60) return `in ${diffMins}m`
-  if (diffHours < 24) return `in ${diffHours}h`
-  return `in ${diffDays}d`
+function formatRelativeTime(dateStr) {
+  const date = new Date(dateStr);
+  const now = /* @__PURE__ */ new Date();
+  const diffMs = date.getTime() - now.getTime();
+  const diffMins = Math.round(diffMs / 6e4);
+  const diffHours = Math.round(diffMs / 36e5);
+  const diffDays = Math.round(diffMs / 864e5);
+  if (diffMins < 0) return "Expired";
+  if (diffMins < 60) return `in ${diffMins}m`;
+  if (diffHours < 24) return `in ${diffHours}h`;
+  return `in ${diffDays}d`;
 }
-
 async function fetchSessions() {
-  loading.value = true
+  loading.value = true;
   try {
-    const res = await $fetch('/api/admin/sessions')
-    sessions.value = (res as any).data || []
+    const res = await $fetch("/api/admin/sessions");
+    sessions.value = res.data || [];
   } catch (error) {
-    console.error('Failed to fetch sessions:', error)
+    console.error("Failed to fetch sessions:", error);
   } finally {
-    loading.value = false
+    loading.value = false;
   }
 }
-
-function openRevokeModal(session: Session) {
-  sessionToRevoke.value = session
-  showRevokeModal.value = true
+function openRevokeModal(session) {
+  sessionToRevoke.value = session;
+  showRevokeModal.value = true;
 }
-
 function closeRevokeModal() {
-  showRevokeModal.value = false
-  sessionToRevoke.value = null
+  showRevokeModal.value = false;
+  sessionToRevoke.value = null;
 }
-
 async function confirmRevoke() {
-  if (!sessionToRevoke.value) return
-  
-  const session = sessionToRevoke.value
-  revokingId.value = session.id
-  
+  if (!sessionToRevoke.value) return;
+  const session = sessionToRevoke.value;
+  revokingId.value = session.id;
   try {
-    await $fetch(`/api/admin/sessions/${session.id}`, { method: 'DELETE' })
-    // Remove from local list
-    sessions.value = sessions.value.filter(s => s.id !== session.id)
-    closeRevokeModal()
+    await $fetch(`/api/admin/sessions/${session.id}`, { method: "DELETE" });
+    sessions.value = sessions.value.filter((s) => s.id !== session.id);
+    closeRevokeModal();
   } catch (error) {
-    console.error('Failed to revoke session:', error)
-    errorMessage.value = 'Failed to revoke session. Please try again.'
-    setTimeout(() => { errorMessage.value = '' }, 5000)
+    console.error("Failed to revoke session:", error);
+    errorMessage.value = "Failed to revoke session. Please try again.";
+    setTimeout(() => {
+      errorMessage.value = "";
+    }, 5e3);
   } finally {
-    revokingId.value = null
+    revokingId.value = null;
   }
 }
-
 onMounted(() => {
-  fetchSessions()
-})
+  fetchSessions();
+});
 </script>

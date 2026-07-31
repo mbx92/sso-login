@@ -1,0 +1,83 @@
+import { db, sites } from "../../../db";
+import { createAuditLog } from "../../../services/audit";
+import { z } from "zod";
+import { getAuthUser } from "../../../utils/auth";
+const createSiteSchema = z.object({
+  code: z.string().min(1, "Kode site wajib diisi").max(50),
+  name: z.string().min(1, "Nama site wajib diisi").max(255),
+  description: z.string().optional(),
+  address: z.string().optional(),
+  useDivisions: z.boolean().default(false),
+  useUnits: z.boolean().default(false),
+  isActive: z.boolean().default(true)
+});
+var index_post_default = defineEventHandler(async (event) => {
+  const user = getAuthUser(event);
+  if (user?.roleId !== "superadmin") {
+    throw createError({
+      statusCode: 403,
+      message: "Hanya superadmin yang dapat membuat site baru"
+    });
+  }
+  let body;
+  const rawBody = await new Promise((resolve, reject) => {
+    const chunks = [];
+    event.node.req.on("data", (chunk) => chunks.push(chunk));
+    event.node.req.on("end", () => resolve(Buffer.concat(chunks).toString()));
+    event.node.req.on("error", reject);
+  });
+  try {
+    body = JSON.parse(rawBody || "{}");
+  } catch (e) {
+    body = {};
+  }
+  const validation = createSiteSchema.safeParse(body);
+  if (!validation.success) {
+    throw createError({
+      statusCode: 400,
+      message: validation.error.errors[0].message
+    });
+  }
+  const { code, name, description, address, useDivisions, useUnits, isActive } = validation.data;
+  try {
+    const [newSite] = await db.insert(sites).values({
+      code,
+      name,
+      description: description || null,
+      address: address || null,
+      useDivisions,
+      useUnits,
+      isActive
+    }).returning();
+    const user2 = getAuthUser(event);
+    await createAuditLog({
+      userId: user2?.userId || "system",
+      action: "site.create",
+      resource: "site",
+      resourceId: newSite.id,
+      details: { code, name },
+      ipAddress: event.node.req.socket.remoteAddress || "",
+      userAgent: event.node.req.headers["user-agent"] || ""
+    }).catch(console.error);
+    return {
+      success: true,
+      site: newSite
+    };
+  } catch (error) {
+    console.error("Error creating site:", error);
+    if (error.statusCode) throw error;
+    if (error.code === "23505") {
+      throw createError({
+        statusCode: 409,
+        message: "Kode site sudah digunakan"
+      });
+    }
+    throw createError({
+      statusCode: 500,
+      message: `Gagal membuat site: ${error.message || "Unknown error"}`
+    });
+  }
+});
+export {
+  index_post_default as default
+};

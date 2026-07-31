@@ -1,0 +1,5 @@
+# Scope @mbx92 → GitHub Packages (repo mbx92/sso-login)
+@mbx92:registry=https://npm.pkg.github.com
+# Set token via env, jangan commit secret:
+#   NODE_AUTH_TOKEN=ghp_xxx  (read:packages / write:packages)
+//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}

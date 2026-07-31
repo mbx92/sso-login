@@ -1,52 +1,245 @@
 @import "tailwindcss";
-@import "@nuxt/ui";
+@import "tw-animate-css";
 
-/* Custom styles for SSO Admin Dashboard */
-:root {
-  --app-primary: #10b981;
-  --app-primary-hover: #059669;
+@custom-variant dark (&:is(.dark *));
+
+/* MiniMax design tokens — DESIGN-minimax.md */
+@theme inline {
+  --font-sans: "DM Sans", Inter, "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-3xl: 24px;
+  --radius-4xl: 32px;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --color-canvas: var(--mm-canvas);
+  --color-surface: var(--mm-surface);
+  --color-surface-soft: var(--mm-surface-soft);
+  --color-hairline: var(--mm-hairline);
+  --color-hairline-soft: var(--mm-hairline-soft);
+  --color-ink: var(--mm-ink);
+  --color-charcoal: var(--mm-charcoal);
+  --color-slate: var(--mm-slate);
+  --color-steel: var(--mm-steel);
+  --color-stone: var(--mm-stone);
+  --color-brand-coral: var(--mm-brand-coral);
+  --color-brand-magenta: var(--mm-brand-magenta);
+  --color-brand-blue: var(--mm-brand-blue);
+  --color-brand-blue-deep: var(--mm-brand-blue-deep);
+  --color-brand-blue-200: var(--mm-brand-blue-200);
+  --color-brand-purple: var(--mm-brand-purple);
+  --color-brand-cyan: var(--mm-brand-cyan);
+  --color-success-bg: var(--mm-success-bg);
+  --color-success-text: var(--mm-success-text);
 }
 
-/* Smooth scrolling */
+:root {
+  --radius: 8px;
+
+  /* MiniMax raw tokens */
+  --mm-canvas: #ffffff;
+  --mm-surface: #f7f8fa;
+  --mm-surface-soft: #f2f3f5;
+  --mm-hairline: #e5e7eb;
+  --mm-hairline-soft: #eaecf0;
+  --mm-ink: #0a0a0a;
+  --mm-ink-strong: #000000;
+  --mm-charcoal: #222222;
+  --mm-slate: #45515e;
+  --mm-steel: #5f5f5f;
+  --mm-stone: #8e8e93;
+  --mm-muted: #a8aab2;
+  --mm-brand-coral: #ff5530;
+  --mm-brand-magenta: #ea5ec1;
+  --mm-brand-blue: #1456f0;
+  --mm-brand-blue-mid: #3b82f6;
+  --mm-brand-blue-deep: #1d4ed8;
+  --mm-brand-blue-700: #17437d;
+  --mm-brand-cyan: #3daeff;
+  --mm-brand-blue-200: #bfdbfe;
+  --mm-brand-purple: #a855f7;
+  --mm-success-bg: #e8ffea;
+  --mm-success-text: #1ba673;
+  --mm-error: #d45656;
+
+  /* shadcn semantic mapping */
+  --background: #ffffff;
+  --foreground: #0a0a0a;
+  --card: #ffffff;
+  --card-foreground: #0a0a0a;
+  --popover: #ffffff;
+  --popover-foreground: #0a0a0a;
+  --primary: #0a0a0a;
+  --primary-foreground: #ffffff;
+  --secondary: #f7f8fa;
+  --secondary-foreground: #0a0a0a;
+  --muted: #f7f8fa;
+  --muted-foreground: #5f5f5f;
+  --accent: #f2f3f5;
+  --accent-foreground: #0a0a0a;
+  --destructive: #d45656;
+  --border: #e5e7eb;
+  --input: #e5e7eb;
+  --ring: #1d4ed8;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #222222;
+  --sidebar-primary: #0a0a0a;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f7f8fa;
+  --sidebar-accent-foreground: #0a0a0a;
+  --sidebar-border: #eaecf0;
+  --sidebar-ring: #1d4ed8;
+}
+
 @layer base {
+  * {
+    @apply border-border;
+  }
+
   html {
     @apply scroll-smooth;
   }
 
   body {
-    @apply antialiased bg-gray-50;
+    @apply bg-canvas text-ink antialiased font-sans;
+    font-size: 16px;
+    line-height: 1.5;
+    font-weight: 400;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply text-ink font-semibold tracking-tight;
   }
 }
 
-/* Custom scrollbar for sidebar */
 @layer utilities {
-  .scrollbar-thin {
-    scrollbar-width: thin;
+  .text-heading-lg {
+    font-size: 40px;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -1px;
   }
 
-  .scrollbar-thin::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+  .text-heading-md {
+    font-size: 32px;
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: -0.5px;
   }
 
-  .scrollbar-thin::-webkit-scrollbar-track {
-    background: transparent;
+  .text-heading-sm {
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 1.3;
   }
 
-  .scrollbar-thin::-webkit-scrollbar-thumb {
-    background-color: var(--ui-border);
-    border-radius: 3px;
+  .text-card-title {
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.4;
   }
-}
 
-/* Nuxt UI Full Width Override */
-@layer components {
-  /* Make all form inputs full width */
-  [data-part="root"]:has(input),
-  [data-part="root"]:has(textarea),
-  [data-part="base"]:has(select),
-  .w-full [data-part="root"],
-  .w-full [data-part="base"] {
-    width: 100%;
+  .text-subtitle {
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 1.5;
+  }
+
+  .text-body-sm {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.5;
+  }
+
+  .text-caption-bold {
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.5;
+  }
+
+  .shadow-mm-1 {
+    box-shadow: rgba(0, 0, 0, 0.04) 0px 1px 2px 0px;
+  }
+
+  .shadow-mm-2 {
+    box-shadow: rgba(0, 0, 0, 0.08) 0px 4px 6px 0px;
+  }
+
+  .shadow-mm-modal {
+    box-shadow: rgba(36, 36, 36, 0.08) 0px 12px 16px -4px;
+  }
+
+  .card-mm {
+    @apply bg-canvas rounded-xl border border-hairline p-6;
+  }
+
+  .badge-success-mm {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 9999px;
+    background: var(--mm-success-bg);
+    color: var(--mm-success-text);
+    padding: 4px 10px;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.5;
+  }
+
+  .badge-beta-mm {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 9999px;
+    background: var(--mm-brand-blue-200);
+    color: var(--mm-brand-blue-deep);
+    padding: 4px 10px;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.5;
+  }
+
+  .badge-new-mm {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 9999px;
+    background: var(--mm-brand-coral);
+    color: #ffffff;
+    padding: 4px 10px;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.5;
   }
 }

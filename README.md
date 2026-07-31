@@ -80,20 +80,20 @@ sso-login/
 │   │   ├── admin/         # Admin APIs
 │   │   └── auth/          # Auth APIs
 │   ├── db/                # Database
-│   │   ├── schema.ts      # Drizzle schema
+│   │   ├── schema.js      # Drizzle schema
 │   │   ├── migrations/    # SQL migrations
-│   │   └── seed.ts        # Seed script
+│   │   └── seed.js        # Seed script
 │   ├── middleware/        # Server middleware
 │   ├── oidc/              # OIDC provider
-│   │   ├── adapter.ts     # PostgreSQL adapter
-│   │   ├── provider.ts    # Provider config
-│   │   └── interactions.ts # Login/consent logic
+│   │   ├── adapter.js     # PostgreSQL adapter
+│   │   ├── provider.js    # Provider config
+│   │   └── interactions.js # Login/consent logic
 │   ├── routes/            # Server routes
 │   ├── services/          # Business logic
 │   └── jobs/              # Background jobs
 ├── docs/                  # Documentation
-├── drizzle.config.ts      # Drizzle config
-├── nuxt.config.ts         # Nuxt config
+├── drizzle.config.js      # Drizzle config
+├── nuxt.config.js         # Nuxt config
 └── .env.example           # Environment template
 ```
 

@@ -128,12 +128,12 @@ npm run db:push
 
 ## Access Control Utility
 
-File `server/utils/access-control.ts` berisi helper functions:
+File `server/utils/access-control.js` berisi helper functions:
 
 - `checkUserClientAccess(userId, clientId)` - Check apakah user punya akses ke client
 - `getUserAccessibleClients(userId)` - Get semua client IDs yang user bisa akses
 
-Functions ini digunakan di `server/api/oidc/authorize.get.ts` untuk enforce access control.
+Functions ini digunakan di `server/api/oidc/authorize.get.js` untuk enforce access control.
 
 ## Notes
 

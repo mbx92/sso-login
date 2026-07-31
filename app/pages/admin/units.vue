@@ -2,8 +2,8 @@
   <div>
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900">Master Unit</h1>
-        <p class="text-sm text-gray-500 mt-1">Kelola data unit organisasi</p>
+        <h1 class="text-2xl font-bold text-ink">Master Unit</h1>
+        <p class="text-sm text-steel mt-1">Kelola data unit organisasi</p>
       </div>
       <UButton
         @click="openCreateModal"
@@ -19,33 +19,33 @@
         v-model="searchQuery"
         placeholder="Cari unit..."
         icon="i-lucide-search"
-        class="flex-1 max-w-md"
+        class="flex-1 min-w-0 sm:min-w-[28rem]"
       />
       <USelect
         v-model="filterDivision"
         :items="divisionFilterItems"
         placeholder="Semua Divisi"
-        class="min-w-[180px]"
+        class="w-full sm:w-[220px]"
       />
     </div>
 
     <!-- Table -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+    <div class="bg-canvas rounded-xl border border-hairline shadow-none overflow-hidden">
       <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
+        <table class="min-w-full divide-y divide-hairline-soft">
+          <thead class="bg-surface">
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kode</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Unit</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Divisi</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-steel uppercase tracking-wider">Kode</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-steel uppercase tracking-wider">Nama Unit</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-steel uppercase tracking-wider">Divisi</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-steel uppercase tracking-wider">Status</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-steel uppercase tracking-wider">Aksi</th>
             </tr>
           </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
+          <tbody class="bg-canvas divide-y divide-hairline-soft">
             <tr v-if="loading">
               <td colspan="5" class="px-6 py-12 text-center">
-                <div class="flex items-center justify-center gap-2 text-gray-500">
+                <div class="flex items-center justify-center gap-2 text-steel">
                   <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -55,27 +55,27 @@
               </td>
             </tr>
             <tr v-else-if="filteredUnits.length === 0">
-              <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+              <td colspan="5" class="px-6 py-12 text-center text-steel">
                 Tidak ada data unit
               </td>
             </tr>
-            <tr v-for="unit in filteredUnits" :key="unit.id" class="hover:bg-gray-50">
+            <tr v-for="unit in filteredUnits" :key="unit.id" class="hover:bg-surface">
               <td class="px-6 py-4 whitespace-nowrap">
-                <span class="font-mono text-sm text-gray-900">{{ unit.code }}</span>
+                <span class="font-mono text-sm text-ink">{{ unit.code }}</span>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <span class="text-sm font-medium text-gray-900">{{ unit.name }}</span>
+                <span class="text-sm font-medium text-ink">{{ unit.name }}</span>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <span class="text-sm text-gray-600">{{ unit.divisionName || '-' }}</span>
+                <span class="text-sm text-steel">{{ unit.divisionName || '-' }}</span>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <span
                   :class="[
                     'inline-flex px-2 py-1 text-xs font-medium rounded-full',
                     unit.isActive
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-gray-100 text-gray-800'
+                      ? 'bg-success-bg text-success-text'
+                      : 'bg-surface text-charcoal'
                   ]"
                 >
                   {{ unit.isActive ? 'Aktif' : 'Nonaktif' }}
@@ -109,14 +109,14 @@
     <div v-if="showModal" class="fixed inset-0 z-50 overflow-y-auto">
       <div class="flex items-center justify-center min-h-screen px-4">
         <div class="fixed inset-0 bg-black/50" @click="closeModal"></div>
-        <div class="relative bg-white rounded-xl shadow-xl max-w-md w-full p-6">
-          <h3 class="text-lg font-semibold text-gray-900 mb-4">
+        <div class="relative bg-canvas rounded-xl shadow-mm-2 max-w-md w-full p-6">
+          <h3 class="text-lg font-semibold text-ink mb-4">
             {{ editingUnit ? 'Edit Unit' : 'Tambah Unit Baru' }}
           </h3>
           <form @submit.prevent="saveUnit">
             <div class="space-y-4">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Divisi</label>
+                <label class="block text-sm font-medium text-charcoal mb-1">Divisi</label>
                 <USelect
                   v-model="form.divisionId"
                   :items="divisionOptions"
@@ -125,7 +125,7 @@
                 />
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Kode Unit</label>
+                <label class="block text-sm font-medium text-charcoal mb-1">Kode Unit</label>
                 <UInput
                   v-model="form.code"
                   placeholder="UNIT001"
@@ -134,7 +134,7 @@
                 />
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Nama Unit</label>
+                <label class="block text-sm font-medium text-charcoal mb-1">Nama Unit</label>
                 <UInput
                   v-model="form.name"
                   placeholder="Nama unit"
@@ -143,7 +143,7 @@
                 />
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
+                <label class="block text-sm font-medium text-charcoal mb-1">Deskripsi</label>
                 <UTextarea
                   v-model="form.description"
                   :rows="3"
@@ -183,9 +183,9 @@
     <div v-if="showDeleteModal" class="fixed inset-0 z-50 overflow-y-auto">
       <div class="flex items-center justify-center min-h-screen px-4">
         <div class="fixed inset-0 bg-black/50" @click="showDeleteModal = false"></div>
-        <div class="relative bg-white rounded-xl shadow-xl max-w-sm w-full p-6">
-          <h3 class="text-lg font-semibold text-gray-900 mb-2">Hapus Unit</h3>
-          <p class="text-gray-600 mb-6">
+        <div class="relative bg-canvas rounded-xl shadow-mm-2 max-w-sm w-full p-6">
+          <h3 class="text-lg font-semibold text-ink mb-2">Hapus Unit</h3>
+          <p class="text-steel mb-6">
             Apakah Anda yakin ingin menghapus unit <strong>{{ deletingUnit?.name }}</strong>?
           </p>
           <div class="flex justify-end gap-3">
@@ -211,194 +211,152 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 definePageMeta({
-  layout: 'admin',
-  middleware: ['auth']
-})
-
-// Get user from cookie for siteId
-const userCookie = useCookie('sso_user')
+  layout: "admin",
+  middleware: ["auth"]
+});
+const userCookie = useCookie("sso_user");
 const currentUser = computed(() => {
-  if (!userCookie.value) return null
+  if (!userCookie.value) return null;
   try {
-    if (typeof userCookie.value === 'string') {
-      return JSON.parse(userCookie.value)
+    if (typeof userCookie.value === "string") {
+      return JSON.parse(userCookie.value);
     }
-    return userCookie.value
+    return userCookie.value;
   } catch {
-    return null
+    return null;
   }
-})
-
-interface Division {
-  id: string
-  code: string
-  name: string
-  siteId?: string
-}
-
-interface Unit {
-  id: string
-  code: string
-  name: string
-  description: string | null
-  divisionId: string
-  divisionName: string | null
-  isActive: boolean
-}
-
-const units = ref<Unit[]>([])
-const divisions = ref<Division[]>([])
-const loading = ref(true)
-const searchQuery = ref('')
-const filterDivision = ref<string | null>(null)
-const showModal = ref(false)
-const showDeleteModal = ref(false)
-const saving = ref(false)
-const deleting = ref(false)
-const editingUnit = ref<Unit | null>(null)
-const deletingUnit = ref<Unit | null>(null)
-
+});
+const units = ref([]);
+const divisions = ref([]);
+const loading = ref(true);
+const searchQuery = ref("");
+const filterDivision = ref(null);
+const showModal = ref(false);
+const showDeleteModal = ref(false);
+const saving = ref(false);
+const deleting = ref(false);
+const editingUnit = ref(null);
+const deletingUnit = ref(null);
 const form = ref({
-  code: '',
-  name: '',
-  description: '',
-  divisionId: '',
-  siteId: '',
+  code: "",
+  name: "",
+  description: "",
+  divisionId: "",
+  siteId: "",
   isActive: true
-})
-
+});
 const filteredUnits = computed(() => {
-  let result = units.value
-  
+  let result = units.value;
   if (filterDivision.value) {
-    result = result.filter(u => u.divisionId === filterDivision.value)
+    result = result.filter((u) => u.divisionId === filterDivision.value);
   }
-  
   if (searchQuery.value) {
-    const query = searchQuery.value.toLowerCase()
-    result = result.filter(u =>
-      u.code.toLowerCase().includes(query) ||
-      u.name.toLowerCase().includes(query)
-    )
+    const query = searchQuery.value.toLowerCase();
+    result = result.filter(
+      (u) => u.code.toLowerCase().includes(query) || u.name.toLowerCase().includes(query)
+    );
   }
-  
-  return result
-})
-
-// Filter items for USelect components
+  return result;
+});
 const divisionFilterItems = computed(() => {
   return [
-    { label: 'Semua Divisi', value: null },
-    ...divisions.value.map(d => ({ label: d.name, value: d.id }))
-  ]
-})
-
-// Division options for modal select
+    { label: "Semua Divisi", value: null },
+    ...divisions.value.map((d) => ({ label: d.name, value: d.id }))
+  ];
+});
 const divisionOptions = computed(() => {
-  return divisions.value.map(d => ({ label: d.name, value: d.id }))
-})
-
+  return divisions.value.map((d) => ({ label: d.name, value: d.id }));
+});
 async function fetchData() {
-  loading.value = true
+  loading.value = true;
   try {
     const [unitsResponse, divisionsResponse] = await Promise.all([
-      $fetch<{ units: Unit[] }>('/api/admin/units'),
-      $fetch<{ divisions: Division[] }>('/api/admin/divisions')
-    ])
-    units.value = unitsResponse.units
-    divisions.value = divisionsResponse.divisions
+      $fetch("/api/admin/units"),
+      $fetch("/api/admin/divisions")
+    ]);
+    units.value = unitsResponse.units;
+    divisions.value = divisionsResponse.divisions;
   } catch (error) {
-    console.error('Failed to fetch data:', error)
+    console.error("Failed to fetch data:", error);
   } finally {
-    loading.value = false
+    loading.value = false;
   }
 }
-
 function openCreateModal() {
-  editingUnit.value = null
-  const siteIdFromUser = currentUser.value?.siteId || ''
-  form.value = { code: '', name: '', description: '', divisionId: '', siteId: siteIdFromUser, isActive: true }
-  showModal.value = true
+  editingUnit.value = null;
+  const siteIdFromUser = currentUser.value?.siteId || "";
+  form.value = { code: "", name: "", description: "", divisionId: "", siteId: siteIdFromUser, isActive: true };
+  showModal.value = true;
 }
-
-function openEditModal(unit: Unit) {
-  editingUnit.value = unit
+function openEditModal(unit) {
+  editingUnit.value = unit;
   form.value = {
     code: unit.code,
     name: unit.name,
-    description: unit.description || '',
+    description: unit.description || "",
     divisionId: unit.divisionId,
-    siteId: (unit as any).siteId || currentUser.value?.siteId || '',
+    siteId: unit.siteId || currentUser.value?.siteId || "",
     isActive: unit.isActive
-  }
-  showModal.value = true
+  };
+  showModal.value = true;
 }
-
 function closeModal() {
-  showModal.value = false
-  editingUnit.value = null
+  showModal.value = false;
+  editingUnit.value = null;
 }
-
 async function saveUnit() {
-  // Set siteId from selected division if not already set
   if (form.value.divisionId && !form.value.siteId) {
-    const selectedDivision = divisions.value.find(d => d.id === form.value.divisionId)
+    const selectedDivision = divisions.value.find((d) => d.id === form.value.divisionId);
     if (selectedDivision?.siteId) {
-      form.value.siteId = selectedDivision.siteId
+      form.value.siteId = selectedDivision.siteId;
     }
   }
-  
-  // Final fallback to user's siteId
   if (!form.value.siteId && currentUser.value?.siteId) {
-    form.value.siteId = currentUser.value.siteId
+    form.value.siteId = currentUser.value.siteId;
   }
-
-  saving.value = true
+  saving.value = true;
   try {
     if (editingUnit.value) {
       await $fetch(`/api/admin/units/${editingUnit.value.id}`, {
-        method: 'PUT',
+        method: "PUT",
         body: form.value
-      })
+      });
     } else {
-      await $fetch('/api/admin/units', {
-        method: 'POST',
+      await $fetch("/api/admin/units", {
+        method: "POST",
         body: form.value
-      })
+      });
     }
-    closeModal()
-    await fetchData()
-  } catch (error: any) {
-    alert(error.data?.message || 'Gagal menyimpan unit')
+    closeModal();
+    await fetchData();
+  } catch (error) {
+    alert(error.data?.message || "Gagal menyimpan unit");
   } finally {
-    saving.value = false
+    saving.value = false;
   }
 }
-
-function confirmDelete(unit: Unit) {
-  deletingUnit.value = unit
-  showDeleteModal.value = true
+function confirmDelete(unit) {
+  deletingUnit.value = unit;
+  showDeleteModal.value = true;
 }
-
 async function deleteUnit() {
-  if (!deletingUnit.value) return
-  deleting.value = true
+  if (!deletingUnit.value) return;
+  deleting.value = true;
   try {
     await $fetch(`/api/admin/units/${deletingUnit.value.id}`, {
-      method: 'DELETE'
-    })
-    showDeleteModal.value = false
-    await fetchData()
-  } catch (error: any) {
-    alert(error.data?.message || 'Gagal menghapus unit')
+      method: "DELETE"
+    });
+    showDeleteModal.value = false;
+    await fetchData();
+  } catch (error) {
+    alert(error.data?.message || "Gagal menghapus unit");
   } finally {
-    deleting.value = false
+    deleting.value = false;
   }
 }
-
 onMounted(() => {
-  fetchData()
-})
+  fetchData();
+});
 </script>

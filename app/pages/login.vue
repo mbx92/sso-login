@@ -116,7 +116,7 @@ const isOIDCFlow = computed(() => !!clientId.value && !!redirectUri.value && !!s
 
 function fillTest() {
   email.value = 'admin@example.com'
-  password.value = 'password123!'
+  password.value = 'change-me-immediately'
   errorMsg.value = ''
   successMsg.value = ''
 }

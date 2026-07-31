@@ -118,8 +118,11 @@ const currentUser = computed(() => {
   }
 })
 const isSuperAdmin = computed(() => {
-  const roleName = currentUser.value?.roleName?.toLowerCase?.()
-  const roleId = currentUser.value?.roleId
+  const user = currentUser.value
+  if (!user) return false
+  if (Array.isArray(user.roles) && user.roles.includes('superadmin')) return true
+  const roleName = user.roleName?.toLowerCase?.()
+  const roleId = user.roleId
   return roleName === 'superadmin' || roleId === 'superadmin'
 })
 const userName = computed(() => currentUser.value?.name || 'User')

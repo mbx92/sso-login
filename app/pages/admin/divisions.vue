@@ -225,9 +225,10 @@ const deleting = ref(false);
 const editingDivision = ref(null);
 const deletingDivision = ref(null);
 const isSuperAdmin = computed(() => {
-  const roleName = currentUser.value?.roleName?.toLowerCase?.()
-  const roleId = currentUser.value?.roleId
-  return roleName === "superadmin" || roleId === "superadmin"
+  const user = currentUser.value
+  if (!user) return false
+  if (Array.isArray(user.roles) && user.roles.includes("superadmin")) return true
+  return user.roleId === "superadmin" || user.roleName?.toLowerCase?.() === "superadmin"
 });
 const userSiteId = computed(() => currentUser.value?.siteId || "");
 const sites = ref([]);

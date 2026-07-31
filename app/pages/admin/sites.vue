@@ -387,9 +387,10 @@ const currentUser = computed(() => {
   }
 });
 const isSuperAdmin = computed(() => {
-  const roleName = currentUser.value?.roleName?.toLowerCase?.()
-  const roleId = currentUser.value?.roleId
-  return roleName === "superadmin" || roleId === "superadmin"
+  const user = currentUser.value
+  if (!user) return false
+  if (Array.isArray(user.roles) && user.roles.includes("superadmin")) return true
+  return user.roleId === "superadmin" || user.roleName?.toLowerCase?.() === "superadmin"
 });
 const sites = ref([]);
 const showModal = ref(false);

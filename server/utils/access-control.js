@@ -62,7 +62,56 @@ async function getUserAccessibleClients(userId) {
     return [];
   }
 }
+
+function deriveHomepageUrl(client) {
+  if (client.homepageUrl) return client.homepageUrl;
+  const first = client.redirectUris?.[0];
+  if (!first) return null;
+  try {
+    const url = new URL(first);
+    return url.origin;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Apps shown on the end-user portal after login.
+ * Active clients the user may access, with a launch URL.
+ */
+async function getUserPortalApps(userId) {
+  const all = await db.select({
+    id: oidcClients.id,
+    clientId: oidcClients.clientId,
+    name: oidcClients.name,
+    description: oidcClients.description,
+    homepageUrl: oidcClients.homepageUrl,
+    redirectUris: oidcClients.redirectUris,
+    requireAccessGrant: oidcClients.requireAccessGrant,
+    isActive: oidcClients.isActive,
+  }).from(oidcClients).where(eq(oidcClients.isActive, true));
+
+  const apps = [];
+  for (const client of all) {
+    const allowed = await checkUserClientAccess(userId, client.id);
+    if (!allowed) continue;
+    const url = deriveHomepageUrl(client);
+    if (!url) continue;
+    apps.push({
+      id: client.id,
+      clientId: client.clientId,
+      name: client.name,
+      description: client.description,
+      homepageUrl: url,
+      requireAccessGrant: client.requireAccessGrant,
+    });
+  }
+  apps.sort((a, b) => a.name.localeCompare(b.name));
+  return apps;
+}
 export {
   checkUserClientAccess,
-  getUserAccessibleClients
+  getUserAccessibleClients,
+  getUserPortalApps,
+  deriveHomepageUrl,
 };

@@ -33,6 +33,8 @@ var index_get_default = defineEventHandler(async (event) => {
       employeeId: users.employeeId,
       unitId: users.unitId,
       unitName: units.name,
+      roleId: users.roleId,
+      roleName: users.roleName,
       status: users.status,
       createdAt: users.createdAt,
       updatedAt: users.updatedAt
@@ -40,9 +42,11 @@ var index_get_default = defineEventHandler(async (event) => {
     const usersWithRoles = await Promise.all(
       userList.map(async (user) => {
         const userRolesResult = await db.select({ roleName: roles.name }).from(userRoles).innerJoin(roles, eq(userRoles.roleId, roles.id)).where(eq(userRoles.userId, user.id));
+        const rolesFromJunction = userRolesResult.map((r) => r.roleName);
         return {
           ...user,
-          roles: userRolesResult.map((r) => r.roleName)
+          roleName: user.roleName || rolesFromJunction[0] || null,
+          roles: rolesFromJunction.length ? rolesFromJunction : (user.roleName ? [user.roleName] : [])
         };
       })
     );

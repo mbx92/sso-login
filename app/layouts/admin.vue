@@ -1,14 +1,15 @@
 <template>
   <div class="flex min-h-screen bg-canvas">
     <aside class="fixed inset-y-0 left-0 z-30 flex w-[220px] flex-col border-r border-hairline-soft bg-canvas">
-      <div class="flex h-14 items-center gap-2.5 border-b border-hairline-soft px-4">
-        <div class="flex size-7 items-center justify-center rounded-md bg-primary text-[11px] font-bold text-primary-foreground tracking-tight">
-          SSO
-        </div>
-        <div class="min-w-0">
-          <p class="truncate text-[14px] font-semibold text-ink">SSO Admin</p>
-          <p class="truncate text-[12px] text-steel">Platform</p>
-        </div>
+      <div class="flex h-14 items-center justify-between gap-2 border-b border-hairline-soft px-4">
+        <AppLogo :size="28" show-label label="SSO Admin" />
+        <NuxtLink
+          to="/apps"
+          class="shrink-0 rounded-full border border-hairline px-3 py-1.5 text-[12px] font-medium text-steel hover:text-ink hover:bg-surface"
+          title="User portal"
+        >
+          Portal
+        </NuxtLink>
       </div>
 
       <ScrollArea class="flex-1 px-2 py-3">

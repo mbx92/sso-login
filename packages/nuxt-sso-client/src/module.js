@@ -1,6 +1,12 @@
 import { defineNuxtModule, addServerHandler, addImportsDir, createResolver, addTemplate } from '@nuxt/kit'
 import { existsSync } from 'node:fs'
-import { resolve as pathResolve } from 'node:path'
+import { relative as pathRelative, resolve as pathResolve } from 'node:path'
+
+function toModuleImport(fromDir, toFile) {
+  let rel = pathRelative(fromDir, toFile).replace(/\\/g, '/')
+  if (!rel.startsWith('.')) rel = `./${rel}`
+  return rel
+}
 
 export default defineNuxtModule({
   meta: {
@@ -56,14 +62,15 @@ export default defineNuxtModule({
     )
     nuxt.options.runtimeConfig.public.ssoLoginPath = `${options.apiBase}/login`
 
-    // Virtual import for host resolver
-    const resolverImportPath = resolveUserAbs.replace(/\\/g, '/')
+    // Relative re-export from buildDir → host resolver
+    const resolverImportPath = toModuleImport(nuxt.options.buildDir, resolveUserAbs)
     addTemplate({
       filename: 'mbx-sso-user-resolver.mjs',
       getContents: () =>
         existsSync(resolveUserAbs)
           ? `export { default } from '${resolverImportPath}'\n`
-          : `export default async function missingResolver() {
+          : `import { createError } from 'h3'
+export default async function missingResolver() {
   throw createError({
     statusCode: 500,
     statusMessage: 'SSO resolve-user missing. Create ${options.resolveUser}',
@@ -75,12 +82,11 @@ export default defineNuxtModule({
 
     nuxt.hook('nitro:config', (nitroConfig) => {
       nitroConfig.alias = nitroConfig.alias || {}
+      // Absolute filesystem path — required by Nitro/unenv (relative ".nuxt/..." is invalid)
       nitroConfig.alias['#mbx-sso-resolve-user'] = pathResolve(
         nuxt.options.buildDir,
         'mbx-sso-user-resolver.mjs',
-      ).replace(/\\/g, '/')
-
-      nitroConfig.virtual = nitroConfig.virtual || {}
+      )
     })
 
     addImportsDir(resolve('./runtime/composables'))

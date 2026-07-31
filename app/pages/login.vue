@@ -3,10 +3,7 @@
     <div class="absolute inset-x-0 top-0 border-b border-hairline-soft">
       <div class="mx-auto flex h-16 max-w-[1280px] items-center justify-between px-6">
         <div class="flex items-center gap-2">
-          <div class="flex size-8 items-center justify-center rounded-md bg-primary text-primary-foreground text-xs font-bold tracking-tight">
-            SSO
-          </div>
-          <span class="text-[14px] font-semibold text-ink">SSO Login</span>
+          <AppLogo :size="32" show-label label="SSO Login" />
         </div>
         <a
           href="mailto:it-support@company.com"
@@ -159,9 +156,16 @@ async function doLogin() {
           window.location.replace(authorizeUrl.toString())
         }, 500)
       } else {
+        const roleName = res.user?.roleName?.toLowerCase?.()
+        const roleId = res.user?.roleId
+        const isAdminUser =
+          roleName === 'superadmin' ||
+          roleName === 'admin' ||
+          roleId === 'superadmin' ||
+          roleId === 'admin'
         setTimeout(() => {
-          window.location.replace('/admin')
-        }, 1000)
+          window.location.replace(isAdminUser ? '/admin' : '/apps')
+        }, 500)
       }
     } else {
       errorMsg.value = 'Login failed'

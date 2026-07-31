@@ -25,6 +25,7 @@ var index_get_default = defineEventHandler(async (event) => {
       clientId: oidcClients.clientId,
       name: oidcClients.name,
       description: oidcClients.description,
+      homepageUrl: oidcClients.homepageUrl,
       redirectUris: oidcClients.redirectUris,
       postLogoutRedirectUris: oidcClients.postLogoutRedirectUris,
       grantTypes: oidcClients.grantTypes,

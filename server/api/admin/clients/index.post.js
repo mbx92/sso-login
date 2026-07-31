@@ -52,6 +52,17 @@ var index_post_default = defineEventHandler(async (event) => {
       });
     }
   }
+  let homepageUrl = body.homepageUrl?.trim?.() || body.homepageUrl || null;
+  if (homepageUrl) {
+    try {
+      new URL(homepageUrl);
+    } catch {
+      throw createError({
+        statusCode: 400,
+        message: `Invalid homepage URL: ${homepageUrl}`
+      });
+    }
+  }
   try {
     const clientId = `sso_${uuidv4().replace(/-/g, "").substring(0, 24)}`;
     const clientSecret = uuidv4().replace(/-/g, "") + uuidv4().replace(/-/g, "");
@@ -83,7 +94,9 @@ var index_post_default = defineEventHandler(async (event) => {
       scopes: body.scopes || ["openid", "profile", "email"],
       tokenEndpointAuthMethod: authMethod,
       isFirstParty: body.isFirstParty || false,
-      isActive: true,
+      requireAccessGrant: !!(body.requireAccessGrant ?? body.accessControlEnabled),
+      homepageUrl,
+      isActive: body.isActive !== false,
       siteId: clientSiteId
     }).returning();
     await writeAuditLog({
@@ -108,6 +121,7 @@ var index_post_default = defineEventHandler(async (event) => {
         // Only return once!
         name: newClient.name,
         description: newClient.description,
+        homepageUrl: newClient.homepageUrl,
         redirectUris: newClient.redirectUris,
         postLogoutRedirectUris: newClient.postLogoutRedirectUris,
         grantTypes: newClient.grantTypes,

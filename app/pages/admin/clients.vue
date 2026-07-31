@@ -199,6 +199,15 @@
               />
             </div>
             <div>
+              <label class="block text-sm font-medium text-charcoal mb-2">Homepage URL (portal)</label>
+              <UInput
+                v-model="form.homepageUrl"
+                placeholder="https://myapp.com"
+                class="w-full"
+              />
+              <p class="mt-1 text-xs text-steel">URL entry SSO app (contoh MailOG: http://localhost:3000/api/auth/sso/login). Jangan pakai homepage biasa agar login SSO langsung jalan.</p>
+            </div>
+            <div>
               <label class="block text-sm font-medium text-charcoal mb-2">Client Type</label>
               <USelect
                 v-model="form.clientType"
@@ -430,6 +439,7 @@ function showToast(message, type = "success") {
 const form = ref({
   clientName: "",
   redirectUris: "",
+  homepageUrl: "",
   clientType: "public",
   accessControlEnabled: false,
   isActive: true
@@ -455,6 +465,7 @@ function closeModal() {
   form.value = {
     clientName: "",
     redirectUris: "",
+    homepageUrl: "",
     clientType: "public",
     accessControlEnabled: false,
     isActive: true
@@ -466,6 +477,7 @@ function editClient(client) {
   form.value = {
     clientName: client.name || "",
     redirectUris: (client.redirectUris || []).join("\n"),
+    homepageUrl: client.homepageUrl || "",
     clientType: client.clientSecretHash ? "confidential" : "public",
     accessControlEnabled: client.requireAccessGrant || false,
     isActive: client.isActive
@@ -484,6 +496,7 @@ async function createClient() {
       body: {
         clientName: form.value.clientName,
         redirectUris: form.value.redirectUris.split("\n").filter((u) => u.trim()),
+        homepageUrl: form.value.homepageUrl || null,
         tokenEndpointAuthMethod: form.value.clientType === "public" ? "none" : "client_secret_basic",
         accessControlEnabled: form.value.accessControlEnabled,
         isActive: form.value.isActive
@@ -526,6 +539,7 @@ async function updateClient() {
       body: {
         clientName: form.value.clientName,
         redirectUris: form.value.redirectUris.split("\n").filter((u) => u.trim()),
+        homepageUrl: form.value.homepageUrl || null,
         clientType: form.value.clientType,
         accessControlEnabled: form.value.accessControlEnabled,
         isActive: form.value.isActive

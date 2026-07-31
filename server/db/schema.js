@@ -154,6 +154,8 @@ const oidcClients = pgTable("oidc_clients", {
   // auto-approve consent
   requireAccessGrant: boolean("require_access_grant").notNull().default(false),
   // if true, user must have access grant
+  homepageUrl: text("homepage_url"),
+  // portal launch URL for end users
   isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow()

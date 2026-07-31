@@ -12,7 +12,9 @@ export default async function resolveSsoUser(event, { userInfo, sso }) {
   // if (!user && sso.autoProvision) { ... create ... }
   // if (!user) throw createError({ statusCode: 403, statusMessage: 'User belum terdaftar' })
 
-  // TODO: set session app Anda, contoh nuxt-auth-utils:
+  // TODO: set session app Anda.
+  // Jika pakai nuxt-auth-utils, pastikan cookie name = "nuxt-session"
+  // (jangan raw useSession tanpa name — default cookie "h3" tidak terbaca middleware).
   // await setUserSession(event, {
   //   user: { id: user.id, email: user.email, name: userInfo.name },
   // })

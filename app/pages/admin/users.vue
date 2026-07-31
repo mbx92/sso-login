@@ -45,6 +45,7 @@
               <th class="px-6 py-3 text-left text-xs font-medium text-steel uppercase tracking-wider">User</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-steel uppercase tracking-wider">Employee ID</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-steel uppercase tracking-wider">Unit</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-steel uppercase tracking-wider">Role</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-steel uppercase tracking-wider">Status</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-steel uppercase tracking-wider">Dibuat</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-steel uppercase tracking-wider">Aksi</th>
@@ -52,7 +53,7 @@
           </thead>
           <tbody class="bg-canvas divide-y divide-hairline-soft">
             <tr v-if="loading">
-              <td colspan="6" class="px-6 py-12 text-center">
+              <td colspan="7" class="px-6 py-12 text-center">
                 <div class="flex items-center justify-center gap-2 text-steel">
                   <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -63,7 +64,7 @@
               </td>
             </tr>
             <tr v-else-if="filteredUsers.length === 0">
-              <td colspan="6" class="px-6 py-12 text-center text-steel">
+              <td colspan="7" class="px-6 py-12 text-center text-steel">
                 Tidak ada data user
               </td>
             </tr>
@@ -84,6 +85,11 @@
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <span class="text-sm text-steel">{{ user.unitName || '-' }}</span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="inline-flex px-2.5 py-1 text-xs font-medium rounded-full bg-surface text-charcoal capitalize">
+                  {{ displayRole(user) }}
+                </span>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <span
@@ -446,6 +452,11 @@ async function deleteUser() {
   } finally {
     deleting.value = false;
   }
+}
+function displayRole(user) {
+  if (user?.roleName) return user.roleName;
+  if (Array.isArray(user?.roles) && user.roles.length) return user.roles.join(", ");
+  return "-";
 }
 function formatDate(dateStr) {
   if (!dateStr) return "-";

@@ -6,6 +6,7 @@ import {
   sendRedirect,
 } from 'h3'
 import { $fetch } from 'ofetch'
+import resolveUser from '#mbx-sso-resolve-user'
 import { getSsoConfig, failLoginRedirect, successRedirectUrl } from '../utils/sso.js'
 
 function readPkceCookie(event, cookieName) {
@@ -67,7 +68,6 @@ export default defineEventHandler(async (event) => {
       return sendRedirect(event, failLoginRedirect(sso, 'SSO tidak mengembalikan email'), 302)
     }
 
-    const resolveUser = (await import('#mbx-sso-resolve-user')).default
     const result = await resolveUser(event, {
       userInfo: { ...userInfo, email },
       tokens: tokenRes,

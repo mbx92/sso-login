@@ -12,18 +12,35 @@
 
 <script setup>
 definePageMeta({
-  layout: false
-});
+  layout: false,
+})
+
+function clearClientCookies() {
+  const expire = 'Thu, 01 Jan 1970 00:00:00 GMT'
+  const base = `path=/; expires=${expire}; SameSite=Lax`
+  // Match login attributes as closely as possible
+  document.cookie = `sso_user=; ${base}`
+  document.cookie = `sso_session=; ${base}`
+  document.cookie = `sso_user=; ${base}; Secure`
+  document.cookie = `sso_session=; ${base}; Secure`
+}
+
 onMounted(async () => {
+  const userCookie = useCookie('sso_user')
+  const sessionCookie = useCookie('sso_session')
+
   try {
-    await $fetch("/api/auth/logout", {
-      method: "POST",
-      credentials: "include"
-    });
+    await $fetch('/api/auth/logout', {
+      method: 'POST',
+      credentials: 'include',
+    })
   } catch (error) {
-    console.error("Logout error:", error);
+    console.error('Logout error:', error)
   } finally {
-    window.location.href = "/login";
+    userCookie.value = null
+    sessionCookie.value = null
+    clearClientCookies()
+    window.location.replace('/login')
   }
-});
+})
 </script>

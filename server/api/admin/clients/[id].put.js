@@ -64,6 +64,7 @@ var id_put_default = defineEventHandler(async (event) => {
       updatedAt: /* @__PURE__ */ new Date()
     };
     if (body.name !== void 0) updates.name = body.name.trim();
+    else if (body.clientName !== void 0) updates.name = String(body.clientName).trim();
     if (body.description !== void 0) updates.description = body.description?.trim() || null;
     if (body.redirectUris !== void 0) updates.redirectUris = body.redirectUris;
     if (body.postLogoutRedirectUris !== void 0) updates.postLogoutRedirectUris = body.postLogoutRedirectUris;
@@ -74,6 +75,18 @@ var id_put_default = defineEventHandler(async (event) => {
     if (body.isFirstParty !== void 0) updates.isFirstParty = body.isFirstParty;
     if (body.isActive !== void 0) updates.isActive = body.isActive;
     if (body.requireAccessGrant !== void 0) updates.requireAccessGrant = body.requireAccessGrant;
+    if (body.accessControlEnabled !== void 0) updates.requireAccessGrant = !!body.accessControlEnabled;
+    if (body.homepageUrl !== void 0) {
+      const raw = typeof body.homepageUrl === "string" ? body.homepageUrl.trim() : body.homepageUrl;
+      if (raw) {
+        try {
+          new URL(raw);
+        } catch {
+          throw createError({ statusCode: 400, message: `Invalid homepage URL: ${raw}` });
+        }
+      }
+      updates.homepageUrl = raw || null;
+    }
     const [updated] = await db.update(oidcClients).set(updates).where(eq(oidcClients.id, id)).returning();
     await writeAuditLog({
       action: AuditEvents.ADMIN_CLIENT_UPDATED,
@@ -94,6 +107,7 @@ var id_put_default = defineEventHandler(async (event) => {
         clientId: updated.clientId,
         name: updated.name,
         description: updated.description,
+        homepageUrl: updated.homepageUrl,
         redirectUris: updated.redirectUris,
         postLogoutRedirectUris: updated.postLogoutRedirectUris,
         grantTypes: updated.grantTypes,

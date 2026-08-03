@@ -115,6 +115,11 @@ const isLoading = ref(false)
 const errorMsg = ref('')
 const successMsg = ref('')
 const isDev = import.meta.dev
+
+// The RP-facing OIDC flow is the custom implementation in
+// server/api/oidc/authorize.get.js (not the oidc-provider library in
+// server/oidc/provider.js, which isn't mounted on this route). It redirects
+// unauthenticated requests here with the original authorize params intact.
 const clientId = computed(() => route.query.client_id)
 const redirectUri = computed(() => route.query.redirect_uri)
 const state = computed(() => route.query.state)
@@ -163,6 +168,10 @@ async function doLogin() {
           authorizeUrl.searchParams.set('code_challenge', codeChallenge.value)
           authorizeUrl.searchParams.set('code_challenge_method', codeChallengeMethod.value || 'S256')
         }
+        // Full navigation (not $fetch): /api/oidc/authorize's success path
+        // redirects cross-origin to the RP's redirect_uri (e.g. mailOG's
+        // callback). A real navigation follows that fine; an XHR would hit
+        // CORS on the cross-origin redirect and never get there.
         setTimeout(() => {
           window.location.replace(authorizeUrl.toString())
         }, 500)

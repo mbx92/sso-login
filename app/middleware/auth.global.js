@@ -47,6 +47,15 @@ export default defineNuxtRouteMiddleware((to) => {
   const sessionId = useCookie('sso_session').value
   const isLoggedIn = !!(user || sessionId)
 
+  // server/api/oidc/authorize.get.js only redirects here with ?client_id=...
+  // when its own server-side getSessionUser() check found no valid sso_session
+  // — e.g. a stale non-httpOnly `sso_user` cookie survives after the matching
+  // sso_session row expired/was revoked. Bouncing to /admin here on that stale
+  // cookie would drop client_id/redirect_uri/state, stranding the relying
+  // party (e.g. mailOG) with no callback. Let doLogin() re-authenticate and
+  // resume /api/oidc/authorize with the original params instead.
+  if (to.path === '/login' && to.query.client_id) return
+
   if (isLoggedIn) {
     if (to.path === '/login' || to.path === '/') {
       return navigateTo(resolveAuthedDestination(user))

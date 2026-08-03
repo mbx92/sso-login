@@ -75,6 +75,22 @@ async function createAccessToken(params) {
     client_id: params.clientId
   };
   const token = await new SignJWT(payload).setProtectedHeader({ alg: "HS256", typ: "JWT" }).setIssuedAt(now).setExpirationTime(now + expiresIn).sign(JWT_SECRET);
+  // Persisted so /api/auth/check-session (polled by RPs like mailOG to detect
+  // admin-initiated revocation) and the admin sessions list have a row to find.
+  // Without this, every session looks "revoked" immediately since there is
+  // nothing to match against, even right after a fresh login.
+  // `key` is a separate opaque id, not the JWT itself — oidc_kv.key is
+  // varchar(255) and a signed access token JWT easily exceeds that.
+  await db.insert(oidcKv).values({
+    model: "AccessToken",
+    key: generateCode(32),
+    payload: {
+      accountId: params.userId,
+      clientId: params.clientId,
+      scopes: params.scopes
+    },
+    expiresAt: new Date((now + expiresIn) * 1e3)
+  });
   return { token, expiresIn };
 }
 async function createIDToken(params) {

@@ -71,7 +71,7 @@ function deriveHomepageUrl(client) {
   const first = client.redirectUris?.[0];
   if (!first) return null;
   try {
-    const callbackUrl = new URL(first); // e.g. http://10.5.80.141:3000/api/auth/sso/callback
+    const callbackUrl = new URL(first); // e.g. http://localhost:3000/api/auth/sso/callback
     // Construct SSO login endpoint: same origin, /api/auth/sso/login
     return `${callbackUrl.origin}/api/auth/sso/login`;
   } catch {

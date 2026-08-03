@@ -43,27 +43,24 @@
         <div
           v-for="client in clients"
           :key="client.id"
-          class="group bg-canvas rounded-xl border border-hairline hover:border-primary-500/50 hover:shadow-mm-2 hover:shadow-primary-500/5 transition-all duration-300 flex flex-col"
+          class="group bg-canvas rounded-xl border border-hairline hover:border-primary-500/50 hover:shadow-mm-2 hover:shadow-primary-500/5 transition-all duration-300 flex flex-col overflow-hidden"
         >
           <!-- Card Header -->
-          <div class="p-6 pb-4 flex items-start justify-between gap-4">
-            <div class="flex items-center gap-4">
-              <div 
+          <div class="p-6 pb-4 flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
+            <div class="flex items-center gap-4 min-w-0 flex-1">
+              <div
                 class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-colors"
                 :class="client.isActive ? 'bg-primary-50 text-primary-600' : 'bg-surface text-steel'"
               >
-                <UIcon 
-                  name="i-lucide-box" 
-                  class="w-6 h-6" 
-                />
+                <Box class="w-6 h-6" />
               </div>
               <div class="min-w-0">
                 <h3 class="font-bold text-ink truncate group-hover:text-primary-600 transition-colors">
                   {{ client.name || client.clientId }}
                 </h3>
                 <div class="flex items-center gap-2 mt-1">
-                  <UBadge 
-                    :color="client.clientSecretHash ? 'primary' : 'neutral'" 
+                  <UBadge
+                    :color="client.clientSecretHash ? 'primary' : 'neutral'"
                     variant="subtle"
                     size="xs"
                   >
@@ -80,25 +77,31 @@
                 </div>
               </div>
             </div>
-            
-            <div class="flex gap-1">
-              <UButton
-                @click="editClient(client)"
-                variant="ghost"
-                color="neutral"
-                icon="i-lucide-settings-2"
-                size="sm"
-                title="Edit Configuration"
-              />
-              <UButton
-                @click="confirmDelete(client)"
-                variant="ghost"
-                color="error"
-                icon="i-lucide-trash-2"
-                size="sm"
-                title="Delete Client"
-              />
-            </div>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger as-child>
+                <UButton
+                  variant="ghost"
+                  color="neutral"
+                  icon="i-lucide-more-vertical"
+                  size="sm"
+                  title="Actions"
+                  class="shrink-0 ml-auto"
+                />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem @click="viewIntegrationSnippet(client)">
+                  <Code class="size-4" /> View Integration Snippet
+                </DropdownMenuItem>
+                <DropdownMenuItem @click="editClient(client)">
+                  <Settings2 class="size-4" /> Edit Configuration
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem variant="destructive" @click="confirmDelete(client)">
+                  <Trash2 class="size-4" /> Delete Client
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           <!-- Card Body -->
@@ -125,7 +128,7 @@
               <div class="text-sm text-steel">
                 <div v-if="client.redirectUris?.length" class="flex flex-col gap-1">
                   <div class="flex items-center gap-2 text-charcoal">
-                    <UIcon name="i-lucide-arrow-right-circle" class="size-4 shrink-0 text-stone" />
+                    <ArrowRightCircle class="size-4 shrink-0 text-stone" />
                     <span class="truncate">{{ client.redirectUris[0] }}</span>
                   </div>
                   <span v-if="client.redirectUris.length > 1" class="text-xs text-stone pl-6">
@@ -158,7 +161,7 @@
           <!-- Card Footer -->
           <div class="px-6 py-3 bg-surface/50 border-t border-hairline-soft rounded-b-xl flex justify-between items-center">
              <div class="text-xs text-stone flex items-center gap-1">
-               <UIcon name="i-lucide-clock" class="size-3" />
+               <Clock class="size-3" />
                Updated {{ new Date(client.updatedAt).toLocaleDateString() }}
              </div>
              <USwitch
@@ -355,8 +358,22 @@
             <div v-else>
               <p class="text-sm text-steel italic">This is a public client - no secret required.</p>
             </div>
+
+            <div class="pt-2 border-t border-hairline-soft">
+              <div class="flex items-center justify-between mb-2">
+                <label class="block text-sm font-medium text-charcoal">Integration Snippet</label>
+                <button
+                  type="button"
+                  @click="copyToClipboard(buildFullSnippet(createdClient, createdClient?.clientSecret))"
+                  class="text-xs text-primary-600 font-medium hover:underline"
+                >
+                  Copy all
+                </button>
+              </div>
+              <pre class="text-xs bg-surface border border-hairline rounded-lg p-3 overflow-x-auto whitespace-pre-wrap font-mono text-charcoal max-h-64 overflow-y-auto">{{ buildFullSnippet(createdClient, createdClient?.clientSecret) }}</pre>
+            </div>
           </div>
-          
+
           <div class="mt-6">
             <UButton
               @click="closeSecretModal"
@@ -366,6 +383,35 @@
               I've saved the credentials
             </UButton>
           </div>
+        </div>
+      </div>
+
+      <!-- Integration Snippet Modal (existing clients — secret already hashed, shown as placeholder) -->
+      <div v-if="showSnippetModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/50" @click="showSnippetModal = false"></div>
+        <div class="relative bg-canvas rounded-2xl shadow-mm-2 w-full max-w-lg p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-ink">Integration Snippet — {{ snippetClient?.name || snippetClient?.clientId }}</h3>
+            <button @click="showSnippetModal = false" class="text-steel hover:text-ink">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <p v-if="snippetClient?.clientSecretHash" class="text-xs text-steel mb-3">
+            Client secret was only shown once when this client was created — replace the placeholder below with the value you saved then. Lost it? Delete and recreate the client to get a new one.
+          </p>
+          <div class="flex items-center justify-between mb-2">
+            <label class="block text-sm font-medium text-charcoal">Config</label>
+            <button
+              type="button"
+              @click="copyToClipboard(buildFullSnippet(snippetClient, null))"
+              class="text-xs text-primary-600 font-medium hover:underline"
+            >
+              Copy all
+            </button>
+          </div>
+          <pre class="text-xs bg-surface border border-hairline rounded-lg p-3 overflow-x-auto whitespace-pre-wrap font-mono text-charcoal max-h-96 overflow-y-auto">{{ buildFullSnippet(snippetClient, null) }}</pre>
         </div>
       </div>
 
@@ -408,6 +454,15 @@
 </template>
 
 <script setup>
+import { Box, ArrowRightCircle, Clock, Code, Settings2, Trash2 } from '@lucide/vue'
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu'
+
 definePageMeta({
   middleware: ["auth"]
 });
@@ -420,9 +475,12 @@ const showEditModal = ref(false);
 const showDeleteModal = ref(false);
 const showSecretModal = ref(false);
 const showSecret = ref(false);
+const showSnippetModal = ref(false);
+const snippetClient = ref(null);
 const clientToDelete = ref(null);
 const editingClient = ref(null);
 const createdClient = ref(null);
+const runtimeConfig = useRuntimeConfig();
 const toast = ref({
   show: false,
   message: "",
@@ -520,6 +578,56 @@ function closeSecretModal() {
   showSecretModal.value = false;
   createdClient.value = null;
   showSecret.value = false;
+}
+function viewIntegrationSnippet(client) {
+  snippetClient.value = client;
+  showSnippetModal.value = true;
+}
+function buildFullSnippet(client, secret) {
+  if (!client) return "";
+  const baseUrl = runtimeConfig.public.baseUrl;
+  const redirectUri = client.redirectUris?.[0] || "https://your-app.example.com/api/auth/sso/callback";
+  const isConfidential = !!client.clientSecretHash;
+
+  const envLines = [
+    `SSO_ISSUER=${baseUrl}`,
+    `SSO_CLIENT_ID=${client.clientId}`,
+  ];
+  if (isConfidential) {
+    envLines.push(`SSO_CLIENT_SECRET=${secret || "<YOUR_CLIENT_SECRET>"}`);
+  }
+  envLines.push(`SSO_REDIRECT_URI=${redirectUri}`);
+  envLines.push(`SSO_AUTO_PROVISION=true`);
+
+  return `# 1. Install the client package
+#    Not published to a registry yet — reference it by path (works for Nuxt
+#    apps checked out next to this sso-login repo):
+#    "@mbx92/nuxt-sso-client": "file:../sso-login/packages/nuxt-sso-client"
+
+# 2. .env
+${envLines.join("\n")}
+
+# 3. nuxt.config.js
+modules: [
+  // ...your existing modules,
+  '@mbx92/nuxt-sso-client',
+],
+ssoClient: {
+  resolveUser: 'server/sso/resolve-user.js',
+  successRedirect: '/',
+  loginPath: '/login',
+},
+
+# 4. Write server/sso/resolve-user.js — maps SSO userinfo to your app's own
+#    local user/session. This part is always app-specific and can't be
+#    generated (see packages/nuxt-sso-client/examples/resolve-user.js for
+#    the expected shape).
+
+# Raw OIDC endpoints (for non-Nuxt apps — plain authorization_code + PKCE)
+Issuer:    ${baseUrl}
+Authorize: ${baseUrl}/api/oidc/authorize
+Token:     ${baseUrl}/api/oidc/token
+Userinfo:  ${baseUrl}/api/oidc/userinfo`;
 }
 async function copyToClipboard(text) {
   try {

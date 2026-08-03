@@ -45,7 +45,7 @@ export default defineNuxtConfig({
     jwtSecret: process.env.JWT_SECRET || 'default-secret-change-in-production',
     jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
     public: {
-      baseUrl: process.env.BASE_URL || 'http://10.5.80.141:3010',
+      baseUrl: process.env.BASE_URL || 'http://localhost:3010',
     },
   },
 

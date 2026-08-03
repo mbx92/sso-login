@@ -1,9 +1,10 @@
-import { defineEventHandler, createError } from "h3";
+import { defineEventHandler, createError, sendRedirect } from "h3";
 import { db, oidcClients, users } from "../../db/index.js";
 import { eq, and } from "drizzle-orm";
 import { createAuthorizationCode } from "../../services/oidc.js";
 import { writeAuditLog, AuditEvents } from "../../services/audit.js";
 import { checkUserClientAccess } from "../../utils/access-control.js";
+import { getSessionUser } from "../../utils/session.js";
 function getQuery(event) {
   const req = event.node?.req || event.req;
   const url = new URL(req.url || "", `http://${req.headers.host}`);
@@ -24,19 +25,21 @@ function doRedirect(event, url, statusCode = 302) {
   res.setHeader("Content-Type", "text/html");
   res.end(`<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0;url=${url}"></head><body>Redirecting to <a href="${url}">${url}</a></body></html>`);
 }
-function getSessionUserId(event) {
-  const cookies = getHeader(event, "cookie");
-  if (!cookies) return null;
-  const userCookie = cookies.split(";").find((c) => c.trim().startsWith("sso_user="));
-  if (!userCookie) return null;
-  try {
-    const userDataStr = decodeURIComponent(userCookie.split("=")[1]);
-    const userData = JSON.parse(userDataStr);
-    return userData.userId;
-  } catch (error) {
-    console.error("Failed to parse sso_user cookie:", error);
+
+/**
+ * Get authenticated user ID from SSO session.
+ * Only the server-side `sso_session` cookie + DB store is trusted.
+ * The legacy `sso_user` cookie is a display cache and NEVER grants access,
+ * so a revoked session cannot be bypassed with a stale cookie.
+ */
+async function getUserIdFromSession(event) {
+  const sessionUser = await getSessionUser(event);
+  if (!sessionUser) {
+    console.log('[authorize] no valid server-side session found');
     return null;
   }
+  console.log('[authorize] session found via sso_session:', sessionUser.email || sessionUser.userId);
+  return sessionUser.userId;
 }
 var authorize_get_default = defineEventHandler(async (event) => {
   const query = getQuery(event);
@@ -94,7 +97,7 @@ var authorize_get_default = defineEventHandler(async (event) => {
       doRedirect(event, buildErrorRedirect(redirectUri, "invalid_scope", `Invalid scopes: ${invalidScopes.join(", ")}`, state));
       return;
     }
-    const userId = getSessionUserId(event);
+    const userId = await getUserIdFromSession(event);
     if (!userId) {
       let loginUrl = `/login?client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(state)}&scope=${encodeURIComponent(scope)}`;
       if (nonce) loginUrl += `&nonce=${encodeURIComponent(nonce)}`;

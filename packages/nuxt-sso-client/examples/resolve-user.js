@@ -4,7 +4,7 @@
  * @param {import('h3').H3Event} event
  * @param {{ userInfo: Record<string, any>, tokens: Record<string, any>, sso: Record<string, any> }} ctx
  */
-export default async function resolveSsoUser(event, { userInfo, sso }) {
+export default async function resolveSsoUser(event, { userInfo, tokens, sso }) {
   const email = String(userInfo.email || '').toLowerCase().trim()
 
   // TODO: cari user lokal by email
@@ -17,6 +17,7 @@ export default async function resolveSsoUser(event, { userInfo, sso }) {
   // (jangan raw useSession tanpa name — default cookie "h3" tidak terbaca middleware).
   // await setUserSession(event, {
   //   user: { id: user.id, email: user.email, name: userInfo.name },
+  //   ssoAccessToken: tokens.access_token,  // ← simpan ini untuk validasi sesi
   // })
 
   return { redirectTo: '/' }

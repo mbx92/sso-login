@@ -1,10 +1,13 @@
-import { defineEventHandler } from "h3";
-import { requireAuthUser } from "../../utils/auth.js";
+import { defineEventHandler, createError } from "h3";
+import { getSessionUser } from "../../utils/session.js";
 import { getUserPortalApps } from "../../utils/access-control.js";
 import { isAdmin } from "../../utils/roles.js";
 
 export default defineEventHandler(async (event) => {
-  const user = requireAuthUser(event);
+  const user = await getSessionUser(event);
+  if (!user) {
+    throw createError({ statusCode: 401, message: "Authentication required" });
+  }
   const apps = await getUserPortalApps(user.userId || user.id);
   return {
     user: {

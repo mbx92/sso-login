@@ -5,17 +5,20 @@ import {
   setCookie,
   sendRedirect,
 } from 'h3'
-import { createPkcePair, getSsoConfig } from '../utils/sso.js'
+import { createPkcePair, getSsoConfig, getCallbackUri } from '../utils/sso.js'
 
 export default defineEventHandler(async (event) => {
   const sso = getSsoConfig()
   if (!sso.enabled) {
     throw createError({ statusCode: 503, statusMessage: 'SSO belum dikonfigurasi' })
   }
-  if (!sso.redirectUri) {
+
+  // Use request host so PKCE cookie domain matches the callback domain
+  const redirectUri = getCallbackUri(event, sso)
+  if (!redirectUri) {
     throw createError({
       statusCode: 500,
-      statusMessage: 'SSO_REDIRECT_URI / APP_URL belum dikonfigurasi',
+      statusMessage: 'Cannot determine callback URI from request',
     })
   }
 
@@ -31,7 +34,7 @@ export default defineEventHandler(async (event) => {
 
   const authorizeUrl = new URL(`${sso.issuer}/api/oidc/authorize`)
   authorizeUrl.searchParams.set('client_id', sso.clientId)
-  authorizeUrl.searchParams.set('redirect_uri', sso.redirectUri)
+  authorizeUrl.searchParams.set('redirect_uri', redirectUri)
   authorizeUrl.searchParams.set('response_type', 'code')
   authorizeUrl.searchParams.set('scope', 'openid profile email')
   authorizeUrl.searchParams.set('state', state)

@@ -1,5 +1,7 @@
 import { writeAuditLog, AuditEvents } from "../../services/audit";
 import { clearAuthCookies } from "../../utils/auth-cookies.js";
+import { db, oidcKv } from "../../db/index.js";
+import { eq, and } from "drizzle-orm";
 
 function readSsoUserFromRequest(event) {
   const raw = event.node.req.headers.cookie
@@ -21,6 +23,18 @@ export default defineEventHandler(async (event) => {
     const userData = readSsoUserFromRequest(event);
     const userId = userData?.userId || null;
     const email = userData?.email || null;
+
+    // Delete SSO session from oidc_kv
+    const rawCookies = event.node.req.headers.cookie || '';
+    const ssoSessionCookie = rawCookies.split(';').find(c => c.trim().startsWith('sso_session='));
+    if (ssoSessionCookie) {
+      const sessionId = ssoSessionCookie.split('=').slice(1).join('=').trim();
+      if (sessionId) {
+        await db.delete(oidcKv).where(
+          and(eq(oidcKv.model, 'Session'), eq(oidcKv.key, sessionId))
+        ).catch(() => {});
+      }
+    }
 
     clearAuthCookies(event);
 

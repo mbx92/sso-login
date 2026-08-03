@@ -1,6 +1,6 @@
 import { defineEventHandler } from "h3";
 var openid_configuration_get_default = defineEventHandler((event) => {
-  const baseUrl = process.env.SSO_ISSUER || "http://localhost:3000";
+  const baseUrl = process.env.SSO_ISSUER || "http://localhost:3010";
   return {
     issuer: baseUrl,
     authorization_endpoint: `${baseUrl}/api/oidc/authorize`,
@@ -49,6 +49,9 @@ var openid_configuration_get_default = defineEventHandler((event) => {
       "employee_id",
       "department",
       "position",
+      "unit_id",
+      "unit_name",
+      "unit_code",
       "avatar_url",
       "role_id",
       "role_name"

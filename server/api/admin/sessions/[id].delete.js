@@ -35,20 +35,45 @@ var id_delete_default = defineEventHandler(async (event) => {
     const payload = entry.payload;
     const userId = payload?.userId || payload?.accountId;
     const clientId = payload?.clientId;
+
+    // 1. Remove the exact entry the admin selected
     await db.delete(oidcKv).where(eq(oidcKv.id, sessionId));
+
+    // 2. Remove everything sharing the same grant (AuthorizationCode, AccessToken, RefreshToken, etc.)
     if (entry.grantId) {
       await db.delete(oidcKv).where(eq(oidcKv.grantId, entry.grantId));
     }
-    if (userId && clientId) {
-      const allUserTokens = await db.select().from(oidcKv).where(eq(oidcKv.model, "RefreshToken"));
-      for (const token of allUserTokens) {
-        const tokenPayload = token.payload;
-        if ((tokenPayload?.userId === userId || tokenPayload?.accountId === userId) && tokenPayload?.clientId === clientId) {
-          await db.delete(oidcKv).where(eq(oidcKv.id, token.id));
+
+    if (userId) {
+      // 3. Remove ALL browser sessions of this user so `sso_session` cookies
+      //    become invalid everywhere (portal + every OIDC client)
+      const allSessions = await db.select().from(oidcKv).where(eq(oidcKv.model, "Session"));
+      for (const s of allSessions) {
+        const p = s.payload;
+        if (p?.userId === userId || p?.accountId === userId) {
+          await db.delete(oidcKv).where(eq(oidcKv.id, s.id));
         }
       }
+
+      // 4. Remove all grants + tokens (AccessToken, RefreshToken, Grant,
+      //    AuthorizationCode) for this user across clients
+      const tokenModels = ["RefreshToken", "AccessToken", "Grant", "AuthorizationCode"];
+      const allTokenRows = await db.select().from(oidcKv);
+      const revokedGrantIds = new Set();
+      for (const row of allTokenRows) {
+        if (!tokenModels.includes(row.model)) continue;
+        const p = row.payload;
+        const rowUser = p?.userId || p?.accountId;
+        if (rowUser === userId) {
+          await db.delete(oidcKv).where(eq(oidcKv.id, row.id));
+          if (row.grantId) revokedGrantIds.add(row.grantId);
+        }
+      }
+      for (const grantId of revokedGrantIds) {
+        await db.delete(oidcKv).where(eq(oidcKv.grantId, grantId));
+      }
     }
-    console.log(`Revoked all sessions for user ${userId} on client ${clientId}`);
+    console.log(`Revoked all sessions and tokens for user ${userId}` + (clientId ? ` on client ${clientId}` : ""));
     const forwardedFor = event.node?.req.headers["x-forwarded-for"];
     const clientIp = (typeof forwardedFor === "string" ? forwardedFor.split(",")[0]?.trim() : null) || event.node?.req.socket.remoteAddress || "unknown";
     const userCookie = event.node.req.headers.cookie?.split(";").find((c) => c.trim().startsWith("sso_user="))?.split("=")[1];

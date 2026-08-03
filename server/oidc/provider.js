@@ -259,7 +259,7 @@ function createOidcProvider(issuer, sessionSecret) {
 let providerInstance = null;
 function getOidcProvider() {
   if (!providerInstance) {
-    const issuer = process.env.SSO_ISSUER || "http://localhost:3000";
+    const issuer = process.env.SSO_ISSUER || "http://localhost:3010";
     const sessionSecret = process.env.SESSION_SECRET || "change-me-in-production";
     providerInstance = createOidcProvider(issuer, sessionSecret);
   }

@@ -1,4 +1,4 @@
-import { db, users, units, userRoles, roles } from "../../db/index";
+import { db, users, units, userRoles, roles, oidcKv } from "../../db/index";
 import { eq } from "drizzle-orm";
 import * as argon2 from "argon2";
 import { v4 as uuidv4 } from "uuid";
@@ -105,6 +105,16 @@ var login_post_default = defineEventHandler(async (event) => {
       department: user.department,
       position: user.position
     };
+
+    // Store session in oidc_kv for SSO session lookup
+    const sessionExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    await db.insert(oidcKv).values({
+      model: 'Session',
+      key: sessionId,
+      payload: { userId: user.id, email: user.email, name: user.name },
+      expiresAt: sessionExpiresAt,
+    });
+
     console.log("Login session data:", sessionData);
     setNativeCookie(event, "sso_session", sessionId, {
       httpOnly: true,

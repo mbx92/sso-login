@@ -98,7 +98,7 @@ onMounted(async () => {
   } catch (error) {
     console.error('Failed to load apps:', error)
     if (error?.statusCode === 401) {
-      await navigateTo('/login')
+      await navigateTo('/login?reason=session_expired')
     }
   } finally {
     loading.value = false

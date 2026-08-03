@@ -2,22 +2,24 @@ import { defineEventHandler, createError } from "h3";
 import { logger } from "../services/logger.js";
 const rateLimitStore = /* @__PURE__ */ new Map();
 const RATE_LIMIT_CONFIG = {
-  // Login endpoint: 5 attempts per minute
-  "/api/auth/login": { maxRequests: 5, windowMs: 60 * 1e3 },
-  "/login": { maxRequests: 10, windowMs: 60 * 1e3 },
-  // Token endpoint: 30 requests per minute
-  "/oidc/token": { maxRequests: 30, windowMs: 60 * 1e3 },
-  // Default for other protected endpoints
-  default: { maxRequests: 100, windowMs: 60 * 1e3 }
+  // Brute-force protection for credential submission only.
+  // Do NOT rate-limit GET /login — page refreshes / HMR / OIDC redirects
+  // easily exceed a low page-view budget and return 429.
+  "/api/auth/login": { maxRequests: 10, windowMs: 60 * 1e3 },
+  "/api/oidc/token": { maxRequests: 30, windowMs: 60 * 1e3 },
+  "/api/oidc/authorize": { maxRequests: 60, windowMs: 60 * 1e3 },
 };
-const RATE_LIMITED_PATHS = ["/api/auth/login", "/login", "/oidc/token", "/oidc/authorize"];
+const RATE_LIMITED_PATHS = Object.keys(RATE_LIMIT_CONFIG);
+
 function getRateLimitConfig(path) {
+  // Strip query string so /api/auth/login?x=1 shares the same bucket
+  const pathname = path.split("?")[0];
   for (const [pattern, config] of Object.entries(RATE_LIMIT_CONFIG)) {
-    if (pattern !== "default" && path.startsWith(pattern)) {
+    if (pathname === pattern || pathname.startsWith(pattern + "/")) {
       return config;
     }
   }
-  return RATE_LIMIT_CONFIG.default;
+  return null;
 }
 function checkRateLimit(key, maxRequests, windowMs) {
   const now = Date.now();
@@ -34,23 +36,32 @@ function checkRateLimit(key, maxRequests, windowMs) {
   rateLimitStore.set(key, entry);
   return { allowed: true, remaining: maxRequests - entry.count, resetAt: entry.resetAt };
 }
-setInterval(() => {
-  const now = Date.now();
-  for (const [key, entry] of rateLimitStore.entries()) {
-    if (now >= entry.resetAt) {
-      rateLimitStore.delete(key);
+if (!globalThis.__ssoRateLimitCleanup) {
+  globalThis.__ssoRateLimitCleanup = setInterval(() => {
+    const now = Date.now();
+    for (const [key, entry] of rateLimitStore.entries()) {
+      if (now >= entry.resetAt) {
+        rateLimitStore.delete(key);
+      }
     }
+  }, 60 * 1e3);
+  // Allow process to exit cleanly in tests / worker restarts
+  if (typeof globalThis.__ssoRateLimitCleanup.unref === "function") {
+    globalThis.__ssoRateLimitCleanup.unref();
   }
-}, 60 * 1e3);
+}
 var rate_limit_default = defineEventHandler((event) => {
-  const path = event.node.req.url || "/";
-  if (!RATE_LIMITED_PATHS.some((p) => path.startsWith(p))) {
+  const rawUrl = event.node.req.url || "/";
+  const pathname = rawUrl.split("?")[0];
+  if (!RATE_LIMITED_PATHS.some((p) => pathname === p || pathname.startsWith(p + "/"))) {
     return;
   }
   const forwardedFor = event.node.req.headers["x-forwarded-for"];
   const clientIp = (typeof forwardedFor === "string" ? forwardedFor.split(",")[0]?.trim() : null) || event.node.req.socket.remoteAddress || "unknown";
-  const rateLimitKey = `${clientIp}:${path}`;
-  const config = getRateLimitConfig(path);
+  // Bucket by path without query string
+  const rateLimitKey = `${clientIp}:${pathname}`;
+  const config = getRateLimitConfig(pathname);
+  if (!config) return;
   const result = checkRateLimit(rateLimitKey, config.maxRequests, config.windowMs);
   event.node.res.setHeader("X-RateLimit-Limit", config.maxRequests);
   event.node.res.setHeader("X-RateLimit-Remaining", result.remaining);
@@ -59,7 +70,7 @@ var rate_limit_default = defineEventHandler((event) => {
     logger.warn({
       requestId: event.context.requestId,
       clientIp,
-      path,
+      path: pathname,
       message: "Rate limit exceeded"
     }, "Rate limit exceeded");
     throw createError({

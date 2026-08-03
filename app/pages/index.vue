@@ -60,24 +60,5 @@
 <script setup>
 definePageMeta({
   layout: false
-});
-
-const userCookie = useCookie('sso_user')
-onMounted(() => {
-  if (!userCookie.value) return
-  let user = userCookie.value
-  try {
-    if (typeof user === 'string') user = JSON.parse(user)
-  } catch {
-    return
-  }
-  const roleName = user?.roleName?.toLowerCase?.()
-  const roleId = user?.roleId
-  const isAdminUser =
-    roleName === 'superadmin' ||
-    roleName === 'admin' ||
-    roleId === 'superadmin' ||
-    roleId === 'admin'
-  navigateTo(isAdminUser ? '/admin' : '/apps')
 })
 </script>

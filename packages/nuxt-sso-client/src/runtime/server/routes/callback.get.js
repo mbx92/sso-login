@@ -7,7 +7,7 @@ import {
 } from 'h3'
 import { $fetch } from 'ofetch'
 import resolveUser from '#mbx-sso-resolve-user'
-import { getSsoConfig, failLoginRedirect, successRedirectUrl } from '../utils/sso.js'
+import { getSsoConfig, failLoginRedirect, successRedirectUrl, getCallbackUri } from '../utils/sso.js'
 
 function readPkceCookie(event, cookieName) {
   const raw = getCookie(event, cookieName)
@@ -46,13 +46,14 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
+    const redirectUri = getCallbackUri(event, sso)
     const tokenRes = await $fetch(`${sso.issuer}/api/oidc/token`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({
         grant_type: 'authorization_code',
         code: String(code),
-        redirect_uri: sso.redirectUri,
+        redirect_uri: redirectUri,
         client_id: sso.clientId,
         client_secret: sso.clientSecret,
         code_verifier: pkce.codeVerifier,
@@ -79,12 +80,27 @@ export default defineEventHandler(async (event) => {
   }
   catch (error) {
     console.error('[@mbx92/nuxt-sso-client] callback error:', error)
-    const message =
+    const raw =
       error?.data?.statusMessage ||
       error?.data?.message ||
       error?.statusMessage ||
       error?.message ||
       'Login SSO gagal'
+    const message = humanizeSsoError(raw)
     return sendRedirect(event, failLoginRedirect(sso, message), 302)
   }
 })
+
+function humanizeSsoError(raw) {
+  const text = String(raw || '')
+  if (
+    /failed\s+query|select\s+|insert\s+|update\s+|delete\s+|relation\s+"|params:\s*|ECONNREFUSED|syntax\s+error/i.test(text)
+    || text.length > 160
+  ) {
+    if (/does not exist|relation/i.test(text)) {
+      return 'Database aplikasi belum siap. Hubungi administrator.'
+    }
+    return 'Login SSO gagal. Silakan coba lagi.'
+  }
+  return text || 'Login SSO gagal'
+}

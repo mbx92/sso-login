@@ -99,5 +99,9 @@ export default async function missingResolver() {
       route: `${options.apiBase}/callback`,
       handler: resolve('./runtime/server/routes/callback.get.js'),
     })
+    addServerHandler({
+      route: `${options.apiBase}/check-session`,
+      handler: resolve('./runtime/server/routes/check-session.post.js'),
+    })
   },
 })

@@ -64,12 +64,16 @@ async function getUserAccessibleClients(userId) {
 }
 
 function deriveHomepageUrl(client) {
+  // If client has explicit homepage URL (preferably SSO login endpoint), use it
   if (client.homepageUrl) return client.homepageUrl;
+
+  // Otherwise auto-generate SSO login endpoint from redirect URI
   const first = client.redirectUris?.[0];
   if (!first) return null;
   try {
-    const url = new URL(first);
-    return url.origin;
+    const callbackUrl = new URL(first); // e.g. http://10.5.80.141:3000/api/auth/sso/callback
+    // Construct SSO login endpoint: same origin, /api/auth/sso/login
+    return `${callbackUrl.origin}/api/auth/sso/login`;
   } catch {
     return null;
   }

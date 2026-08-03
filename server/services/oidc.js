@@ -1,11 +1,11 @@
-import { db, oidcKv, users } from "../db/index.js";
+import { db, oidcKv, users, units } from "../db/index.js";
 import { eq, and, gt } from "drizzle-orm";
 import { randomBytes } from "crypto";
 import { SignJWT, jwtVerify } from "jose";
 const JWT_SECRET = new TextEncoder().encode(
   process.env.SESSION_SECRET || "change-me-to-a-secure-random-string-at-least-32-chars"
 );
-const ISSUER = process.env.SSO_ISSUER || "http://localhost:3000";
+const ISSUER = process.env.SSO_ISSUER || "http://localhost:3010";
 function generateCode(length = 32) {
   return randomBytes(length).toString("base64url");
 }
@@ -99,8 +99,20 @@ async function createIDToken(params) {
     position: user.position || void 0,
     avatar_url: user.avatarUrl || void 0,
     role_id: user.roleId || void 0,
-    role_name: user.roleName || void 0
+    role_name: user.roleName || void 0,
+    unit_id: user.unitId || void 0,
   };
+  // Attach unit name/code if available
+  if (user.unitId) {
+    const [unit] = await db.select({ name: units.name, code: units.code })
+      .from(units)
+      .where(eq(units.id, user.unitId))
+      .limit(1);
+    if (unit) {
+      payload.unit_name = unit.name;
+      payload.unit_code = unit.code;
+    }
+  }
   if (params.nonce) {
     payload.nonce = params.nonce;
   }
@@ -159,11 +171,17 @@ async function getUserInfo(userId) {
     name: users.name,
     employee_id: users.employeeId,
     department: users.department,
+    unit_name: units.name,
+    unit_code: units.code,
     position: users.position,
     avatar_url: users.avatarUrl,
     role_id: users.roleId,
-    role_name: users.roleName
-  }).from(users).where(eq(users.id, userId)).limit(1);
+    role_name: users.roleName,
+    unit_id: users.unitId,
+  }).from(users)
+    .leftJoin(units, eq(users.unitId, units.id))
+    .where(eq(users.id, userId))
+    .limit(1);
   return user;
 }
 export {

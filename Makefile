@@ -64,8 +64,10 @@ db-migrate:
 	docker compose exec sso-app npx drizzle-kit push
 
 # Seed initial data
+# Note: uses tsx (not `npm run db:seed` / plain node) because server/db/seed.js relies on
+# extensionless relative imports that native Node ESM cannot resolve.
 db-seed:
-	docker compose exec sso-app npx tsx server/db/seed.ts
+	docker compose exec sso-app npx tsx server/db/seed.js
 
 # Health check
 health:

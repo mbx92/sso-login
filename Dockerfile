@@ -62,13 +62,18 @@ RUN addgroup --system --gid 1001 nodejs \
 COPY --from=builder --chown=nuxtjs:nodejs /app/.output ./.output
 COPY --from=builder --chown=nuxtjs:nodejs /app/package.json ./package.json
 
-# Copy drizzle config and migrations (for db:migrate command)
-COPY --from=builder --chown=nuxtjs:nodejs /app/drizzle.config.ts ./drizzle.config.ts
+# Copy drizzle config and migrations (for db:migrate/db:seed commands)
+COPY --from=builder --chown=nuxtjs:nodejs /app/drizzle.config.js ./drizzle.config.js
 COPY --from=builder --chown=nuxtjs:nodejs /app/server/db ./server/db
-COPY --from=builder --chown=nuxtjs:nodejs /app/tsconfig.json ./tsconfig.json
 
-# Install migration dependencies (tsx + drizzle-orm + postgres driver)
-RUN npm install -g tsx && npm install drizzle-orm postgres
+# Install migration dependencies:
+#   - drizzle-kit: db:migrate/db:push
+#   - drizzle-orm + postgres + argon2: required by server/db/seed.js and migrate.js, which run as
+#     standalone scripts outside the Nuxt .output bundle
+#   - tsx: server/db/*.js uses extensionless relative imports (e.g. "./index", "./schema"), which
+#     native Node ESM ("type": "module") cannot resolve — only tsx's bundler-style resolution can,
+#     so these scripts must be run via `npx tsx <file>.js`, not plain `node`
+RUN npm install drizzle-kit drizzle-orm postgres argon2 tsx
 
 # Set environment variables
 ENV NODE_ENV=production

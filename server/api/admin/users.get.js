@@ -1,4 +1,4 @@
-import { db, users, units } from "../../db/index";
+import { db, users, units, sites } from "../../db/index";
 import { desc, count, ilike, or, eq } from "drizzle-orm";
 
 function parseQuery(event) {
@@ -36,6 +36,8 @@ var users_get_default = defineEventHandler(async (event) => {
       employeeId: users.employeeId,
       unitId: users.unitId,
       unitName: units.name,
+      siteId: units.siteId,
+      siteName: sites.name,
       status: users.status,
       department: users.department,
       position: users.position,
@@ -44,7 +46,7 @@ var users_get_default = defineEventHandler(async (event) => {
       roleName: users.roleName,
       createdAt: users.createdAt,
       updatedAt: users.updatedAt
-    }).from(users).leftJoin(units, eq(users.unitId, units.id)).where(searchCondition).orderBy(desc(users.createdAt)).limit(limit).offset(offset);
+    }).from(users).leftJoin(units, eq(users.unitId, units.id)).leftJoin(sites, eq(units.siteId, sites.id)).where(searchCondition).orderBy(desc(users.createdAt)).limit(limit).offset(offset);
     const [{ value: total }] = await db.select({ value: count() }).from(users).where(searchCondition);
     return {
       data: userList,

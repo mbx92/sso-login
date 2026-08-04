@@ -1,44 +1,32 @@
-import {
-  defineEventHandler,
-  readBody,
-  createError,
-} from 'h3'
-import { $fetch } from 'ofetch'
-import { getSsoConfig } from '../utils/sso.js'
+import { defineEventHandler } from 'h3'
+import { getSsoConfig, getSsoSession, validateSsoSession } from '../utils/sso.js'
 
 /**
- * Proxy route: validates the current SSO session by calling the SSO issuer.
- * The host app should store the `access_token` from the callback in its
- * own session and pass it here.
+ * Validates that the current SSO session is still active on the issuer.
+ * Reads the package's own session cookie (set in callback.get.js) —
+ * no client-supplied token needed, so it's safe to call from anywhere.
  *
- * POST /api/auth/sso/check-session
- * Body: { access_token: string }
+ * GET /api/auth/sso/check-session
  * Response: { valid: boolean }
  */
 export default defineEventHandler(async (event) => {
   const sso = getSsoConfig()
   if (!sso.enabled) {
-    throw createError({ statusCode: 503, message: 'SSO not configured' })
+    return { valid: true }
   }
 
-  const body = await readBody(event)
-  const accessToken = body?.access_token
+  const session = await getSsoSession(event, sso)
+  const sub = session.data?.sub
 
-  if (!accessToken) {
-    return { valid: false }
+  if (!sub) {
+    // Not an SSO session (or predates this cookie) — nothing to check.
+    return { valid: true }
   }
 
-  try {
-    const result = await $fetch(`${sso.issuer}/api/auth/check-session`, {
-      method: 'POST',
-      body: { access_token: accessToken },
-      headers: { 'Content-Type': 'application/json' },
-      ignoreResponseError: true,
-    })
-    return { valid: result?.valid === true }
+  const valid = await validateSsoSession(sso, sub)
+  if (!valid) {
+    await session.clear()
   }
-  catch (error) {
-    console.error('[@mbx92/nuxt-sso-client] session check failed:', error.message)
-    return { valid: false }
-  }
+
+  return { valid }
 })

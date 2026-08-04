@@ -21,6 +21,8 @@ export default defineNuxtModule({
     apiBase: '/api/auth/sso',
     /** Cookie name untuk PKCE state */
     pkceCookie: 'mbx_sso_pkce',
+    /** Cookie name untuk session internal paket (menyimpan SSO account id) */
+    sessionCookie: 'mbx_sso_session',
     /** Default success redirect */
     successRedirect: '/',
     /** Default login/error redirect */
@@ -48,6 +50,7 @@ export default defineNuxtModule({
       redirectUri: process.env.SSO_REDIRECT_URI || '',
       autoProvision: process.env.SSO_AUTO_PROVISION !== 'false',
       pkceCookie: options.pkceCookie,
+      sessionCookie: options.sessionCookie,
       successRedirect: options.successRedirect,
       loginPath: options.loginPath,
       ...(nuxt.options.runtimeConfig.sso || {}),
@@ -101,7 +104,7 @@ export default async function missingResolver() {
     })
     addServerHandler({
       route: `${options.apiBase}/check-session`,
-      handler: resolve('./runtime/server/routes/check-session.post.js'),
+      handler: resolve('./runtime/server/routes/check-session.get.js'),
     })
   },
 })

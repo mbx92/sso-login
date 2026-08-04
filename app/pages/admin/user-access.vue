@@ -414,58 +414,78 @@
           <div class="px-6 py-4 border-b border-hairline">
             <h3 class="text-lg font-semibold text-ink">Pilih Users untuk Group</h3>
             <p class="text-sm text-steel mt-1">Pilih user dari kiri, lalu klik tombol untuk pindahkan ke kanan</p>
+            <div class="flex gap-3 mt-3">
+              <select
+                v-model="bulkSiteFilter"
+                class="h-9 px-3 text-sm border border-hairline rounded-md bg-canvas text-ink focus-visible:border-brand-blue-deep focus-visible:border-2 focus-visible:outline-none"
+              >
+                <option :value="null">Semua Site</option>
+                <option v-for="site in bulkSites" :key="site.id" :value="site.id">{{ site.name }}</option>
+              </select>
+              <select
+                v-model="bulkUnitFilter"
+                class="h-9 px-3 text-sm border border-hairline rounded-md bg-canvas text-ink focus-visible:border-brand-blue-deep focus-visible:border-2 focus-visible:outline-none"
+              >
+                <option :value="null">Semua Unit</option>
+                <option v-for="unit in bulkUnitFilterOptions" :key="unit.id" :value="unit.id">
+                  {{ bulkSiteFilter ? unit.name : `${unit.siteName || '-'} - ${unit.name}` }}
+                </option>
+              </select>
+            </div>
           </div>
-          
+
           <div class="flex-1 overflow-hidden p-6 min-h-0">
             <div class="grid grid-cols-2 gap-6 h-full">
               <!-- Available Users (Left) -->
               <div class="flex flex-col border border-hairline rounded-lg h-full overflow-hidden">
-                <div class="p-4 border-b border-hairline bg-surface flex-shrink-0">
-                  <h4 class="font-medium text-ink mb-3">Tersedia ({{ filteredAvailableUsers.length }})</h4>
-                  <input
-                    v-model="availableUserSearch"
-                    type="text"
-                    placeholder="Cari user..."
-                    class="w-full h-11 px-4 py-3 text-base border border-hairline rounded-md bg-canvas text-ink placeholder:text-steel focus-visible:border-brand-blue-deep focus-visible:border-2 focus-visible:outline-none"
-                  />
-                  <div class="mt-2 flex gap-2">
-                    <button
-                      type="button"
-                      @click="selectAllAvailableUsers"
-                      class="text-xs px-2 py-1 text-ink hover:bg-surface rounded"
-                    >
-                      Select All
-                    </button>
-                    <button
-                      type="button"
-                      @click="deselectAllAvailableUsers"
-                      class="text-xs px-2 py-1 text-steel hover:bg-surface rounded"
-                    >
-                      Deselect All
-                    </button>
-                  </div>
-                </div>
-                <div class="flex-1 overflow-y-auto p-2">
-                  <div
-                    v-for="user in filteredAvailableUsers"
-                    :key="user.id"
-                    @click="toggleAvailableUser(user.id)"
-                    class="flex items-center gap-3 p-3 hover:bg-surface rounded-lg cursor-pointer"
-                    :class="{ 'bg-surface border-2 border-ink': tempSelectedAvailable.has(user.id) }"
-                  >
+                <div class="flex-1 overflow-y-auto">
+                  <div class="sticky top-0 z-10 p-4 border-b border-hairline bg-surface">
+                    <h4 class="font-medium text-ink mb-3">Tersedia ({{ filteredAvailableUsers.length }})</h4>
                     <input
-                      type="checkbox"
-                      :checked="tempSelectedAvailable.has(user.id)"
-                      class="w-4 h-4 text-ink rounded focus:ring-brand-blue-deep"
-                      @click.stop
+                      v-model="availableUserSearch"
+                      type="text"
+                      placeholder="Cari user..."
+                      class="w-full h-11 px-4 py-3 text-base border border-hairline rounded-md bg-canvas text-ink placeholder:text-steel focus-visible:border-brand-blue-deep focus-visible:border-2 focus-visible:outline-none"
                     />
-                    <div class="flex-1 min-w-0">
-                      <p class="text-sm font-medium text-ink truncate">{{ user.name }}</p>
-                      <p class="text-xs text-steel truncate">{{ user.email }}</p>
+                    <div class="mt-2 flex gap-2">
+                      <button
+                        type="button"
+                        @click="selectAllAvailableUsers"
+                        class="text-xs px-2 py-1 text-ink hover:bg-surface rounded"
+                      >
+                        Select All
+                      </button>
+                      <button
+                        type="button"
+                        @click="deselectAllAvailableUsers"
+                        class="text-xs px-2 py-1 text-steel hover:bg-surface rounded"
+                      >
+                        Deselect All
+                      </button>
                     </div>
                   </div>
-                  <div v-if="filteredAvailableUsers.length === 0" class="text-center py-8 text-steel text-sm">
-                    {{ availableUserSearch ? 'Tidak ada user yang cocok' : 'Semua user sudah dipilih' }}
+                  <div class="p-2">
+                    <div
+                      v-for="user in filteredAvailableUsers"
+                      :key="user.id"
+                      @click="toggleAvailableUser(user.id)"
+                      class="flex items-center gap-3 p-3 hover:bg-surface rounded-lg cursor-pointer"
+                      :class="{ 'bg-surface border-2 border-ink': tempSelectedAvailable.has(user.id) }"
+                    >
+                      <input
+                        type="checkbox"
+                        :checked="tempSelectedAvailable.has(user.id)"
+                        class="w-4 h-4 text-ink rounded focus:ring-brand-blue-deep"
+                        @click.stop
+                      />
+                      <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-ink truncate">{{ user.name }}</p>
+                        <p class="text-xs text-steel truncate">{{ user.email }}</p>
+                      </div>
+                    </div>
+                    <div v-if="filteredAvailableUsers.length === 0" class="text-center py-8 text-steel text-sm">
+                      {{ availableUserSearch ? 'Tidak ada user yang cocok' : 'Semua user sudah dipilih' }}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -498,52 +518,54 @@
 
               <!-- Selected Users (Right) -->
               <div class="flex flex-col border border-hairline rounded-lg h-full overflow-hidden">
-                <div class="p-4 border-b border-hairline bg-surface flex-shrink-0">
-                  <h4 class="font-medium text-ink mb-3">Dipilih ({{ filteredChosenUsers.length }})</h4>
-                  <input
-                    v-model="chosenUserSearch"
-                    type="text"
-                    placeholder="Cari user..."
-                    class="w-full h-11 px-4 py-3 text-base border border-hairline rounded-md bg-canvas text-ink placeholder:text-steel focus-visible:border-brand-blue-deep focus-visible:border-2 focus-visible:outline-none"
-                  />
-                  <div class="mt-2 flex gap-2">
-                    <button
-                      type="button"
-                      @click="selectAllChosenUsers"
-                      class="text-xs px-2 py-1 text-ink hover:bg-surface rounded"
-                    >
-                      Select All
-                    </button>
-                    <button
-                      type="button"
-                      @click="deselectAllChosenUsers"
-                      class="text-xs px-2 py-1 text-steel hover:bg-surface rounded"
-                    >
-                      Deselect All
-                    </button>
-                  </div>
-                </div>
-                <div class="flex-1 overflow-y-auto p-2">
-                  <div
-                    v-for="user in filteredChosenUsers"
-                    :key="user.id"
-                    @click="toggleChosenUser(user.id)"
-                    class="flex items-center gap-3 p-3 hover:bg-surface rounded-lg cursor-pointer"
-                    :class="{ 'bg-surface border-2 border-ink': tempSelectedChosen.has(user.id) }"
-                  >
+                <div class="flex-1 overflow-y-auto">
+                  <div class="sticky top-0 z-10 p-4 border-b border-hairline bg-surface">
+                    <h4 class="font-medium text-ink mb-3">Dipilih ({{ filteredChosenUsers.length }})</h4>
                     <input
-                      type="checkbox"
-                      :checked="tempSelectedChosen.has(user.id)"
-                      class="w-4 h-4 text-ink rounded focus:ring-brand-blue-deep"
-                      @click.stop
+                      v-model="chosenUserSearch"
+                      type="text"
+                      placeholder="Cari user..."
+                      class="w-full h-11 px-4 py-3 text-base border border-hairline rounded-md bg-canvas text-ink placeholder:text-steel focus-visible:border-brand-blue-deep focus-visible:border-2 focus-visible:outline-none"
                     />
-                    <div class="flex-1 min-w-0">
-                      <p class="text-sm font-medium text-ink truncate">{{ user.name }}</p>
-                      <p class="text-xs text-steel truncate">{{ user.email }}</p>
+                    <div class="mt-2 flex gap-2">
+                      <button
+                        type="button"
+                        @click="selectAllChosenUsers"
+                        class="text-xs px-2 py-1 text-ink hover:bg-surface rounded"
+                      >
+                        Select All
+                      </button>
+                      <button
+                        type="button"
+                        @click="deselectAllChosenUsers"
+                        class="text-xs px-2 py-1 text-steel hover:bg-surface rounded"
+                      >
+                        Deselect All
+                      </button>
                     </div>
                   </div>
-                  <div v-if="filteredChosenUsers.length === 0" class="text-center py-8 text-steel text-sm">
-                    {{ chosenUserSearch ? 'Tidak ada user yang cocok' : 'Belum ada user dipilih' }}
+                  <div class="p-2">
+                    <div
+                      v-for="user in filteredChosenUsers"
+                      :key="user.id"
+                      @click="toggleChosenUser(user.id)"
+                      class="flex items-center gap-3 p-3 hover:bg-surface rounded-lg cursor-pointer"
+                      :class="{ 'bg-surface border-2 border-ink': tempSelectedChosen.has(user.id) }"
+                    >
+                      <input
+                        type="checkbox"
+                        :checked="tempSelectedChosen.has(user.id)"
+                        class="w-4 h-4 text-ink rounded focus:ring-brand-blue-deep"
+                        @click.stop
+                      />
+                      <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-ink truncate">{{ user.name }}</p>
+                        <p class="text-xs text-steel truncate">{{ user.email }}</p>
+                      </div>
+                    </div>
+                    <div v-if="filteredChosenUsers.length === 0" class="text-center py-8 text-steel text-sm">
+                      {{ chosenUserSearch ? 'Tidak ada user yang cocok' : 'Belum ada user dipilih' }}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -582,52 +604,54 @@
             <div class="grid grid-cols-2 gap-6 h-full">
               <!-- Available Clients (Left) -->
               <div class="flex flex-col border border-hairline rounded-lg h-full overflow-hidden">
-                <div class="p-4 border-b border-hairline bg-surface flex-shrink-0">
-                  <h4 class="font-medium text-ink mb-3">Tersedia ({{ filteredAvailableClients.length }})</h4>
-                  <input
-                    v-model="availableClientSearch"
-                    type="text"
-                    placeholder="Cari aplikasi..."
-                    class="w-full h-11 px-4 py-3 text-base border border-hairline rounded-md bg-canvas text-ink placeholder:text-steel focus-visible:border-brand-blue-deep focus-visible:border-2 focus-visible:outline-none"
-                  />
-                  <div class="mt-2 flex gap-2">
-                    <button
-                      type="button"
-                      @click="selectAllAvailableClients"
-                      class="text-xs px-2 py-1 text-ink hover:bg-surface rounded"
-                    >
-                      Select All
-                    </button>
-                    <button
-                      type="button"
-                      @click="deselectAllAvailableClients"
-                      class="text-xs px-2 py-1 text-steel hover:bg-surface rounded"
-                    >
-                      Deselect All
-                    </button>
-                  </div>
-                </div>
-                <div class="flex-1 overflow-y-auto p-2">
-                  <div
-                    v-for="client in filteredAvailableClients"
-                    :key="client.id"
-                    @click="toggleAvailableClient(client.id)"
-                    class="flex items-center gap-3 p-3 hover:bg-surface rounded-lg cursor-pointer"
-                    :class="{ 'bg-surface border-2 border-ink': tempSelectedAvailableClients.has(client.id) }"
-                  >
+                <div class="flex-1 overflow-y-auto">
+                  <div class="sticky top-0 z-10 p-4 border-b border-hairline bg-surface">
+                    <h4 class="font-medium text-ink mb-3">Tersedia ({{ filteredAvailableClients.length }})</h4>
                     <input
-                      type="checkbox"
-                      :checked="tempSelectedAvailableClients.has(client.id)"
-                      class="w-4 h-4 text-ink rounded focus:ring-brand-blue-deep"
-                      @click.stop
+                      v-model="availableClientSearch"
+                      type="text"
+                      placeholder="Cari aplikasi..."
+                      class="w-full h-11 px-4 py-3 text-base border border-hairline rounded-md bg-canvas text-ink placeholder:text-steel focus-visible:border-brand-blue-deep focus-visible:border-2 focus-visible:outline-none"
                     />
-                    <div class="flex-1 min-w-0">
-                      <p class="text-sm font-medium text-ink truncate">{{ client.clientName || client.name || client.clientId }}</p>
-                      <p v-if="client.clientDescription" class="text-xs text-steel truncate">{{ client.clientDescription }}</p>
+                    <div class="mt-2 flex gap-2">
+                      <button
+                        type="button"
+                        @click="selectAllAvailableClients"
+                        class="text-xs px-2 py-1 text-ink hover:bg-surface rounded"
+                      >
+                        Select All
+                      </button>
+                      <button
+                        type="button"
+                        @click="deselectAllAvailableClients"
+                        class="text-xs px-2 py-1 text-steel hover:bg-surface rounded"
+                      >
+                        Deselect All
+                      </button>
                     </div>
                   </div>
-                  <div v-if="filteredAvailableClients.length === 0" class="text-center py-8 text-steel text-sm">
-                    {{ availableClientSearch ? 'Tidak ada aplikasi yang cocok' : 'Semua aplikasi sudah dipilih' }}
+                  <div class="p-2">
+                    <div
+                      v-for="client in filteredAvailableClients"
+                      :key="client.id"
+                      @click="toggleAvailableClient(client.id)"
+                      class="flex items-center gap-3 p-3 hover:bg-surface rounded-lg cursor-pointer"
+                      :class="{ 'bg-surface border-2 border-ink': tempSelectedAvailableClients.has(client.id) }"
+                    >
+                      <input
+                        type="checkbox"
+                        :checked="tempSelectedAvailableClients.has(client.id)"
+                        class="w-4 h-4 text-ink rounded focus:ring-brand-blue-deep"
+                        @click.stop
+                      />
+                      <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-ink truncate">{{ client.clientName || client.name || client.clientId }}</p>
+                        <p v-if="client.clientDescription" class="text-xs text-steel truncate">{{ client.clientDescription }}</p>
+                      </div>
+                    </div>
+                    <div v-if="filteredAvailableClients.length === 0" class="text-center py-8 text-steel text-sm">
+                      {{ availableClientSearch ? 'Tidak ada aplikasi yang cocok' : 'Semua aplikasi sudah dipilih' }}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -660,52 +684,54 @@
 
               <!-- Selected Clients (Right) -->
               <div class="flex flex-col border border-hairline rounded-lg h-full overflow-hidden">
-                <div class="p-4 border-b border-hairline bg-surface flex-shrink-0">
-                  <h4 class="font-medium text-ink mb-3">Dipilih ({{ filteredChosenClients.length }})</h4>
-                  <input
-                    v-model="chosenClientSearch"
-                    type="text"
-                    placeholder="Cari aplikasi..."
-                    class="w-full h-11 px-4 py-3 text-base border border-hairline rounded-md bg-canvas text-ink placeholder:text-steel focus-visible:border-brand-blue-deep focus-visible:border-2 focus-visible:outline-none"
-                  />
-                  <div class="mt-2 flex gap-2">
-                    <button
-                      type="button"
-                      @click="selectAllChosenClients"
-                      class="text-xs px-2 py-1 text-ink hover:bg-surface rounded"
-                    >
-                      Select All
-                    </button>
-                    <button
-                      type="button"
-                      @click="deselectAllChosenClients"
-                      class="text-xs px-2 py-1 text-steel hover:bg-surface rounded"
-                    >
-                      Deselect All
-                    </button>
-                  </div>
-                </div>
-                <div class="flex-1 overflow-y-auto p-2">
-                  <div
-                    v-for="client in filteredChosenClients"
-                    :key="client.id"
-                    @click="toggleChosenClient(client.id)"
-                    class="flex items-center gap-3 p-3 hover:bg-surface rounded-lg cursor-pointer"
-                    :class="{ 'bg-surface border-2 border-ink': tempSelectedChosenClients.has(client.id) }"
-                  >
+                <div class="flex-1 overflow-y-auto">
+                  <div class="sticky top-0 z-10 p-4 border-b border-hairline bg-surface">
+                    <h4 class="font-medium text-ink mb-3">Dipilih ({{ filteredChosenClients.length }})</h4>
                     <input
-                      type="checkbox"
-                      :checked="tempSelectedChosenClients.has(client.id)"
-                      class="w-4 h-4 text-ink rounded focus:ring-brand-blue-deep"
-                      @click.stop
+                      v-model="chosenClientSearch"
+                      type="text"
+                      placeholder="Cari aplikasi..."
+                      class="w-full h-11 px-4 py-3 text-base border border-hairline rounded-md bg-canvas text-ink placeholder:text-steel focus-visible:border-brand-blue-deep focus-visible:border-2 focus-visible:outline-none"
                     />
-                    <div class="flex-1 min-w-0">
-                      <p class="text-sm font-medium text-ink truncate">{{ client.clientName || client.name || client.clientId }}</p>
-                      <p v-if="client.clientDescription" class="text-xs text-steel truncate">{{ client.clientDescription }}</p>
+                    <div class="mt-2 flex gap-2">
+                      <button
+                        type="button"
+                        @click="selectAllChosenClients"
+                        class="text-xs px-2 py-1 text-ink hover:bg-surface rounded"
+                      >
+                        Select All
+                      </button>
+                      <button
+                        type="button"
+                        @click="deselectAllChosenClients"
+                        class="text-xs px-2 py-1 text-steel hover:bg-surface rounded"
+                      >
+                        Deselect All
+                      </button>
                     </div>
                   </div>
-                  <div v-if="filteredChosenClients.length === 0" class="text-center py-8 text-steel text-sm">
-                    {{ chosenClientSearch ? 'Tidak ada aplikasi yang cocok' : 'Belum ada aplikasi dipilih' }}
+                  <div class="p-2">
+                    <div
+                      v-for="client in filteredChosenClients"
+                      :key="client.id"
+                      @click="toggleChosenClient(client.id)"
+                      class="flex items-center gap-3 p-3 hover:bg-surface rounded-lg cursor-pointer"
+                      :class="{ 'bg-surface border-2 border-ink': tempSelectedChosenClients.has(client.id) }"
+                    >
+                      <input
+                        type="checkbox"
+                        :checked="tempSelectedChosenClients.has(client.id)"
+                        class="w-4 h-4 text-ink rounded focus:ring-brand-blue-deep"
+                        @click.stop
+                      />
+                      <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-ink truncate">{{ client.clientName || client.name || client.clientId }}</p>
+                        <p v-if="client.clientDescription" class="text-xs text-steel truncate">{{ client.clientDescription }}</p>
+                      </div>
+                    </div>
+                    <div v-if="filteredChosenClients.length === 0" class="text-center py-8 text-steel text-sm">
+                      {{ chosenClientSearch ? 'Tidak ada aplikasi yang cocok' : 'Belum ada aplikasi dipilih' }}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -770,6 +796,10 @@ const tempSelectedAvailable = ref(/* @__PURE__ */ new Set());
 const tempSelectedChosen = ref(/* @__PURE__ */ new Set());
 const availableUserSearch = ref("");
 const chosenUserSearch = ref("");
+const bulkSites = ref([]);
+const bulkUnits = ref([]);
+const bulkSiteFilter = ref(null);
+const bulkUnitFilter = ref(null);
 const tempChosenClientIds = ref(/* @__PURE__ */ new Set());
 const tempSelectedAvailableClients = ref(/* @__PURE__ */ new Set());
 const tempSelectedChosenClients = ref(/* @__PURE__ */ new Set());
@@ -852,8 +882,25 @@ watch(userSearchTermDebounced, async (searchTerm) => {
     isSearching.value = false;
   }
 });
+const bulkUnitFilterOptions = computed(() => {
+  if (!bulkSiteFilter.value) return bulkUnits.value;
+  return bulkUnits.value.filter((unit) => unit.siteId === bulkSiteFilter.value);
+});
+watch(bulkSiteFilter, () => {
+  if (bulkUnitFilter.value && !bulkUnitFilterOptions.value.some((u) => u.id === bulkUnitFilter.value)) {
+    bulkUnitFilter.value = null;
+  }
+});
+function applyBulkSiteUnitFilter(list) {
+  return list.filter((user) => {
+    if (bulkSiteFilter.value && user.siteId !== bulkSiteFilter.value) return false;
+    if (bulkUnitFilter.value && user.unitId !== bulkUnitFilter.value) return false;
+    return true;
+  });
+}
 const filteredAvailableUsers = computed(() => {
-  const available = allUsers.value.filter((user) => !tempChosenUserIds.value.has(user.id));
+  let available = allUsers.value.filter((user) => !tempChosenUserIds.value.has(user.id));
+  available = applyBulkSiteUnitFilter(available);
   if (!availableUserSearch.value) return available;
   const search = availableUserSearch.value.toLowerCase();
   return available.filter(
@@ -861,7 +908,8 @@ const filteredAvailableUsers = computed(() => {
   );
 });
 const filteredChosenUsers = computed(() => {
-  const chosen = allUsers.value.filter((user) => tempChosenUserIds.value.has(user.id));
+  let chosen = allUsers.value.filter((user) => tempChosenUserIds.value.has(user.id));
+  chosen = applyBulkSiteUnitFilter(chosen);
   if (!chosenUserSearch.value) return chosen;
   const search = chosenUserSearch.value.toLowerCase();
   return chosen.filter(
@@ -970,11 +1018,25 @@ async function openBulkUserSelector() {
       console.error("Failed to load users:", error);
     }
   }
+  if (bulkSites.value.length === 0 || bulkUnits.value.length === 0) {
+    try {
+      const [sitesRes, unitsRes] = await Promise.all([
+        $fetch("/api/admin/sites"),
+        $fetch("/api/admin/units")
+      ]);
+      bulkSites.value = sitesRes.sites || [];
+      bulkUnits.value = unitsRes.units || [];
+    } catch (error) {
+      console.error("Failed to load sites/units:", error);
+    }
+  }
   tempChosenUserIds.value = new Set(groupForm.value.selectedUsers);
   tempSelectedAvailable.value = /* @__PURE__ */ new Set();
   tempSelectedChosen.value = /* @__PURE__ */ new Set();
   availableUserSearch.value = "";
   chosenUserSearch.value = "";
+  bulkSiteFilter.value = null;
+  bulkUnitFilter.value = null;
 }
 function closeBulkUserSelector() {
   showBulkUserSelector.value = false;

@@ -173,9 +173,26 @@
                   </span>
                 </td>
                 <td class="px-6 py-4">
-                  <span class="text-sm text-steel max-w-[200px] truncate block" :title="session.userAgent">
-                    {{ getBrowserInfo(session.userAgent) }}
-                  </span>
+                  <div class="flex items-center gap-2" :title="session.userAgent">
+                    <svg
+                      v-if="getPlatformIconPath(session.userAgent)"
+                      class="w-4 h-4 text-steel shrink-0"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                    >
+                      <path :d="getPlatformIconPath(session.userAgent)" />
+                    </svg>
+                    <svg
+                      v-else
+                      class="w-4 h-4 text-steel shrink-0"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25" />
+                    </svg>
+                    <span class="text-sm text-steel truncate">{{ getBrowserInfo(session.userAgent) }}</span>
+                  </div>
                 </td>
                 <td class="px-6 py-4">
                   <span class="text-sm text-ink">{{ formatDateTime(session.loginAt) }}</span>
@@ -315,6 +332,24 @@ function getBrowserInfo(userAgent) {
   if (userAgent.includes("Edg")) return "Edge";
   if (userAgent.includes("MSIE") || userAgent.includes("Trident")) return "IE";
   return userAgent.substring(0, 30) + "...";
+}
+// Brand logo paths (viewBox 0 0 24 24) so the Browser column shows a
+// recognizable icon instead of cramming OS + browser into truncated text.
+const PLATFORM_ICON_PATHS = {
+  apple: "M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zm3.024-2.83c.844-1.026 1.415-2.442 1.259-3.87-1.207.052-2.674.808-3.545 1.833-.78.914-1.466 2.375-1.284 3.766 1.36.104 2.75-.688 3.57-1.729z",
+  windows: "M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.9H24V24l-13.051-1.351",
+  android: "M17.523 15.3414c-.5511 0-.9993-.4486-.9993-.9997s.4483-.9993.9993-.9993c.5511 0 .9993.4483.9993.9993.0001.5511-.4482.9997-.9993.9997m-11.046 0c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.5511 0 .9993.4483.9993.9993 0 .5511-.4483.9997-.9993.9997m11.4045-6.02l1.9973-3.4592a.416.416 0 00-.1521-.5676.416.416 0 00-.5676.1521l-2.0223 3.503C15.5902 8.2439 13.8533 7.8508 12 7.8508s-3.5902.3931-5.1367 1.0989L4.841 5.4467a.4161.4161 0 00-.5677-.1521.4157.4157 0 00-.1521.5676l1.9973 3.4592C2.6889 11.1867.3432 14.6589 0 18.761h24c-.3435-4.1021-2.6892-7.5743-6.1185-9.4396"
+};
+function getPlatform(userAgent) {
+  if (!userAgent || userAgent === "Unknown") return null;
+  if (/iPhone|iPad|iPod|Macintosh|Mac OS X/.test(userAgent)) return "apple";
+  if (/Android/.test(userAgent)) return "android";
+  if (/Windows/.test(userAgent)) return "windows";
+  return null;
+}
+function getPlatformIconPath(userAgent) {
+  const platform = getPlatform(userAgent);
+  return platform ? PLATFORM_ICON_PATHS[platform] : null;
 }
 function formatDateTime(dateStr) {
   return new Date(dateStr).toLocaleString("id-ID", {

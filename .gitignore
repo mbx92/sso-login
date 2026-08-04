@@ -23,4 +23,8 @@ logs
 .env.*
 !.env.example
 
+# SQL files for database migration
+.sql
 migration-check.txt
+bros_hrs_1.sql
+bros_hrs.sql

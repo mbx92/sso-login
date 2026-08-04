@@ -19,25 +19,17 @@ export function useSso() {
   }
 
   /**
-   * Verify that the SSO session on the issuer is still valid.
-   * Host app must store `access_token` (from resolve-user callback)
-   * and pass it here.
+   * Verify that the SSO session on the issuer is still valid. The package
+   * tracks the SSO account id server-side (its own session cookie, set
+   * during callback) — nothing to pass in from the host app.
    *
-   * @param {string} accessToken - the access_token from SSO callback
    * @returns {Promise<boolean>} true if session is still valid
    */
-  async function checkSession(accessToken) {
-    if (!accessToken) {
-      sessionValid.value = false
-      sessionChecked.value = true
-      return false
-    }
-
+  async function checkSession() {
     try {
       const { $fetch } = await import('ofetch')
       const result = await $fetch('/api/auth/sso/check-session', {
-        method: 'POST',
-        body: { access_token: accessToken },
+        credentials: 'include',
       })
       sessionValid.value = result?.valid === true
     }

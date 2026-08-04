@@ -1,6 +1,7 @@
 import { defineEventHandler, readBody, createError } from "h3";
 import { db, oidcKv } from "../../db/index.js";
 import { eq, gt, sql } from "drizzle-orm";
+import { touchUserActivity } from "../../utils/activity.js";
 
 /**
  * Validate that a user still has active SSO sessions.
@@ -30,7 +31,13 @@ export default defineEventHandler(async (event) => {
       )
       .limit(1);
 
-    return { valid: !!entry };
+    const valid = !!entry;
+    // Client apps poll this every ~30s while the user is active there —
+    // piggyback that traffic for "Online Now" instead of adding a separate
+    // heartbeat call. Only a still-valid session counts as activity.
+    if (valid) touchUserActivity(userId);
+
+    return { valid };
   } catch (error) {
     console.error("Session check error:", error.message);
     return { valid: false };

@@ -530,9 +530,9 @@
     "semantic_hash": "fcb858cc0dcc0aa064c1c33b7ab2a219"
   },
   "app/layouts/admin.vue": {
-    "mtime": 1785723880.199131,
-    "ast_hash": "4fbd1120859064097434f13fbe7bca68",
-    "semantic_hash": "4fbd1120859064097434f13fbe7bca68"
+    "mtime": 1785809885.8553827,
+    "ast_hash": "4a492d6e735faa0d88a6172ce07c2694",
+    "semantic_hash": "4a492d6e735faa0d88a6172ce07c2694"
   },
   "app/lib/utils.js": {
     "mtime": 1785723880.1994495,
@@ -545,9 +545,9 @@
     "semantic_hash": "1a76d9651dbe2aa914953d73750a2a62"
   },
   "app/middleware/auth.global.js": {
-    "mtime": 1785759209.6889606,
-    "ast_hash": "7b4ac1ce61a46d216c4022e767e621a0",
-    "semantic_hash": "7b4ac1ce61a46d216c4022e767e621a0"
+    "mtime": 1785761545.4050274,
+    "ast_hash": "79f1e4d5d9968f7e0bbf805f7d71ecd8",
+    "semantic_hash": "79f1e4d5d9968f7e0bbf805f7d71ecd8"
   },
   "app/middleware/auth.js": {
     "mtime": 1785723880.1999247,
@@ -565,9 +565,9 @@
     "semantic_hash": "53d36ee41b828a782942b9b5ae9d12b9"
   },
   "app/pages/admin/clients.vue": {
-    "mtime": 1785723880.2015982,
-    "ast_hash": "dd890db3af96b9e4f251594bf57d4a23",
-    "semantic_hash": "dd890db3af96b9e4f251594bf57d4a23"
+    "mtime": 1785766036.1248512,
+    "ast_hash": "a7fd828467ba928ae5a1cea8b32255d8",
+    "semantic_hash": "a7fd828467ba928ae5a1cea8b32255d8"
   },
   "app/pages/admin/divisions.vue": {
     "mtime": 1785723880.2020278,
@@ -585,9 +585,9 @@
     "semantic_hash": "1437eb27c2ef4f97054e5f4432bdc24e"
   },
   "app/pages/admin/sessions.vue": {
-    "mtime": 1785723880.2035174,
-    "ast_hash": "7c6249678e4d99d730be657bc022a9d4",
-    "semantic_hash": "7c6249678e4d99d730be657bc022a9d4"
+    "mtime": 1785809262.1289644,
+    "ast_hash": "98f661439bb5624ae61cfddfccfd3fb9",
+    "semantic_hash": "98f661439bb5624ae61cfddfccfd3fb9"
   },
   "app/pages/admin/settings.vue": {
     "mtime": 1785723880.2039351,
@@ -610,14 +610,14 @@
     "semantic_hash": "459debf635f8f2ea0bf0118479dd45b0"
   },
   "app/pages/admin/user-access.vue": {
-    "mtime": 1785723880.2060072,
-    "ast_hash": "0939e0426f6440b2da8668650acfaf83",
-    "semantic_hash": "0939e0426f6440b2da8668650acfaf83"
+    "mtime": 1785812502.6805944,
+    "ast_hash": "85ed703fc024547763dcc049d58e74d3",
+    "semantic_hash": "85ed703fc024547763dcc049d58e74d3"
   },
   "app/pages/admin/users.vue": {
-    "mtime": 1785723880.206695,
-    "ast_hash": "59d98462eb60a6cb5270a45e5b4279d0",
-    "semantic_hash": "59d98462eb60a6cb5270a45e5b4279d0"
+    "mtime": 1785810605.485357,
+    "ast_hash": "f6066ab81dd5e667c17229749a20dc2e",
+    "semantic_hash": "f6066ab81dd5e667c17229749a20dc2e"
   },
   "app/pages/apps.vue": {
     "mtime": 1785759209.690029,
@@ -635,9 +635,9 @@
     "semantic_hash": "1f5498c9e54881bd9f17c4d60fca6021"
   },
   "app/pages/login.vue": {
-    "mtime": 1785759209.6911957,
-    "ast_hash": "08d883f18528fbc97d00e66d138cc3c8",
-    "semantic_hash": "08d883f18528fbc97d00e66d138cc3c8"
+    "mtime": 1785761529.537953,
+    "ast_hash": "7e389d768bcb68dc58d9e3f39749189e",
+    "semantic_hash": "7e389d768bcb68dc58d9e3f39749189e"
   },
   "app/pages/logout.vue": {
     "mtime": 1785723880.2087803,
@@ -648,16 +648,6 @@
     "mtime": 1785723880.2091105,
     "ast_hash": "0152c1487e2b1fdf40bc9a8c8660b51e",
     "semantic_hash": "0152c1487e2b1fdf40bc9a8c8660b51e"
-  },
-  "bros_hrs.sql": {
-    "mtime": 1785723880.2104747,
-    "ast_hash": "4c07a532dca48634ca6e12c226e7779d",
-    "semantic_hash": "4c07a532dca48634ca6e12c226e7779d"
-  },
-  "bros_hrs_1.sql": {
-    "mtime": 1785723880.2131677,
-    "ast_hash": "72f95145b927d221f1c8dff8164de3fb",
-    "semantic_hash": "72f95145b927d221f1c8dff8164de3fb"
   },
   "components.json": {
     "mtime": 1785723880.2135477,
@@ -680,9 +670,9 @@
     "semantic_hash": "026c24ad3d4603a149d86c103c9fdfe4"
   },
   "nuxt.config.js": {
-    "mtime": 1785759209.6917996,
-    "ast_hash": "fed2412d0d076d13bee69b9e85e9ad9d",
-    "semantic_hash": "fed2412d0d076d13bee69b9e85e9ad9d"
+    "mtime": 1785761776.6701221,
+    "ast_hash": "b09510b5d0a7add81634ce1055692485",
+    "semantic_hash": "b09510b5d0a7add81634ce1055692485"
   },
   "package.json": {
     "mtime": 1785759209.6923335,
@@ -700,24 +690,19 @@
     "semantic_hash": "1eb3010f5841d7a82dd910acbd4f4fbf"
   },
   "packages/nuxt-sso-client/src/module.js": {
-    "mtime": 1785759209.6932223,
-    "ast_hash": "d5297181ee3ef6a8e9ab46b86d42b9cf",
-    "semantic_hash": "d5297181ee3ef6a8e9ab46b86d42b9cf"
+    "mtime": 1785807313.093194,
+    "ast_hash": "c32e844387fff87d53a1797780697d10",
+    "semantic_hash": "c32e844387fff87d53a1797780697d10"
   },
   "packages/nuxt-sso-client/src/runtime/composables/useSso.js": {
-    "mtime": 1785759209.694028,
-    "ast_hash": "af68f266563bc9f2ee31763edd8c2edb",
-    "semantic_hash": "af68f266563bc9f2ee31763edd8c2edb"
+    "mtime": 1785807320.5201828,
+    "ast_hash": "f197cdb421937dcd42a3975767388f35",
+    "semantic_hash": "f197cdb421937dcd42a3975767388f35"
   },
   "packages/nuxt-sso-client/src/runtime/server/routes/callback.get.js": {
-    "mtime": 1785759209.6945791,
-    "ast_hash": "584b1f1ec0764ac53f7aed35d89e95a1",
-    "semantic_hash": "584b1f1ec0764ac53f7aed35d89e95a1"
-  },
-  "packages/nuxt-sso-client/src/runtime/server/routes/check-session.post.js": {
-    "mtime": 1785759209.6948957,
-    "ast_hash": "baab0bac6dc95835165f75a7e8475218",
-    "semantic_hash": "baab0bac6dc95835165f75a7e8475218"
+    "mtime": 1785807285.610366,
+    "ast_hash": "a130b20b8e4fcc7fb628252b4a9063a7",
+    "semantic_hash": "a130b20b8e4fcc7fb628252b4a9063a7"
   },
   "packages/nuxt-sso-client/src/runtime/server/routes/login.get.js": {
     "mtime": 1785759209.6959,
@@ -725,9 +710,9 @@
     "semantic_hash": "b1aa95cd3a64d0e0f0954d11d9210514"
   },
   "packages/nuxt-sso-client/src/runtime/server/utils/sso.js": {
-    "mtime": 1785759209.6963089,
-    "ast_hash": "2bbb9288790a9f636c6c5f42d1ab572a",
-    "semantic_hash": "2bbb9288790a9f636c6c5f42d1ab572a"
+    "mtime": 1785807276.4815767,
+    "ast_hash": "f258c2c44dbb3139b3d03802573c3e7d",
+    "semantic_hash": "f258c2c44dbb3139b3d03802573c3e7d"
   },
   "scripts/add-superadmins.sql": {
     "mtime": 1785723880.2299,
@@ -1085,9 +1070,9 @@
     "semantic_hash": "7aaf58f3f5ddb585bfa1af3249a1c56b"
   },
   "server/api/admin/users.get.js": {
-    "mtime": 1785723880.2525897,
-    "ast_hash": "5bbb8b62085fd560002141270b2f3ee7",
-    "semantic_hash": "5bbb8b62085fd560002141270b2f3ee7"
+    "mtime": 1785811664.9076893,
+    "ast_hash": "13f387ace166211c8371bdc0271be86c",
+    "semantic_hash": "13f387ace166211c8371bdc0271be86c"
   },
   "server/api/admin/users/[id].delete.js": {
     "mtime": 1785723880.2529125,
@@ -1114,20 +1099,15 @@
     "ast_hash": "13b59cf57bef28a2e310717569ee6f31",
     "semantic_hash": "13b59cf57bef28a2e310717569ee6f31"
   },
-  "server/api/admin/users/index.get.js": {
-    "mtime": 1785723880.2541392,
-    "ast_hash": "9137688381e5cad5e9a4ca80defb6e08",
-    "semantic_hash": "9137688381e5cad5e9a4ca80defb6e08"
-  },
   "server/api/admin/users/index.post.js": {
     "mtime": 1785723880.254389,
     "ast_hash": "d28a356f3cb3b1e69fb07008f90c0d5e",
     "semantic_hash": "d28a356f3cb3b1e69fb07008f90c0d5e"
   },
   "server/api/auth/check-session.post.js": {
-    "mtime": 1785759209.6992986,
-    "ast_hash": "b0e2442ec545d37da691a778b27e3324",
-    "semantic_hash": "b0e2442ec545d37da691a778b27e3324"
+    "mtime": 1785808722.8111296,
+    "ast_hash": "46889ea6a0c5010e47647ce1eef35b8a",
+    "semantic_hash": "46889ea6a0c5010e47647ce1eef35b8a"
   },
   "server/api/auth/interaction.get.js": {
     "mtime": 1785723880.254696,
@@ -1325,9 +1305,9 @@
     "semantic_hash": "7f6b2af60f15cdb1ece26b0da81d2bfd"
   },
   "server/middleware/03.activity-tracker.js": {
-    "mtime": 1785723880.2661598,
-    "ast_hash": "17dd202389ba7dd60c09bec96e778b28",
-    "semantic_hash": "17dd202389ba7dd60c09bec96e778b28"
+    "mtime": 1785808730.774182,
+    "ast_hash": "66f49f46f66b8d9e8c89960c29bcbd92",
+    "semantic_hash": "66f49f46f66b8d9e8c89960c29bcbd92"
   },
   "server/middleware/04.session-check.js": {
     "mtime": 1785759209.7021842,
@@ -1375,14 +1355,14 @@
     "semantic_hash": "11805ce22d1ae590fd36c25831091342"
   },
   "server/services/oidc.js": {
-    "mtime": 1785759209.7047858,
-    "ast_hash": "aa69115bc1cc0e4010afae623810912f",
-    "semantic_hash": "aa69115bc1cc0e4010afae623810912f"
+    "mtime": 1785762109.508954,
+    "ast_hash": "57745b9aaf30acd3e2d2db71b307a3d3",
+    "semantic_hash": "57745b9aaf30acd3e2d2db71b307a3d3"
   },
   "server/utils/access-control.js": {
-    "mtime": 1785759209.7054617,
-    "ast_hash": "d9d264176af65369e983a818fe68b76d",
-    "semantic_hash": "d9d264176af65369e983a818fe68b76d"
+    "mtime": 1785761806.224208,
+    "ast_hash": "5ae4d9b5d89ac96d3f1b82b3c15381e3",
+    "semantic_hash": "5ae4d9b5d89ac96d3f1b82b3c15381e3"
   },
   "server/utils/auth-cookies.js": {
     "mtime": 1785723880.269699,
@@ -1495,9 +1475,9 @@
     "semantic_hash": "205f2433dfc6bae7e90bfe34492910e4"
   },
   "packages/nuxt-sso-client/README.md": {
-    "mtime": 1785723880.2260983,
-    "ast_hash": "1a0e84f339be1ed3a2b45dbbe65e9fe1",
-    "semantic_hash": "1a0e84f339be1ed3a2b45dbbe65e9fe1"
+    "mtime": 1785807330.1929257,
+    "ast_hash": "69c9aeb3598b106486d9c2ff6586511b",
+    "semantic_hash": "69c9aeb3598b106486d9c2ff6586511b"
   },
   "pnpm-workspace.yaml": {
     "mtime": 1785759209.698215,
@@ -1518,5 +1498,20 @@
     "mtime": 1785723880.2294583,
     "ast_hash": "319f8a6d81b43de3153aecbca567e970",
     "semantic_hash": "319f8a6d81b43de3153aecbca567e970"
+  },
+  "packages/nuxt-sso-client/src/runtime/server/routes/check-session.get.js": {
+    "mtime": 1785807301.9147139,
+    "ast_hash": "bb6e5cdd1b6da2d20a17c4cf5d1d1d7a",
+    "semantic_hash": "bb6e5cdd1b6da2d20a17c4cf5d1d1d7a"
+  },
+  "server/utils/activity.js": {
+    "mtime": 1785808708.993961,
+    "ast_hash": "50120fc75d002714757ca64317dc34c2",
+    "semantic_hash": "50120fc75d002714757ca64317dc34c2"
+  },
+  "app/pages/admin/help.vue": {
+    "mtime": 1785809873.6781738,
+    "ast_hash": "8ab60cd23e7f47f62cce7be4e3fa57e6",
+    "semantic_hash": "8ab60cd23e7f47f62cce7be4e3fa57e6"
   }
 }

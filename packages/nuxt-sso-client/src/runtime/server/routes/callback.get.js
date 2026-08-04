@@ -7,7 +7,7 @@ import {
 } from 'h3'
 import { $fetch } from 'ofetch'
 import resolveUser from '#mbx-sso-resolve-user'
-import { getSsoConfig, failLoginRedirect, successRedirectUrl, getCallbackUri } from '../utils/sso.js'
+import { getSsoConfig, failLoginRedirect, successRedirectUrl, getCallbackUri, getSsoSession } from '../utils/sso.js'
 
 function readPkceCookie(event, cookieName) {
   const raw = getCookie(event, cookieName)
@@ -74,6 +74,11 @@ export default defineEventHandler(async (event) => {
       tokens: tokenRes,
       sso,
     })
+
+    // Own session, separate from whatever the host app stores — lets
+    // check-session work without the host exposing the SSO account id.
+    const ssoSession = await getSsoSession(event, sso)
+    await ssoSession.update({ sub: userInfo.sub })
 
     const redirectTo = result?.redirectTo || sso.successRedirect
     return sendRedirect(event, successRedirectUrl(sso, redirectTo), 302)

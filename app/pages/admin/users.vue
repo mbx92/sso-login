@@ -43,7 +43,7 @@
           <thead class="bg-surface">
             <tr>
               <th class="px-6 py-3 text-left text-xs font-medium text-steel uppercase tracking-wider">User</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-steel uppercase tracking-wider">Employee ID</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-steel uppercase tracking-wider">NIK</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-steel uppercase tracking-wider">Unit</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-steel uppercase tracking-wider">Role</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-steel uppercase tracking-wider">Status</th>
@@ -320,7 +320,10 @@ const filteredUsers = computed(() => {
 const unitFilterItems = computed(() => {
   return [
     { label: "Semua Unit", value: null },
-    ...units.value.map((u) => ({ label: u.name, value: u.id }))
+    ...units.value.map((u) => ({
+      label: u.siteName ? `${u.siteName} - ${u.name}` : u.name,
+      value: u.id
+    }))
   ];
 });
 const statusFilterItems = [

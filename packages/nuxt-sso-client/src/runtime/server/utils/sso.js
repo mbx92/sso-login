@@ -1,5 +1,6 @@
 import { createHash, randomBytes } from 'node:crypto'
 import { useRuntimeConfig } from 'nitropack/runtime'
+import { useSession } from 'h3'
 
 function base64Url(buffer) {
   return Buffer.from(buffer)
@@ -29,6 +30,7 @@ export function getSsoConfig() {
     clientSecret: config.sso?.clientSecret || '',
     autoProvision: config.sso?.autoProvision !== false,
     pkceCookie: config.sso?.pkceCookie || 'bros_sso_pkce',
+    sessionCookie: config.sso?.sessionCookie || 'mbx_sso_session',
     successRedirect: config.sso?.successRedirect || '/',
     loginPath: config.sso?.loginPath || '/login',
     appUrl: appUrl || 'http://localhost:3000',
@@ -57,23 +59,23 @@ export function successRedirectUrl(sso, path) {
 }
 
 /**
- * Call the SSO issuer to validate an access token.
- * Returns `true` if the token is still valid (not revoked, not expired).
- * Use this in your app's server middleware or API handlers to detect
- * session revocation in real-time.
+ * Call the SSO issuer to check whether a user still has active sessions.
+ * Returns `true` if the issuer confirms the account is still live (not
+ * revoked, not expired). The issuer keys this off its own OIDC account id
+ * (`userInfo.sub`), not any host-app-local user id.
  *
  * @param {object} sso - config from getSsoConfig()
- * @param {string} accessToken
+ * @param {string} userId - the SSO issuer's account id (userInfo.sub)
  * @returns {Promise<boolean>}
  */
-export async function validateSsoSession(sso, accessToken) {
-  if (!sso.enabled || !accessToken) return false
+export async function validateSsoSession(sso, userId) {
+  if (!sso.enabled || !userId) return false
 
   try {
     const { $fetch } = await import('ofetch')
     const result = await $fetch(`${sso.issuer}/api/auth/check-session`, {
       method: 'POST',
-      body: { access_token: accessToken },
+      body: { userId },
       headers: { 'Content-Type': 'application/json' },
       ignoreResponseError: true,
     })
@@ -82,4 +84,32 @@ export async function validateSsoSession(sso, accessToken) {
   catch {
     return false
   }
+}
+
+/**
+ * Password for the package's own session cookie, derived from the client
+ * secret so no extra env var is required. sha256 hex is always 64 chars,
+ * satisfying h3's 32-char minimum regardless of how long clientSecret is.
+ */
+function sessionPassword(sso) {
+  return createHash('sha256').update(`${sso.clientSecret}:${sso.issuer}`).digest('hex')
+}
+
+/**
+ * The package keeps a small session of its own (separate from whatever
+ * session mechanism the host app uses) so that check-session can work
+ * without the host having to expose the SSO account id to client-side JS.
+ * Stores only `{ sub }` — the issuer's OIDC account id.
+ */
+export function getSsoSession(event, sso) {
+  return useSession(event, {
+    name: sso.sessionCookie,
+    password: sessionPassword(sso),
+    cookie: {
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
+      httpOnly: true,
+      path: '/',
+    },
+  })
 }

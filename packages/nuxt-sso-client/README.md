@@ -94,6 +94,22 @@ const { enabled, loginWithSso } = useSso()
 |--------|------|--------|
 | GET | `/api/auth/sso/login` | Mulai PKCE → redirect ke SSO |
 | GET | `/api/auth/sso/callback` | Tukar code → userinfo → resolve-user |
+| GET | `/api/auth/sso/check-session` | Cek ke issuer apakah sesi SSO masih aktif (mis. belum di-revoke admin) |
+
+## Cek revoke sesi
+
+Paket menyimpan account id SSO (`userInfo.sub`) di cookie sesi miliknya sendiri
+(terpisah dari sesi aplikasi host) saat callback berhasil. Panggil dari
+middleware/plugin client secara berkala:
+
+```js
+const { checkSession, redirectToLogin } = useSso()
+
+const valid = await checkSession()
+if (!valid) redirectToLogin('session_expired')
+```
+
+Tidak perlu menyimpan token apa pun di sisi host — paket menanganinya sendiri.
 
 ## Publish (maintainer)
 

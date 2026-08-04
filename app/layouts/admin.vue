@@ -89,6 +89,7 @@
 import {
   Building2,
   Box,
+  BookOpen,
   FileText,
   Globe2,
   Home,
@@ -164,6 +165,7 @@ const filteredMenuItems = computed(() =>
 const secondaryItems = [
   { label: 'Settings', to: '/admin/settings', icon: Settings },
   { label: 'Audit Logs', to: '/admin/audit-logs', icon: FileText },
+  { label: 'Integration Guide', to: '/admin/help', icon: BookOpen },
 ]
 
 const isActive = (path) => {
@@ -184,6 +186,7 @@ const pageTitle = computed(() => {
     '/admin/sessions': 'Active Sessions',
     '/admin/settings': 'Settings',
     '/admin/audit-logs': 'Audit Logs',
+    '/admin/help': 'Integration Guide',
   }
   return titles[route.path] || 'Admin'
 })

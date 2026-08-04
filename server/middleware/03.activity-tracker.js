@@ -1,7 +1,4 @@
-import { db, users } from "../db/index";
-import { eq } from "drizzle-orm";
-const lastUpdateCache = /* @__PURE__ */ new Map();
-const UPDATE_INTERVAL_MS = 60 * 1e3;
+import { touchUserActivity } from "../utils/activity.js";
 var activity_tracker_default = defineEventHandler(async (event) => {
   const path = event.path || "";
   if (!path.startsWith("/api/")) {
@@ -32,15 +29,7 @@ var activity_tracker_default = defineEventHandler(async (event) => {
   if (!userId) {
     return;
   }
-  const now = Date.now();
-  const lastUpdate = lastUpdateCache.get(userId) || 0;
-  if (now - lastUpdate < UPDATE_INTERVAL_MS) {
-    return;
-  }
-  lastUpdateCache.set(userId, now);
-  db.update(users).set({ lastActivityAt: /* @__PURE__ */ new Date() }).where(eq(users.id, userId)).catch((error) => {
-    console.error("Failed to update user activity:", error);
-  });
+  touchUserActivity(userId);
 });
 export {
   activity_tracker_default as default

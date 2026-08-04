@@ -98,7 +98,7 @@ const clientInitial = computed(() => clientName.value.charAt(0).toUpperCase());
 const scopeDescriptions = computed(() => {
   const descriptions = {
     openid: { label: "Verify your identity", description: "Confirm who you are" },
-    profile: { label: "View your profile", description: "Name, employee ID, username" },
+    profile: { label: "View your profile", description: "Name, NIK, username" },
     email: { label: "View your email address", description: "Your work email" },
     roles: { label: "View your roles", description: "Your assigned roles and permissions" },
     offline_access: { label: "Stay signed in", description: "Access your data when you're not actively using the app" }

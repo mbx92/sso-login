@@ -605,19 +605,19 @@
     "semantic_hash": "efd9f1434a2895447f051037ed445ee7"
   },
   "app/pages/admin/user-access-old.vue": {
-    "mtime": 1785723880.205291,
-    "ast_hash": "459debf635f8f2ea0bf0118479dd45b0",
-    "semantic_hash": "459debf635f8f2ea0bf0118479dd45b0"
+    "mtime": 1785813618.8608432,
+    "ast_hash": "12c34b8b728607bf3e5cb7109dc02a98",
+    "semantic_hash": "12c34b8b728607bf3e5cb7109dc02a98"
   },
   "app/pages/admin/user-access.vue": {
-    "mtime": 1785812502.6805944,
-    "ast_hash": "85ed703fc024547763dcc049d58e74d3",
-    "semantic_hash": "85ed703fc024547763dcc049d58e74d3"
+    "mtime": 1785813850.2970047,
+    "ast_hash": "099508ffbd5a150fbc07600c0f12d3be",
+    "semantic_hash": "099508ffbd5a150fbc07600c0f12d3be"
   },
   "app/pages/admin/users.vue": {
-    "mtime": 1785810605.485357,
-    "ast_hash": "f6066ab81dd5e667c17229749a20dc2e",
-    "semantic_hash": "f6066ab81dd5e667c17229749a20dc2e"
+    "mtime": 1785813598.4162245,
+    "ast_hash": "e7fa39a1e94c4e86e0dadb61b5d7d519",
+    "semantic_hash": "e7fa39a1e94c4e86e0dadb61b5d7d519"
   },
   "app/pages/apps.vue": {
     "mtime": 1785759209.690029,
@@ -625,9 +625,9 @@
     "semantic_hash": "66d2571d9c0200472b533f78bad92adc"
   },
   "app/pages/consent.vue": {
-    "mtime": 1785723880.2075613,
-    "ast_hash": "7524e452f822a4f58ef0ec94a0c4fedb",
-    "semantic_hash": "7524e452f822a4f58ef0ec94a0c4fedb"
+    "mtime": 1785813625.6556556,
+    "ast_hash": "40536e277fcfd1912bc1997b3fe2f711",
+    "semantic_hash": "40536e277fcfd1912bc1997b3fe2f711"
   },
   "app/pages/index.vue": {
     "mtime": 1785759209.6903274,
@@ -1360,9 +1360,9 @@
     "semantic_hash": "57745b9aaf30acd3e2d2db71b307a3d3"
   },
   "server/utils/access-control.js": {
-    "mtime": 1785761806.224208,
-    "ast_hash": "5ae4d9b5d89ac96d3f1b82b3c15381e3",
-    "semantic_hash": "5ae4d9b5d89ac96d3f1b82b3c15381e3"
+    "mtime": 1785813898.3034081,
+    "ast_hash": "65bf00d2ff3f92fa5132a83b73ba512d",
+    "semantic_hash": "65bf00d2ff3f92fa5132a83b73ba512d"
   },
   "server/utils/auth-cookies.js": {
     "mtime": 1785723880.269699,

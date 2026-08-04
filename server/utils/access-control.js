@@ -1,4 +1,4 @@
-import { db, oidcClients, userAppAccess, accessGroupUsers, accessGroupClients } from "../db/index.js";
+import { db, oidcClients, userAppAccess, accessGroupUsers, accessGroupClients, accessGroups } from "../db/index.js";
 import { eq, and } from "drizzle-orm";
 async function checkUserClientAccess(userId, clientId) {
   try {
@@ -16,7 +16,12 @@ async function checkUserClientAccess(userId, clientId) {
     if (directAccess.length > 0) {
       return true;
     }
-    const userGroups = await db.select({ groupId: accessGroupUsers.groupId }).from(accessGroupUsers).where(eq(accessGroupUsers.userId, userId));
+    const userGroups = await db.select({ groupId: accessGroupUsers.groupId }).from(accessGroupUsers).innerJoin(accessGroups, eq(accessGroupUsers.groupId, accessGroups.id)).where(
+      and(
+        eq(accessGroupUsers.userId, userId),
+        eq(accessGroups.isActive, true)
+      )
+    );
     if (userGroups.length === 0) {
       return false;
     }
@@ -48,7 +53,12 @@ async function getUserAccessibleClients(userId) {
       )
     );
     directClients.forEach((c) => clientIds.add(c.clientId));
-    const userGroups = await db.select({ groupId: accessGroupUsers.groupId }).from(accessGroupUsers).where(eq(accessGroupUsers.userId, userId));
+    const userGroups = await db.select({ groupId: accessGroupUsers.groupId }).from(accessGroupUsers).innerJoin(accessGroups, eq(accessGroupUsers.groupId, accessGroups.id)).where(
+      and(
+        eq(accessGroupUsers.userId, userId),
+        eq(accessGroups.isActive, true)
+      )
+    );
     if (userGroups.length > 0) {
       const groupIds = userGroups.map((g) => g.groupId);
       for (const groupId of groupIds) {

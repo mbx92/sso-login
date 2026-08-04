@@ -44,6 +44,7 @@
             v-for="group in groups"
             :key="group.id"
             class="border border-hairline rounded-lg p-4 active:border-ink hover:shadow-mm-1 transition-all cursor-pointer"
+            :class="{ 'opacity-60': !group.isActive }"
             @click="viewGroupDetails(group)"
           >
             <div class="flex items-start justify-between mb-3">
@@ -55,19 +56,26 @@
                 </div>
                 <div>
                   <h3 class="font-semibold text-ink">{{ group.name }}</h3>
-                  <span v-if="!group.isActive" class="text-xs text-steel">(Inactive)</span>
+                  <span class="text-xs text-steel">{{ group.isActive ? 'Aktif' : 'Nonaktif' }}</span>
                 </div>
               </div>
-              <button
-                @click.stop="deleteGroup(group)"
-                class="text-stone hover:text-[#d45656] transition-colors"
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-              </button>
+              <div class="flex items-center gap-3" @click.stop>
+                <Switch
+                  :model-value="group.isActive"
+                  :disabled="togglingGroupId === group.id"
+                  @update:model-value="(val) => toggleGroupActive(group, val)"
+                />
+                <button
+                  @click="deleteGroup(group)"
+                  class="text-stone hover:text-[#d45656] transition-colors"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
             </div>
-            
+
             <p v-if="group.description" class="text-sm text-steel mb-3">{{ group.description }}</p>
             
             <div class="flex items-center gap-4 text-sm">
@@ -291,32 +299,52 @@
             <h3 class="text-lg font-semibold text-ink">Tambah User ke Group</h3>
           </div>
           <form @submit.prevent="addUserToGroup" class="p-6 space-y-4">
-            <div>
+            <div class="relative">
               <label class="block text-sm font-medium text-charcoal mb-2">User</label>
-              <UInputMenu
-                v-model="selectedUserToAdd"
-                v-model:search-term="userSearchTerm"
-                :items="userItems"
-                :loading="isSearching"
-                ignore-filter
-                placeholder="Ketik nama, email, atau NIP..."
-                icon="i-lucide-user"
-                :filter-fields="['label', 'email', 'employeeId']"
-                class="w-full"
-                value-key="id"
+              <input
+                v-if="!selectedUserToAdd"
+                v-model="userSearchTerm"
+                type="text"
+                placeholder="Ketik nama, email, atau NIK..."
+                autocomplete="off"
+                class="w-full h-11 px-4 py-3 text-base border border-hairline rounded-md bg-canvas text-ink placeholder:text-steel focus-visible:border-brand-blue-deep focus-visible:border-2 focus-visible:outline-none"
+                @focus="userDropdownOpen = true"
+                @blur="hideUserDropdownSoon"
+              />
+              <div
+                v-else
+                class="flex items-center justify-between gap-2 px-4 py-3 border border-hairline rounded-md bg-surface"
               >
-                <template #item-label="{ item }">
-                  <div class="flex flex-col">
-                    <span>{{ item.label }}</span>
-                    <span class="text-xs text-steel">{{ item.email }}{{ item.employeeId ? ` · ${item.employeeId}` : '' }}</span>
+                <p class="text-sm font-medium text-ink truncate">{{ selectedUserLabel }}</p>
+                <button type="button" @click="clearSelectedUserToAdd" class="text-steel hover:text-ink shrink-0">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <div
+                v-if="!selectedUserToAdd && userDropdownOpen && userSearchTerm.length >= 2"
+                class="absolute z-10 mt-1 w-full max-h-56 overflow-y-auto bg-canvas border border-hairline rounded-md shadow-mm-2"
+              >
+                <div v-if="isSearching" class="p-3 text-sm text-steel">Mencari...</div>
+                <template v-else>
+                  <div
+                    v-for="item in userItems"
+                    :key="item.id"
+                    @mousedown.prevent="selectUserToAdd(item)"
+                    class="px-4 py-2.5 hover:bg-surface cursor-pointer"
+                  >
+                    <p class="text-sm text-ink">{{ item.label }}</p>
+                    <p class="text-xs text-steel">{{ item.email }}{{ item.employeeId ? ` · ${item.employeeId}` : '' }}</p>
                   </div>
+                  <div v-if="userItems.length === 0" class="p-3 text-sm text-steel">Tidak ada hasil</div>
                 </template>
-              </UInputMenu>
+              </div>
             </div>
             <div class="flex gap-3 pt-4">
               <button
                 type="button"
-                @click="showAddUserModal = false"
+                @click="showAddUserModal = false; clearSelectedUserToAdd(); userSearchTerm = ''"
                 class="flex-1 px-4 py-2 border border-hairline text-charcoal rounded-lg hover:bg-surface"
               >
                 Batal
@@ -341,20 +369,48 @@
             <h3 class="text-lg font-semibold text-ink">Tambah Aplikasi ke Group</h3>
           </div>
           <form @submit.prevent="addClientToGroup" class="p-6 space-y-4">
-            <div>
+            <div class="relative">
               <label class="block text-sm font-medium text-charcoal mb-2">Aplikasi</label>
-              <USelect
-                v-model="selectedClientToAdd"
-                :items="clientItems"
-                placeholder="Pilih aplikasi..."
-                value-key="value"
-                class="w-full"
+              <input
+                v-if="!selectedClientToAdd"
+                v-model="clientSearchTerm"
+                type="text"
+                placeholder="Cari aplikasi..."
+                autocomplete="off"
+                class="w-full h-11 px-4 py-3 text-base border border-hairline rounded-md bg-canvas text-ink placeholder:text-steel focus-visible:border-brand-blue-deep focus-visible:border-2 focus-visible:outline-none"
+                @focus="clientDropdownOpen = true"
+                @blur="clientDropdownOpen = false"
               />
+              <div
+                v-else
+                class="flex items-center justify-between gap-2 px-4 py-3 border border-hairline rounded-md bg-surface"
+              >
+                <p class="text-sm font-medium text-ink truncate">{{ selectedClientLabel }}</p>
+                <button type="button" @click="clearSelectedClientToAdd" class="text-steel hover:text-ink shrink-0">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <div
+                v-if="!selectedClientToAdd && clientDropdownOpen"
+                class="absolute z-10 mt-1 w-full max-h-56 overflow-y-auto bg-canvas border border-hairline rounded-md shadow-mm-2"
+              >
+                <div
+                  v-for="item in filteredClientItems"
+                  :key="item.value"
+                  @mousedown.prevent="selectClientToAdd(item)"
+                  class="px-4 py-2.5 hover:bg-surface cursor-pointer text-sm text-ink"
+                >
+                  {{ item.label }}
+                </div>
+                <div v-if="filteredClientItems.length === 0" class="p-3 text-sm text-steel">Tidak ada hasil</div>
+              </div>
             </div>
             <div class="flex gap-3 pt-4">
               <button
                 type="button"
-                @click="showAddClientModal = false"
+                @click="showAddClientModal = false; clearSelectedClientToAdd(); clientSearchTerm = ''"
                 class="flex-1 px-4 py-2 border border-hairline text-charcoal rounded-lg hover:bg-surface"
               >
                 Batal
@@ -453,14 +509,7 @@
                         @click="selectAllAvailableUsers"
                         class="text-xs px-2 py-1 text-ink hover:bg-surface rounded"
                       >
-                        Select All
-                      </button>
-                      <button
-                        type="button"
-                        @click="deselectAllAvailableUsers"
-                        class="text-xs px-2 py-1 text-steel hover:bg-surface rounded"
-                      >
-                        Deselect All
+                        Tambahkan Semua
                       </button>
                     </div>
                   </div>
@@ -469,51 +518,22 @@
                       v-for="user in filteredAvailableUsers"
                       :key="user.id"
                       @click="toggleAvailableUser(user.id)"
-                      class="flex items-center gap-3 p-3 hover:bg-surface rounded-lg cursor-pointer"
-                      :class="{ 'bg-surface border-2 border-ink': tempSelectedAvailable.has(user.id) }"
+                      class="group flex items-center gap-3 p-3 hover:bg-surface rounded-lg cursor-pointer"
+                      title="Klik untuk pindahkan ke Dipilih"
                     >
-                      <input
-                        type="checkbox"
-                        :checked="tempSelectedAvailable.has(user.id)"
-                        class="w-4 h-4 text-ink rounded focus:ring-brand-blue-deep"
-                        @click.stop
-                      />
                       <div class="flex-1 min-w-0">
                         <p class="text-sm font-medium text-ink truncate">{{ user.name }}</p>
                         <p class="text-xs text-steel truncate">{{ user.email }}</p>
                       </div>
+                      <svg class="w-4 h-4 text-steel shrink-0 opacity-0 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                      </svg>
                     </div>
                     <div v-if="filteredAvailableUsers.length === 0" class="text-center py-8 text-steel text-sm">
                       {{ availableUserSearch ? 'Tidak ada user yang cocok' : 'Semua user sudah dipilih' }}
                     </div>
                   </div>
                 </div>
-              </div>
-
-              <!-- Transfer Buttons (Middle) -->
-              <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 flex flex-col gap-3">
-                <button
-                  type="button"
-                  @click="moveUsersToSelected"
-                  :disabled="tempSelectedAvailable.size === 0"
-                  class="p-3 bg-primary text-primary-foreground rounded-full active:bg-charcoal disabled:opacity-50 disabled:cursor-not-allowed shadow-mm-2"
-                  title="Pindah ke kanan"
-                >
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
-                <button
-                  type="button"
-                  @click="moveUsersToAvailable"
-                  :disabled="tempSelectedChosen.size === 0"
-                  class="p-3 bg-charcoal text-white rounded-full hover:bg-charcoal disabled:opacity-50 disabled:cursor-not-allowed shadow-mm-2"
-                  title="Pindah ke kiri"
-                >
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                  </svg>
-                </button>
               </div>
 
               <!-- Selected Users (Right) -->
@@ -530,17 +550,10 @@
                     <div class="mt-2 flex gap-2">
                       <button
                         type="button"
-                        @click="selectAllChosenUsers"
-                        class="text-xs px-2 py-1 text-ink hover:bg-surface rounded"
-                      >
-                        Select All
-                      </button>
-                      <button
-                        type="button"
                         @click="deselectAllChosenUsers"
                         class="text-xs px-2 py-1 text-steel hover:bg-surface rounded"
                       >
-                        Deselect All
+                        Hapus Semua
                       </button>
                     </div>
                   </div>
@@ -549,15 +562,12 @@
                       v-for="user in filteredChosenUsers"
                       :key="user.id"
                       @click="toggleChosenUser(user.id)"
-                      class="flex items-center gap-3 p-3 hover:bg-surface rounded-lg cursor-pointer"
-                      :class="{ 'bg-surface border-2 border-ink': tempSelectedChosen.has(user.id) }"
+                      class="group flex items-center gap-3 p-3 hover:bg-surface rounded-lg cursor-pointer"
+                      title="Klik untuk pindahkan ke Tersedia"
                     >
-                      <input
-                        type="checkbox"
-                        :checked="tempSelectedChosen.has(user.id)"
-                        class="w-4 h-4 text-ink rounded focus:ring-brand-blue-deep"
-                        @click.stop
-                      />
+                      <svg class="w-4 h-4 text-steel shrink-0 opacity-0 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                      </svg>
                       <div class="flex-1 min-w-0">
                         <p class="text-sm font-medium text-ink truncate">{{ user.name }}</p>
                         <p class="text-xs text-steel truncate">{{ user.email }}</p>
@@ -619,14 +629,7 @@
                         @click="selectAllAvailableClients"
                         class="text-xs px-2 py-1 text-ink hover:bg-surface rounded"
                       >
-                        Select All
-                      </button>
-                      <button
-                        type="button"
-                        @click="deselectAllAvailableClients"
-                        class="text-xs px-2 py-1 text-steel hover:bg-surface rounded"
-                      >
-                        Deselect All
+                        Tambahkan Semua
                       </button>
                     </div>
                   </div>
@@ -635,51 +638,22 @@
                       v-for="client in filteredAvailableClients"
                       :key="client.id"
                       @click="toggleAvailableClient(client.id)"
-                      class="flex items-center gap-3 p-3 hover:bg-surface rounded-lg cursor-pointer"
-                      :class="{ 'bg-surface border-2 border-ink': tempSelectedAvailableClients.has(client.id) }"
+                      class="group flex items-center gap-3 p-3 hover:bg-surface rounded-lg cursor-pointer"
+                      title="Klik untuk pindahkan ke Dipilih"
                     >
-                      <input
-                        type="checkbox"
-                        :checked="tempSelectedAvailableClients.has(client.id)"
-                        class="w-4 h-4 text-ink rounded focus:ring-brand-blue-deep"
-                        @click.stop
-                      />
                       <div class="flex-1 min-w-0">
                         <p class="text-sm font-medium text-ink truncate">{{ client.clientName || client.name || client.clientId }}</p>
                         <p v-if="client.clientDescription" class="text-xs text-steel truncate">{{ client.clientDescription }}</p>
                       </div>
+                      <svg class="w-4 h-4 text-steel shrink-0 opacity-0 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                      </svg>
                     </div>
                     <div v-if="filteredAvailableClients.length === 0" class="text-center py-8 text-steel text-sm">
                       {{ availableClientSearch ? 'Tidak ada aplikasi yang cocok' : 'Semua aplikasi sudah dipilih' }}
                     </div>
                   </div>
                 </div>
-              </div>
-
-              <!-- Transfer Buttons (Middle) -->
-              <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 flex flex-col gap-3">
-                <button
-                  type="button"
-                  @click="moveClientsToSelected"
-                  :disabled="tempSelectedAvailableClients.size === 0"
-                  class="p-3 bg-primary text-primary-foreground rounded-full active:bg-charcoal disabled:opacity-50 disabled:cursor-not-allowed shadow-mm-2"
-                  title="Pindah ke kanan"
-                >
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
-                <button
-                  type="button"
-                  @click="moveClientsToAvailable"
-                  :disabled="tempSelectedChosenClients.size === 0"
-                  class="p-3 bg-charcoal text-white rounded-full hover:bg-charcoal disabled:opacity-50 disabled:cursor-not-allowed shadow-mm-2"
-                  title="Pindah ke kiri"
-                >
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                  </svg>
-                </button>
               </div>
 
               <!-- Selected Clients (Right) -->
@@ -696,17 +670,10 @@
                     <div class="mt-2 flex gap-2">
                       <button
                         type="button"
-                        @click="selectAllChosenClients"
-                        class="text-xs px-2 py-1 text-ink hover:bg-surface rounded"
-                      >
-                        Select All
-                      </button>
-                      <button
-                        type="button"
                         @click="deselectAllChosenClients"
                         class="text-xs px-2 py-1 text-steel hover:bg-surface rounded"
                       >
-                        Deselect All
+                        Hapus Semua
                       </button>
                     </div>
                   </div>
@@ -715,15 +682,12 @@
                       v-for="client in filteredChosenClients"
                       :key="client.id"
                       @click="toggleChosenClient(client.id)"
-                      class="flex items-center gap-3 p-3 hover:bg-surface rounded-lg cursor-pointer"
-                      :class="{ 'bg-surface border-2 border-ink': tempSelectedChosenClients.has(client.id) }"
+                      class="group flex items-center gap-3 p-3 hover:bg-surface rounded-lg cursor-pointer"
+                      title="Klik untuk pindahkan ke Tersedia"
                     >
-                      <input
-                        type="checkbox"
-                        :checked="tempSelectedChosenClients.has(client.id)"
-                        class="w-4 h-4 text-ink rounded focus:ring-brand-blue-deep"
-                        @click.stop
-                      />
+                      <svg class="w-4 h-4 text-steel shrink-0 opacity-0 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                      </svg>
                       <div class="flex-1 min-w-0">
                         <p class="text-sm font-medium text-ink truncate">{{ client.clientName || client.name || client.clientId }}</p>
                         <p v-if="client.clientDescription" class="text-xs text-steel truncate">{{ client.clientDescription }}</p>
@@ -771,6 +735,7 @@
 
 <script setup>
 import { refDebounced } from "@vueuse/core";
+import { Switch } from "@/components/ui/switch";
 definePageMeta({
   middleware: ["auth"]
 });
@@ -778,6 +743,7 @@ const groups = ref([]);
 const clients = ref([]);
 const loading = ref(true);
 const saving = ref(false);
+const togglingGroupId = ref(null);
 const showCreateGroupModal = ref(false);
 const showDetailsModal = ref(false);
 const showAddUserModal = ref(false);
@@ -792,8 +758,6 @@ const errorTitle = ref("Error");
 const errorMessage = ref("");
 const allUsers = ref([]);
 const tempChosenUserIds = ref(/* @__PURE__ */ new Set());
-const tempSelectedAvailable = ref(/* @__PURE__ */ new Set());
-const tempSelectedChosen = ref(/* @__PURE__ */ new Set());
 const availableUserSearch = ref("");
 const chosenUserSearch = ref("");
 const bulkSites = ref([]);
@@ -801,8 +765,6 @@ const bulkUnits = ref([]);
 const bulkSiteFilter = ref(null);
 const bulkUnitFilter = ref(null);
 const tempChosenClientIds = ref(/* @__PURE__ */ new Set());
-const tempSelectedAvailableClients = ref(/* @__PURE__ */ new Set());
-const tempSelectedChosenClients = ref(/* @__PURE__ */ new Set());
 const availableClientSearch = ref("");
 const chosenClientSearch = ref("");
 const selectedGroup = ref(null);
@@ -827,14 +789,48 @@ const userSearchTerm = ref("");
 const userSearchTermDebounced = refDebounced(userSearchTerm, 300);
 const userItems = ref([]);
 const selectedUserToAdd = ref(null);
+const selectedUserLabel = ref("");
+const userDropdownOpen = ref(false);
 const isSearching = ref(false);
 const selectedClientToAdd = ref("");
+const selectedClientLabel = ref("");
+const clientSearchTerm = ref("");
+const clientDropdownOpen = ref(false);
 const clientItems = computed(() => {
   return clients.value.map((client) => ({
     label: client.clientName || client.name || client.clientId,
     value: client.id
   }));
 });
+const filteredClientItems = computed(() => {
+  if (!clientSearchTerm.value) return clientItems.value;
+  const search = clientSearchTerm.value.toLowerCase();
+  return clientItems.value.filter((item) => item.label.toLowerCase().includes(search));
+});
+function selectUserToAdd(item) {
+  selectedUserToAdd.value = item.id;
+  selectedUserLabel.value = item.email ? `${item.label} · ${item.email}` : item.label;
+  userSearchTerm.value = "";
+  userItems.value = [];
+  userDropdownOpen.value = false;
+}
+function clearSelectedUserToAdd() {
+  selectedUserToAdd.value = null;
+  selectedUserLabel.value = "";
+}
+function hideUserDropdownSoon() {
+  userDropdownOpen.value = false;
+}
+function selectClientToAdd(item) {
+  selectedClientToAdd.value = item.value;
+  selectedClientLabel.value = item.label;
+  clientSearchTerm.value = "";
+  clientDropdownOpen.value = false;
+}
+function clearSelectedClientToAdd() {
+  selectedClientToAdd.value = "";
+  selectedClientLabel.value = "";
+}
 watch(bulkUserSearchTermDebounced, async (searchTerm) => {
   if (!searchTerm || searchTerm.length < 2) {
     bulkUserItems.value = [];
@@ -1031,8 +1027,6 @@ async function openBulkUserSelector() {
     }
   }
   tempChosenUserIds.value = new Set(groupForm.value.selectedUsers);
-  tempSelectedAvailable.value = /* @__PURE__ */ new Set();
-  tempSelectedChosen.value = /* @__PURE__ */ new Set();
   availableUserSearch.value = "";
   chosenUserSearch.value = "";
   bulkSiteFilter.value = null;
@@ -1041,50 +1035,22 @@ async function openBulkUserSelector() {
 function closeBulkUserSelector() {
   showBulkUserSelector.value = false;
   tempChosenUserIds.value = /* @__PURE__ */ new Set();
-  tempSelectedAvailable.value = /* @__PURE__ */ new Set();
-  tempSelectedChosen.value = /* @__PURE__ */ new Set();
 }
 function toggleAvailableUser(userId) {
-  if (tempSelectedAvailable.value.has(userId)) {
-    tempSelectedAvailable.value.delete(userId);
-  } else {
-    tempSelectedAvailable.value.add(userId);
-  }
+  tempChosenUserIds.value.add(userId);
 }
 function toggleChosenUser(userId) {
-  if (tempSelectedChosen.value.has(userId)) {
-    tempSelectedChosen.value.delete(userId);
-  } else {
-    tempSelectedChosen.value.add(userId);
-  }
+  tempChosenUserIds.value.delete(userId);
 }
 function selectAllAvailableUsers() {
   filteredAvailableUsers.value.forEach((user) => {
-    tempSelectedAvailable.value.add(user.id);
-  });
-}
-function deselectAllAvailableUsers() {
-  tempSelectedAvailable.value.clear();
-}
-function selectAllChosenUsers() {
-  filteredChosenUsers.value.forEach((user) => {
-    tempSelectedChosen.value.add(user.id);
+    tempChosenUserIds.value.add(user.id);
   });
 }
 function deselectAllChosenUsers() {
-  tempSelectedChosen.value.clear();
-}
-function moveUsersToSelected() {
-  tempSelectedAvailable.value.forEach((userId) => {
-    tempChosenUserIds.value.add(userId);
+  filteredChosenUsers.value.forEach((user) => {
+    tempChosenUserIds.value.delete(user.id);
   });
-  tempSelectedAvailable.value.clear();
-}
-function moveUsersToAvailable() {
-  tempSelectedChosen.value.forEach((userId) => {
-    tempChosenUserIds.value.delete(userId);
-  });
-  tempSelectedChosen.value.clear();
 }
 function confirmBulkUserSelection() {
   groupForm.value.selectedUsers = Array.from(tempChosenUserIds.value);
@@ -1093,58 +1059,28 @@ function confirmBulkUserSelection() {
 async function openBulkClientSelector() {
   showBulkClientSelector.value = true;
   tempChosenClientIds.value = new Set(groupForm.value.selectedClients);
-  tempSelectedAvailableClients.value = /* @__PURE__ */ new Set();
-  tempSelectedChosenClients.value = /* @__PURE__ */ new Set();
   availableClientSearch.value = "";
   chosenClientSearch.value = "";
 }
 function closeBulkClientSelector() {
   showBulkClientSelector.value = false;
   tempChosenClientIds.value = /* @__PURE__ */ new Set();
-  tempSelectedAvailableClients.value = /* @__PURE__ */ new Set();
-  tempSelectedChosenClients.value = /* @__PURE__ */ new Set();
 }
 function toggleAvailableClient(clientId) {
-  if (tempSelectedAvailableClients.value.has(clientId)) {
-    tempSelectedAvailableClients.value.delete(clientId);
-  } else {
-    tempSelectedAvailableClients.value.add(clientId);
-  }
+  tempChosenClientIds.value.add(clientId);
 }
 function toggleChosenClient(clientId) {
-  if (tempSelectedChosenClients.value.has(clientId)) {
-    tempSelectedChosenClients.value.delete(clientId);
-  } else {
-    tempSelectedChosenClients.value.add(clientId);
-  }
+  tempChosenClientIds.value.delete(clientId);
 }
 function selectAllAvailableClients() {
   filteredAvailableClients.value.forEach((client) => {
-    tempSelectedAvailableClients.value.add(client.id);
-  });
-}
-function deselectAllAvailableClients() {
-  tempSelectedAvailableClients.value.clear();
-}
-function selectAllChosenClients() {
-  filteredChosenClients.value.forEach((client) => {
-    tempSelectedChosenClients.value.add(client.id);
+    tempChosenClientIds.value.add(client.id);
   });
 }
 function deselectAllChosenClients() {
-  tempSelectedChosenClients.value.clear();
-}
-function moveClientsToSelected() {
-  tempSelectedAvailableClients.value.forEach((clientId) => {
-    tempChosenClientIds.value.add(clientId);
+  filteredChosenClients.value.forEach((client) => {
+    tempChosenClientIds.value.delete(client.id);
   });
-  tempSelectedAvailableClients.value.clear();
-}
-function moveClientsToAvailable() {
-  tempSelectedChosenClients.value.forEach((clientId) => {
-    tempChosenClientIds.value.delete(clientId);
-  });
-  tempSelectedChosenClients.value.clear();
 }
 function confirmBulkClientSelection() {
   groupForm.value.selectedClients = Array.from(tempChosenClientIds.value);
@@ -1172,7 +1108,7 @@ async function addUserToGroup() {
       }
     });
     showAddUserModal.value = false;
-    selectedUserToAdd.value = null;
+    clearSelectedUserToAdd();
     userSearchTerm.value = "";
     userItems.value = [];
     await viewGroupDetails(selectedGroup.value);
@@ -1223,7 +1159,8 @@ async function addClientToGroup() {
       }
     });
     showAddClientModal.value = false;
-    selectedClientToAdd.value = "";
+    clearSelectedClientToAdd();
+    clientSearchTerm.value = "";
     await viewGroupDetails(selectedGroup.value);
   } catch (error) {
     console.error("Failed to add client to group:", error);
@@ -1264,6 +1201,25 @@ async function doRemoveClientFromGroup() {
 function deleteGroup(group) {
   groupToDelete.value = group;
   showDeleteModal.value = true;
+}
+async function toggleGroupActive(group, nextValue) {
+  togglingGroupId.value = group.id;
+  const previous = group.isActive;
+  group.isActive = nextValue;
+  try {
+    await $fetch(`/api/admin/access-groups/${group.id}`, {
+      method: "PUT",
+      body: { isActive: nextValue }
+    });
+  } catch (error) {
+    console.error("Failed to toggle group active state:", error);
+    group.isActive = previous;
+    errorTitle.value = "Gagal Mengubah Status Group";
+    errorMessage.value = error.data?.message || error.message || "Terjadi kesalahan saat mengubah status group";
+    showErrorModal.value = true;
+  } finally {
+    togglingGroupId.value = null;
+  }
 }
 async function doDeleteGroup() {
   if (!groupToDelete.value) return;

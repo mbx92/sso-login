@@ -196,10 +196,10 @@
                 />
               </div>
               <div>
-                <label class="block text-sm font-medium text-charcoal mb-1">Employee ID</label>
+                <label class="block text-sm font-medium text-charcoal mb-1">NIK</label>
                 <UInput
                   v-model="form.employeeId"
-                  placeholder="EMP001 (opsional)"
+                  placeholder="NIK (opsional)"
                   class="w-full"
                 />
               </div>

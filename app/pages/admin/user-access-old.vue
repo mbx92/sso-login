@@ -97,7 +97,7 @@
                 :items="userItems"
                 :loading="isSearching"
                 ignore-filter
-                placeholder="Ketik nama, email, atau NIP..."
+                placeholder="Ketik nama, email, atau NIK..."
                 icon="i-lucide-user"
                 :filter-fields="['label', 'email', 'employeeId']"
                 class="w-full"

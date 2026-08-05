@@ -64,6 +64,7 @@ export default defineNuxtModule({
       (nuxt.options.runtimeConfig.sso?.clientId || process.env.SSO_CLIENT_ID)
     )
     nuxt.options.runtimeConfig.public.ssoLoginPath = `${options.apiBase}/login`
+    nuxt.options.runtimeConfig.public.ssoLogoutPath = `${options.apiBase}/logout`
 
     // Relative re-export from buildDir → host resolver
     const resolverImportPath = toModuleImport(nuxt.options.buildDir, resolveUserAbs)
@@ -101,6 +102,10 @@ export default async function missingResolver() {
     addServerHandler({
       route: `${options.apiBase}/callback`,
       handler: resolve('./runtime/server/routes/callback.get.js'),
+    })
+    addServerHandler({
+      route: `${options.apiBase}/logout`,
+      handler: resolve('./runtime/server/routes/logout.get.js'),
     })
     addServerHandler({
       route: `${options.apiBase}/check-session`,

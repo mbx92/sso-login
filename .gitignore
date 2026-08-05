@@ -28,3 +28,4 @@ logs
 migration-check.txt
 bros_hrs_1.sql
 bros_hrs.sql
+sso_db.sql

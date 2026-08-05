@@ -1,0 +1,38 @@
+{
+  "name": "@mbx92/sso-express",
+  "version": "0.1.0",
+  "description": "Express middleware for OIDC PKCE SSO — wraps @mbx92/sso-core for Express apps",
+  "type": "module",
+  "license": "UNLICENSED",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mbx92/sso-login.git",
+    "directory": "packages/sso-express"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com",
+    "access": "restricted"
+  },
+  "exports": {
+    ".": "./src/index.js",
+    "./package.json": "./package.json"
+  },
+  "main": "./src/index.js",
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "dependencies": {
+    "@mbx92/sso-core": "workspace:*"
+  },
+  "peerDependencies": {
+    "express": ">=4.0.0"
+  },
+  "keywords": [
+    "express",
+    "oidc",
+    "sso",
+    "pkce",
+    "middleware"
+  ]
+}

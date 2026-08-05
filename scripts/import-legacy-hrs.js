@@ -7,7 +7,13 @@
  *   division_units       → units
  *   employees + users    → users (email from legacy users when available)
  *
- * Usage: node --env-file=.env scripts/import-legacy-hrs.js
+ * ⚠ PERINGATAN: Script ini TRUNCATE SEMUA tabel termasuk oidc_clients!
+ *    Setelah menjalankan script ini, SEMUA OIDC client akan hilang.
+ *    Jalankan scripts/import-oidc-clients.js untuk mengembalikannya.
+ *
+ * Usage:
+ *   node --env-file=.env scripts/import-legacy-hrs.js
+ *   node --env-file=.env scripts/import-oidc-clients.js   # restore OIDC clients
  */
 import fs from 'node:fs'
 import path from 'node:path'

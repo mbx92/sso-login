@@ -1,0 +1,31 @@
+{
+  "name": "@mbx92/sso-core",
+  "version": "0.1.0",
+  "description": "Framework-agnostic OIDC PKCE SSO client core — authorize, token exchange, session validation",
+  "type": "module",
+  "license": "UNLICENSED",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mbx92/sso-login.git",
+    "directory": "packages/sso-core"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com",
+    "access": "restricted"
+  },
+  "exports": {
+    ".": "./src/index.js",
+    "./package.json": "./package.json"
+  },
+  "main": "./src/index.js",
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "keywords": [
+    "oidc",
+    "sso",
+    "pkce",
+    "oauth2"
+  ]
+}

@@ -124,6 +124,32 @@ importers:
         specifier: ^0.31.8
         version: 0.31.10
 
+  packages/nuxt-sso-client:
+    dependencies:
+      '@nuxt/kit':
+        specifier: ^3.16.0
+        version: 3.21.10(magicast@0.5.4)
+      h3:
+        specifier: ^1.15.11
+        version: 1.15.11
+      nuxt:
+        specifier: '>=3.0.0'
+        version: 4.5.1(@babel/plugin-syntax-jsx@7.29.7(@babel/core@7.29.7(supports-color@10.2.2)))(@babel/plugin-syntax-typescript@7.29.7(@babel/core@7.29.7(supports-color@10.2.2)))(@oxc-project/types@0.142.0)(@vue/compiler-sfc@3.5.40)(better-sqlite3@12.11.1)(cac@7.0.0)(db0@0.3.4(better-sqlite3@12.11.1)(drizzle-orm@0.45.2(better-sqlite3@12.11.1)(postgres@3.4.9)))(drizzle-orm@0.45.2(better-sqlite3@12.11.1)(postgres@3.4.9))(esbuild@0.28.1)(eslint@9.39.5(jiti@2.7.0)(supports-color@10.2.2))(ioredis@5.11.1(supports-color@10.2.2))(lightningcss@1.33.0)(magicast@0.5.4)(optionator@0.9.4)(oxc-parser@0.140.0)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.40(typescript@5.9.3)))(rollup-plugin-visualizer@7.0.1(rolldown@1.2.1)(rollup@4.62.4))(rollup@4.62.4)(srvx@0.11.22)(supports-color@10.2.2)(terser@5.49.0)(tsx@4.23.1)(typescript@5.9.3)(vite@8.2.0(esbuild@0.28.1)(jiti@2.7.0)(terser@5.49.0)(tsx@4.23.1)(yaml@2.9.0))(yaml@2.9.0)
+      ofetch:
+        specifier: ^1.5.1
+        version: 1.5.1
+
+  packages/sso-core: {}
+
+  packages/sso-express:
+    dependencies:
+      '@mbx92/sso-core':
+        specifier: workspace:*
+        version: link:../sso-core
+      express:
+        specifier: '>=4.0.0'
+        version: 5.2.1(supports-color@10.2.2)
+
 packages:
 
   '@antfu/install-pkg@1.1.0':

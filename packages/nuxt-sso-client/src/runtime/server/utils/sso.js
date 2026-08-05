@@ -28,6 +28,7 @@ export function getSsoConfig() {
     issuer,
     clientId: config.sso?.clientId || '',
     clientSecret: config.sso?.clientSecret || '',
+    redirectUri: (config.sso?.redirectUri || '').replace(/\/$/, ''),
     autoProvision: config.sso?.autoProvision !== false,
     pkceCookie: config.sso?.pkceCookie || 'bros_sso_pkce',
     sessionCookie: config.sso?.sessionCookie || 'mbx_sso_session',
@@ -38,11 +39,15 @@ export function getSsoConfig() {
 }
 
 /**
- * Build the callback URI dynamically from the incoming request host.
- * The PKCE cookie is host-bound — using the actual request host ensures
- * the cookie is sent back to the same domain when the SSO redirects.
+ * Build the callback URI. Prefers the explicitly configured SSO_REDIRECT_URI
+ * so the value sent to the provider is always the one actually registered in
+ * its redirect_uris (exact match required) — reliable behind proxies/load
+ * balancers and regardless of which hostname a user reached the app through.
+ * Falls back to deriving it from the request host only when SSO_REDIRECT_URI
+ * is unset, for local dev setups that don't configure it.
  */
 export function getCallbackUri(event, sso) {
+  if (sso.redirectUri) return sso.redirectUri
   const host = event.node.req.headers.host || 'localhost:3000'
   const proto = event.node.req.headers['x-forwarded-proto'] === 'https' || event.node.req.socket?.encrypted ? 'https' : 'http'
   return `${proto}://${host}/api/auth/sso/callback`

@@ -1,6 +1,6 @@
 {
   "name": "@mbx92/nuxt-sso-client",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Nuxt module — OIDC PKCE client for SSO Identity Provider (mbx92/sso-login)",
   "type": "module",
   "license": "UNLICENSED",

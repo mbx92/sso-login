@@ -41,12 +41,13 @@
             <p class="text-sm text-steel">Logged in as</p>
             <p class="font-semibold text-ink truncate">{{ userEmail }}</p>
           </div>
-          <a
-            href="/login?logout=true"
+          <button
+            type="button"
             class="text-sm text-ink font-medium hover:underline"
+            @click="switchAccount"
           >
             Switch account
-          </a>
+          </button>
         </div>
 
         <!-- Actions -->
@@ -108,6 +109,15 @@ const scopeDescriptions = computed(() => {
     ...descriptions[scope] || { label: scope, description: "Access to " + scope }
   }));
 });
+async function switchAccount() {
+  try {
+    await $fetch("/api/auth/logout", { method: "POST" });
+  } catch (e) {
+    console.error("Logout before switch account failed:", e);
+  }
+  window.location.href = `/login?interaction=${interactionUid.value}`;
+}
+
 onMounted(async () => {
   const interaction = route.query.interaction;
   if (!interaction) {

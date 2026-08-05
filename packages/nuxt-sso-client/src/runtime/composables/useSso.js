@@ -9,6 +9,7 @@ export function useSso() {
 
   const enabled = computed(() => !!config.public.ssoEnabled)
   const loginPath = computed(() => config.public.ssoLoginPath || '/api/auth/sso/login')
+  const logoutPath = computed(() => config.public.ssoLogoutPath || '/api/auth/sso/logout')
 
   const sessionChecked = ref(false)
   const sessionValid = ref(true)
@@ -16,6 +17,18 @@ export function useSso() {
   function loginWithSso() {
     if (!import.meta.client) return
     window.location.href = loginPath.value
+  }
+
+  /**
+   * Full navigation to the package's logout route, which clears the SSO
+   * session cookie here and forwards to the issuer to end the session
+   * there too. Host apps should call this instead of just clearing their
+   * own local session, or the issuer session stays alive and the user
+   * gets silently re-logged-in on the next visit.
+   */
+  function logoutFromSso() {
+    if (!import.meta.client) return
+    window.location.href = logoutPath.value
   }
 
   /**
@@ -53,7 +66,9 @@ export function useSso() {
   return {
     enabled,
     loginPath,
+    logoutPath,
     loginWithSso,
+    logoutFromSso,
     checkSession,
     redirectToLogin,
     sessionChecked,

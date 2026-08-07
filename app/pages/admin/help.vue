@@ -45,6 +45,7 @@
           <h3 class="text-base font-semibold text-ink">Routes yang disediakan module</h3>
           <p class="text-xs text-steel mt-1">Prefix default: <code class="bg-surface px-1 py-0.5 rounded">/api/auth/sso</code> (bisa diubah via opsi <code class="bg-surface px-1 py-0.5 rounded">apiBase</code>)</p>
         </div>
+        <div class="overflow-x-auto">
         <table class="w-full">
           <thead class="bg-surface">
             <tr>
@@ -63,6 +64,7 @@
             </tr>
           </tbody>
         </table>
+        </div>
       </div>
 
       <!-- Env vars reference -->
@@ -70,6 +72,7 @@
         <div class="px-6 py-4 border-b border-hairline">
           <h3 class="text-base font-semibold text-ink">Environment variables (app konsumen)</h3>
         </div>
+        <div class="overflow-x-auto">
         <table class="w-full">
           <thead class="bg-surface">
             <tr>
@@ -84,6 +87,7 @@
             </tr>
           </tbody>
         </table>
+        </div>
       </div>
 
       <!-- Troubleshooting -->

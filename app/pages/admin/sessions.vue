@@ -2,7 +2,7 @@
   <NuxtLayout name="admin">
     <div class="space-y-6">
       <!-- Page Header -->
-      <div class="flex items-center justify-between">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 class="text-2xl font-semibold text-ink">Active Sessions</h1>
           <p class="text-sm text-steel mt-1">Monitor users currently logged in to applications</p>
@@ -24,7 +24,7 @@
       </div>
 
       <!-- Stats Summary -->
-      <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <!-- Online Now Card -->
         <button 
           @click="showOnlineOnly = !showOnlineOnly"

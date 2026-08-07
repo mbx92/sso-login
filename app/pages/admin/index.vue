@@ -2,12 +2,12 @@
   <NuxtLayout name="admin">
     <div class="space-y-6">
       <!-- Page Header -->
-      <div class="flex items-center justify-between">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 class="text-2xl font-semibold text-ink">Dashboard</h1>
           <p class="text-sm text-steel mt-1">Overview of your SSO system</p>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex flex-wrap items-center gap-2">
           <button
             @click="triggerHrisSync"
             :disabled="syncLoading"

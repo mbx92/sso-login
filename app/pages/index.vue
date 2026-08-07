@@ -26,27 +26,6 @@
             Login
           </NuxtLink>
         </div>
-
-        <!-- Divider -->
-        <div class="flex items-center gap-3">
-          <div class="flex-1 border-t border-hairline"></div>
-          <span class="text-sm text-stone">Info Teknis</span>
-          <div class="flex-1 border-t border-hairline"></div>
-        </div>
-
-        <div class="text-sm text-steel bg-surface p-4 rounded-lg">
-          <p class="font-medium mb-2">OIDC Discovery Endpoint:</p>
-          <a
-            href="/.well-known/openid-configuration"
-            target="_blank"
-            class="text-ink hover:underline break-all flex items-center gap-1"
-          >
-            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-            </svg>
-            /.well-known/openid-configuration
-          </a>
-        </div>
       </div>
 
       <!-- Footer -->

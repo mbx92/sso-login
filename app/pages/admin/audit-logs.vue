@@ -43,7 +43,8 @@
         </div>
 
         <!-- Table -->
-        <table v-else class="w-full">
+        <div v-else class="overflow-x-auto">
+        <table class="w-full">
           <thead class="bg-surface border-b border-hairline">
             <tr>
               <th class="text-left px-6 py-3 text-xs font-medium text-steel uppercase tracking-wider">Action</th>
@@ -82,6 +83,7 @@
             </tr>
           </tbody>
         </table>
+        </div>
 
         <!-- Pagination -->
         <div class="flex items-center justify-between px-6 py-4 border-t border-hairline bg-surface">

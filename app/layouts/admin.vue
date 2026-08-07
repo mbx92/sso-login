@@ -1,6 +1,17 @@
 <template>
   <div class="flex min-h-screen bg-canvas">
-    <aside class="fixed inset-y-0 left-0 z-30 flex w-[220px] flex-col border-r border-hairline-soft bg-canvas">
+    <div
+      v-if="sidebarOpen"
+      class="fixed inset-0 z-40 bg-black/40 lg:hidden"
+      @click="sidebarOpen = false"
+    />
+
+    <aside
+      :class="cn(
+        'fixed inset-y-0 left-0 z-50 flex w-[260px] max-w-[85vw] flex-col border-r border-hairline-soft bg-canvas transition-transform duration-200 lg:z-30 lg:w-[220px] lg:translate-x-0',
+        sidebarOpen ? 'translate-x-0' : '-translate-x-full',
+      )"
+    >
       <div class="flex h-14 items-center justify-between gap-2 border-b border-hairline-soft px-4">
         <AppLogo :size="28" show-label label="SSO Admin" />
         <NuxtLink
@@ -66,9 +77,20 @@
       </div>
     </aside>
 
-    <div class="ml-[220px] flex min-w-0 flex-1 flex-col">
-      <header class="flex h-14 shrink-0 items-center justify-between border-b border-hairline-soft bg-canvas px-6">
-        <h1 class="text-[20px] font-semibold tracking-tight text-ink">{{ pageTitle }}</h1>
+    <div class="flex min-w-0 flex-1 flex-col lg:ml-[220px]">
+      <header class="flex h-14 shrink-0 items-center justify-between gap-3 border-b border-hairline-soft bg-canvas px-4 sm:px-6">
+        <div class="flex min-w-0 items-center gap-3">
+          <Button
+            variant="secondary"
+            size="icon-sm"
+            class="lg:hidden"
+            aria-label="Buka menu"
+            @click="sidebarOpen = true"
+          >
+            <Menu class="size-4" />
+          </Button>
+          <h1 class="truncate text-[18px] font-semibold tracking-tight text-ink sm:text-[20px]">{{ pageTitle }}</h1>
+        </div>
         <Button as-child variant="secondary" size="icon-sm">
           <NuxtLink to="/admin/settings">
             <Settings class="size-4" />
@@ -76,7 +98,7 @@
         </Button>
       </header>
 
-      <main class="flex-1 overflow-auto bg-surface p-6 md:p-8">
+      <main class="flex-1 overflow-auto bg-surface p-4 sm:p-6 md:p-8">
         <div class="mx-auto max-w-[1280px]">
           <slot />
         </div>
@@ -96,6 +118,7 @@ import {
   KeyRound,
   Lock,
   LogOut,
+  Menu,
   Settings,
   Shield,
   Activity,
@@ -106,6 +129,10 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { cn } from '@/lib/utils'
 
 const route = useRoute()
+const sidebarOpen = ref(false)
+watch(() => route.path, () => {
+  sidebarOpen.value = false
+})
 const userCookie = useCookie('sso_user')
 const currentUser = computed(() => {
   if (!userCookie.value) return null

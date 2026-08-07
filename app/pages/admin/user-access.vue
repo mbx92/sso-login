@@ -470,17 +470,17 @@
           <div class="px-6 py-4 border-b border-hairline">
             <h3 class="text-lg font-semibold text-ink">Pilih Users untuk Group</h3>
             <p class="text-sm text-steel mt-1">Pilih user dari kiri, lalu klik tombol untuk pindahkan ke kanan</p>
-            <div class="flex gap-3 mt-3">
+            <div class="flex flex-col sm:flex-row gap-3 mt-3">
               <select
                 v-model="bulkSiteFilter"
-                class="h-9 px-3 text-sm border border-hairline rounded-md bg-canvas text-ink focus-visible:border-brand-blue-deep focus-visible:border-2 focus-visible:outline-none"
+                class="h-9 w-full sm:w-auto min-w-0 px-3 text-sm border border-hairline rounded-md bg-canvas text-ink focus-visible:border-brand-blue-deep focus-visible:border-2 focus-visible:outline-none"
               >
                 <option :value="null">Semua Site</option>
                 <option v-for="site in bulkSites" :key="site.id" :value="site.id">{{ site.name }}</option>
               </select>
               <select
                 v-model="bulkUnitFilter"
-                class="h-9 px-3 text-sm border border-hairline rounded-md bg-canvas text-ink focus-visible:border-brand-blue-deep focus-visible:border-2 focus-visible:outline-none"
+                class="h-9 w-full sm:w-auto min-w-0 px-3 text-sm border border-hairline rounded-md bg-canvas text-ink focus-visible:border-brand-blue-deep focus-visible:border-2 focus-visible:outline-none"
               >
                 <option :value="null">Semua Unit</option>
                 <option v-for="unit in bulkUnitFilterOptions" :key="unit.id" :value="unit.id">
@@ -490,10 +490,10 @@
             </div>
           </div>
 
-          <div class="flex-1 overflow-hidden p-6 min-h-0">
-            <div class="grid grid-cols-2 gap-6 h-full">
+          <div class="flex-1 overflow-y-auto md:overflow-hidden p-4 md:p-6 min-h-0">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 md:h-full">
               <!-- Available Users (Left) -->
-              <div class="flex flex-col border border-hairline rounded-lg h-full overflow-hidden">
+              <div class="flex flex-col border border-hairline rounded-lg h-[45vh] md:h-full overflow-hidden">
                 <div class="flex-1 overflow-y-auto">
                   <div class="sticky top-0 z-10 p-4 border-b border-hairline bg-surface">
                     <h4 class="font-medium text-ink mb-3">Tersedia ({{ filteredAvailableUsers.length }})</h4>
@@ -537,7 +537,7 @@
               </div>
 
               <!-- Selected Users (Right) -->
-              <div class="flex flex-col border border-hairline rounded-lg h-full overflow-hidden">
+              <div class="flex flex-col border border-hairline rounded-lg h-[45vh] md:h-full overflow-hidden">
                 <div class="flex-1 overflow-y-auto">
                   <div class="sticky top-0 z-10 p-4 border-b border-hairline bg-surface">
                     <h4 class="font-medium text-ink mb-3">Dipilih ({{ filteredChosenUsers.length }})</h4>
@@ -610,10 +610,10 @@
             <p class="text-sm text-steel mt-1">Pilih aplikasi dari kiri, lalu klik tombol untuk pindahkan ke kanan</p>
           </div>
           
-          <div class="flex-1 overflow-hidden p-6 min-h-0">
-            <div class="grid grid-cols-2 gap-6 h-full">
+          <div class="flex-1 overflow-y-auto md:overflow-hidden p-4 md:p-6 min-h-0">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 md:h-full">
               <!-- Available Clients (Left) -->
-              <div class="flex flex-col border border-hairline rounded-lg h-full overflow-hidden">
+              <div class="flex flex-col border border-hairline rounded-lg h-[45vh] md:h-full overflow-hidden">
                 <div class="flex-1 overflow-y-auto">
                   <div class="sticky top-0 z-10 p-4 border-b border-hairline bg-surface">
                     <h4 class="font-medium text-ink mb-3">Tersedia ({{ filteredAvailableClients.length }})</h4>
@@ -657,7 +657,7 @@
               </div>
 
               <!-- Selected Clients (Right) -->
-              <div class="flex flex-col border border-hairline rounded-lg h-full overflow-hidden">
+              <div class="flex flex-col border border-hairline rounded-lg h-[45vh] md:h-full overflow-hidden">
                 <div class="flex-1 overflow-y-auto">
                   <div class="sticky top-0 z-10 p-4 border-b border-hairline bg-surface">
                     <h4 class="font-medium text-ink mb-3">Dipilih ({{ filteredChosenClients.length }})</h4>

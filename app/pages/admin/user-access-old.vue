@@ -39,7 +39,8 @@
         </div>
 
         <!-- Table -->
-        <table v-else class="w-full">
+        <div v-else class="overflow-x-auto">
+        <table class="w-full">
           <thead class="bg-surface border-b border-hairline">
             <tr>
               <th class="text-left px-6 py-3 text-xs font-medium text-steel uppercase tracking-wider">User</th>
@@ -78,6 +79,7 @@
             </tr>
           </tbody>
         </table>
+        </div>
       </div>
 
       <!-- Grant Access Modal -->

@@ -1,7 +1,7 @@
 <template>
   <div class="flex min-h-screen flex-col bg-canvas">
     <header class="shrink-0 border-b border-hairline-soft">
-      <div class="mx-auto flex h-16 max-w-[1280px] items-center justify-between px-6">
+      <div class="mx-auto flex h-16 max-w-[1280px] items-center justify-between gap-3 px-4 sm:px-6">
         <div class="flex items-center gap-2">
           <AppLogo :size="32" show-label label="SSO Login" />
         </div>

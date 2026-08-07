@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-surface">
     <header class="border-b border-hairline bg-canvas">
-      <div class="mx-auto flex h-16 max-w-[1100px] items-center justify-between px-6">
+      <div class="mx-auto flex h-16 max-w-[1100px] items-center justify-between gap-3 px-4 sm:px-6">
         <AppLogo :size="32" show-label label="SSO Portal" />
         <div class="flex items-center gap-3">
           <div class="hidden text-right sm:block">
@@ -25,7 +25,7 @@
       </div>
     </header>
 
-    <main class="mx-auto max-w-[1100px] px-6 py-10">
+    <main class="mx-auto max-w-[1100px] px-4 py-8 sm:px-6 sm:py-10">
       <div class="mb-8">
         <h1 class="text-heading-sm text-ink">Aplikasi Anda</h1>
         <p class="mt-2 text-[15px] text-steel">

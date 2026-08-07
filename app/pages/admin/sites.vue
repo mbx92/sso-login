@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="mb-6 flex justify-between items-center">
+    <div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <h1 class="text-2xl font-bold text-ink">Site Management</h1>
       <UButton
         @click="openCreateModal"

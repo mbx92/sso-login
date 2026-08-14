@@ -91,11 +91,35 @@
           </Button>
           <h1 class="truncate text-[18px] font-semibold tracking-tight text-ink sm:text-[20px]">{{ pageTitle }}</h1>
         </div>
-        <Button as-child variant="secondary" size="icon-sm">
-          <NuxtLink to="/admin/settings">
-            <Settings class="size-4" />
-          </NuxtLink>
-        </Button>
+        <div class="flex items-center gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger as-child>
+              <Button variant="secondary" size="icon-sm" title="Ganti tema">
+                <Palette class="size-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" class="w-56">
+              <DropdownMenuLabel>Tema tampilan</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuRadioGroup :model-value="theme" @update:model-value="setTheme">
+                <DropdownMenuRadioItem
+                  v-for="item in themes"
+                  :key="item.value"
+                  :value="item.value"
+                  class="flex-col items-start gap-0.5"
+                >
+                  <span class="text-[13px] font-medium text-ink">{{ item.label }}</span>
+                  <span class="text-[12px] text-steel">{{ item.description }}</span>
+                </DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <Button as-child variant="secondary" size="icon-sm">
+            <NuxtLink to="/admin/settings">
+              <Settings class="size-4" />
+            </NuxtLink>
+          </Button>
+        </div>
       </header>
 
       <main class="flex-1 overflow-auto bg-surface p-4 sm:p-6 md:p-8">
@@ -119,6 +143,7 @@ import {
   Lock,
   LogOut,
   Menu,
+  Palette,
   Settings,
   Shield,
   Activity,
@@ -126,8 +151,18 @@ import {
 } from '@lucide/vue'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu'
 import { cn } from '@/lib/utils'
 
+const { theme, setTheme, themes } = useAdminTheme()
 const route = useRoute()
 const sidebarOpen = ref(false)
 watch(() => route.path, () => {

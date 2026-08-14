@@ -12,14 +12,16 @@
     </div>
 
     <!-- Sites Cards with Tree View -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Single column: a 2-col grid stretches every card in a shared row to match its
+         tallest neighbor, so expanding one site's tree visually inflated the card next to it. -->
+    <div class="grid grid-cols-1 gap-6">
       <div 
         v-for="site in sites" 
         :key="site.id" 
         class="bg-canvas border border-hairline shadow-none rounded-xl overflow-hidden"
       >
         <!-- Site Header -->
-        <div class="px-6 py-4 bg-surface border-b border-hairline">
+        <div class="px-6 py-4 bg-surface/50 border-b border-hairline">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
               <div class="w-10 h-10 bg-ink text-white rounded-lg flex items-center justify-center">
@@ -172,7 +174,7 @@
         </div>
 
         <!-- Site Actions -->
-        <div class="px-6 py-3 bg-surface border-t border-hairline-soft flex justify-end gap-2">
+        <div class="px-6 py-3 bg-surface/50 border-t border-hairline-soft flex justify-end gap-2">
           <UButton
             @click="openEditModal(site)"
             variant="ghost"
@@ -194,7 +196,7 @@
     </div>
 
     <!-- Empty State -->
-    <div v-if="sites.length === 0" class="bg-canvas shadow-mm-1 rounded-lg p-12 text-center">
+    <div v-if="sites.length === 0" class="bg-canvas border border-hairline rounded-lg p-12 text-center">
       <svg class="w-16 h-16 mx-auto mb-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
       </svg>

@@ -5,16 +5,19 @@
 
 /* MiniMax design tokens — DESIGN-minimax.md */
 @theme inline {
-  --font-sans: "DM Sans", Inter, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  /* Indirected through a plain :root/[data-theme] variable (like the color tokens below) so
+     Tailwind keeps these as live var() references instead of baking the literal at build time —
+     that's what lets [data-theme="ibm"] override them at runtime. */
+  --font-sans: var(--font-family-sans);
 
-  --radius-xs: 4px;
-  --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
-  --radius-2xl: 20px;
-  --radius-3xl: 24px;
-  --radius-4xl: 32px;
+  --radius-xs: var(--radius-xs-value);
+  --radius-sm: var(--radius-sm-value);
+  --radius-md: var(--radius-md-value);
+  --radius-lg: var(--radius-lg-value);
+  --radius-xl: var(--radius-xl-value);
+  --radius-2xl: var(--radius-2xl-value);
+  --radius-3xl: var(--radius-3xl-value);
+  --radius-4xl: var(--radius-4xl-value);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -66,6 +69,19 @@
 
 :root {
   --radius: 8px;
+
+  --font-family-sans: "DM Sans", Inter, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --radius-xs-value: 4px;
+  --radius-sm-value: 6px;
+  --radius-md-value: 8px;
+  --radius-lg-value: 12px;
+  --radius-xl-value: 16px;
+  --radius-2xl-value: 20px;
+  --radius-3xl-value: 24px;
+  --radius-4xl-value: 32px;
+  /* Buttons/pills use this directly (not part of the Tailwind rounded-* scale) —
+     see app/components/ui/button/index.js. Carbon squares it off; MiniMax keeps it a full pill. */
+  --radius-pill: 9999px;
 
   /* MiniMax raw tokens */
   --mm-canvas: #ffffff;
@@ -122,6 +138,76 @@
   --sidebar-ring: #1d4ed8;
 }
 
+/* IBM Carbon theme — DESIGN-ibm.md. Activated via [data-theme="ibm"] on <html>. */
+[data-theme="ibm"] {
+  --font-family-sans: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+
+  --radius: 0px;
+  --radius-xs-value: 0px;
+  --radius-sm-value: 0px;
+  --radius-md-value: 0px;
+  --radius-lg-value: 0px;
+  --radius-xl-value: 0px;
+  --radius-2xl-value: 0px;
+  --radius-pill: 0px;
+  --radius-3xl-value: 0px;
+  --radius-4xl-value: 0px;
+
+  /* Carbon raw tokens, mapped onto the MiniMax token names */
+  --mm-canvas: #ffffff;
+  --mm-surface: #f4f4f4;
+  --mm-surface-soft: #e8e8e8;
+  --mm-hairline: #e0e0e0;
+  --mm-hairline-soft: #e0e0e0;
+  --mm-ink: #161616;
+  --mm-ink-strong: #161616;
+  --mm-charcoal: #161616;
+  --mm-slate: #393939;
+  --mm-steel: #525252;
+  --mm-stone: #8c8c8c;
+  --mm-muted: #8c8c8c;
+  --mm-brand-coral: #0f62fe;
+  --mm-brand-magenta: #002d9c;
+  --mm-brand-blue: #0f62fe;
+  --mm-brand-blue-mid: #0050e6;
+  --mm-brand-blue-deep: #002d9c;
+  --mm-brand-blue-700: #002d9c;
+  --mm-brand-cyan: #0f62fe;
+  --mm-brand-blue-200: #d0e2ff;
+  --mm-brand-purple: #8a3ffc;
+  --mm-success-bg: #defbe6;
+  --mm-success-text: #24a148;
+  --mm-error: #da1e28;
+
+  /* shadcn semantic mapping */
+  --background: #ffffff;
+  --foreground: #161616;
+  --card: #ffffff;
+  --card-foreground: #161616;
+  --popover: #ffffff;
+  --popover-foreground: #161616;
+  --primary: #0f62fe;
+  --primary-foreground: #ffffff;
+  --secondary: #161616;
+  --secondary-foreground: #ffffff;
+  --muted: #f4f4f4;
+  --muted-foreground: #525252;
+  --accent: #f4f4f4;
+  --accent-foreground: #161616;
+  --destructive: #da1e28;
+  --border: #e0e0e0;
+  --input: #f4f4f4;
+  --ring: #0f62fe;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #161616;
+  --sidebar-primary: #0f62fe;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f4f4f4;
+  --sidebar-accent-foreground: #161616;
+  --sidebar-border: #e0e0e0;
+  --sidebar-ring: #0f62fe;
+}
+
 @layer base {
   * {
     @apply border-border;
@@ -136,6 +222,10 @@
     font-size: 16px;
     line-height: 1.5;
     font-weight: 400;
+  }
+
+  [data-theme="ibm"] body {
+    letter-spacing: 0.16px;
   }
 
   h1,

@@ -648,15 +648,17 @@ async function updateClient() {
         clientName: form.value.clientName,
         redirectUris: form.value.redirectUris.split("\n").filter((u) => u.trim()),
         homepageUrl: form.value.homepageUrl || null,
-        clientType: form.value.clientType,
+        tokenEndpointAuthMethod: form.value.clientType === "public" ? "none" : "client_secret_basic",
         accessControlEnabled: form.value.accessControlEnabled,
         isActive: form.value.isActive
       }
     });
     closeModal();
     await loadClients();
+    showToast("Client updated successfully", "success");
   } catch (error) {
     console.error("Failed to update client:", error);
+    showToast("Failed to update client: " + (error?.data?.message || "Unknown error"), "error");
   } finally {
     saving.value = false;
   }

@@ -1,4 +1,4 @@
-import { defineEventHandler, createError, sendRedirect } from "h3";
+import { defineEventHandler, createError, sendRedirect, setResponseStatus, setHeader } from "h3";
 import { db, oidcClients, users } from "../../db/index.js";
 import { eq, and } from "drizzle-orm";
 import { createAuthorizationCode } from "../../services/oidc.js";
@@ -72,6 +72,7 @@ var authorize_get_default = defineEventHandler(async (event) => {
   if (responseType !== "code") {
     return sendRedirect(event, buildErrorRedirect(redirectUri, "unsupported_response_type", "Only response_type=code is supported", state));
   }
+  let registeredRedirectUri = "";
   try {
     const [client] = await db.select().from(oidcClients).where(
       and(
@@ -86,11 +87,13 @@ var authorize_get_default = defineEventHandler(async (event) => {
       });
     }
     if (!client.redirectUris.includes(redirectUri)) {
-      throw createError({
-        statusCode: 400,
-        message: "Invalid redirect_uri. Must be registered with the client."
-      });
+      // OIDC: never redirect to an unregistered URI — that lands the user
+      // on a 404 in the app and they cannot get back.
+      setResponseStatus(event, 400);
+      setHeader(event, "Content-Type", "text/html; charset=utf-8");
+      return invalidRedirectPage(redirectUri);
     }
+    registeredRedirectUri = redirectUri;
     const requestedScopes = scope.split(" ");
     const invalidScopes = requestedScopes.filter((s) => !client.scopes.includes(s));
     if (invalidScopes.length > 0) {
@@ -169,9 +172,9 @@ var authorize_get_default = defineEventHandler(async (event) => {
     return;
   } catch (error) {
     console.error("Authorization error:", error);
-    if (redirectUri) {
+    if (typeof registeredRedirectUri === "string" && registeredRedirectUri) {
       doRedirect(event, buildErrorRedirect(
-        redirectUri,
+        registeredRedirectUri,
         "server_error",
         error.message || "Internal server error",
         state
@@ -181,6 +184,50 @@ var authorize_get_default = defineEventHandler(async (event) => {
     throw error;
   }
 });
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+function appLoginFromRedirect(redirectUri) {
+  try {
+    const url = new URL(redirectUri);
+    if (url.protocol !== "http:" && url.protocol !== "https:") return "";
+    return `${url.origin}/login`;
+  } catch {
+    return "";
+  }
+}
+function invalidRedirectPage(redirectUri) {
+  const safeUri = escapeHtml(redirectUri);
+  const back = appLoginFromRedirect(redirectUri);
+  const backLink = back
+    ? `<p><a href="${escapeHtml(back)}">Kembali ke aplikasi</a></p>`
+    : "";
+  return `<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Redirect URI tidak terdaftar</title>
+  <style>
+    body { font-family: "IBM Plex Sans", Helvetica, Arial, sans-serif; max-width: 36rem; margin: 4rem auto; padding: 0 1.5rem; color: #161616; }
+    h1 { font-weight: 300; font-size: 1.75rem; }
+    code { display: block; background: #f4f4f4; padding: 0.75rem 1rem; margin: 1rem 0; word-break: break-all; font-size: 0.85rem; }
+    a { color: #0f62fe; }
+  </style>
+</head>
+<body>
+  <h1>Redirect URI tidak terdaftar</h1>
+  <p>Aplikasi mengirim URI ini, tetapi belum didaftarkan pada OIDC client.</p>
+  <code>${safeUri}</code>
+  <p>Di SSO Admin → OIDC Clients, tambahkan URI di atas persis (termasuk http/https, host, port, dan path). Boleh lebih dari satu, satu URI per baris.</p>
+  ${backLink}
+</body>
+</html>`;
+}
 function buildErrorRedirect(redirectUri, error, description, state) {
   const url = new URL(redirectUri);
   url.searchParams.set("error", error);

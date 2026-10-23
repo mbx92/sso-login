@@ -23,7 +23,7 @@ Sistem Single Sign-On (SSO) berbasis OpenID Connect (OIDC) untuk aplikasi intern
 
 ## 🛠️ Prerequisites
 
-- Node.js 18+
+- Node.js 22.23.4+
 - PostgreSQL 14+
 - npm atau pnpm
 

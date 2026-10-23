@@ -6,7 +6,7 @@ Panduan operasional untuk menjalankan dan memelihara SSO Identity Provider.
 
 ### Production Requirements
 
-- **Node.js**: 18+ LTS
+- **Node.js**: 22.23.4+ LTS
 - **PostgreSQL**: 14+
 - **Memory**: Minimum 512MB, recommended 1GB+
 - **CPU**: 1+ cores
@@ -53,7 +53,7 @@ pm2 start .output/server/index.mjs --name sso-idp
 
 ```dockerfile
 # Dockerfile
-FROM node:18-alpine
+FROM node:22.23.4-alpine
 
 WORKDIR /app
 

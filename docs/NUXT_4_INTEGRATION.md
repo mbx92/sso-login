@@ -20,7 +20,7 @@ Panduan lengkap untuk mengintegrasikan aplikasi Nuxt 4 dengan SSO Identity Provi
 ## Prasyarat
 
 - Nuxt 4.x
-- Node.js 18+
+- Node.js 22.23.4+
 - Aplikasi Nuxt sudah berjalan
 - Akses ke SSO Admin Dashboard
 - SSL/TLS Certificate (untuk production)

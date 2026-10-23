@@ -71,7 +71,12 @@ var id_put_default = defineEventHandler(async (event) => {
     if (body.grantTypes !== void 0) updates.grantTypes = body.grantTypes;
     if (body.responseTypes !== void 0) updates.responseTypes = body.responseTypes;
     if (body.scopes !== void 0) updates.scopes = body.scopes;
-    if (body.tokenEndpointAuthMethod !== void 0) updates.tokenEndpointAuthMethod = body.tokenEndpointAuthMethod;
+    if (body.tokenEndpointAuthMethod !== void 0) {
+      updates.tokenEndpointAuthMethod = body.tokenEndpointAuthMethod;
+      if (body.tokenEndpointAuthMethod === "none") {
+        updates.clientSecretHash = null;
+      }
+    }
     if (body.isFirstParty !== void 0) updates.isFirstParty = body.isFirstParty;
     if (body.isActive !== void 0) updates.isActive = body.isActive;
     if (body.requireAccessGrant !== void 0) updates.requireAccessGrant = body.requireAccessGrant;

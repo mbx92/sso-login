@@ -36,10 +36,17 @@ var index_get_default = defineEventHandler(async (event) => {
       requireAccessGrant: oidcClients.requireAccessGrant,
       isActive: oidcClients.isActive,
       createdAt: oidcClients.createdAt,
-      updatedAt: oidcClients.updatedAt
+      updatedAt: oidcClients.updatedAt,
+      clientSecretHash: oidcClients.clientSecretHash
     }).from(oidcClients).where(whereClause).orderBy(desc(oidcClients.createdAt)).limit(limit).offset(offset);
+    const sanitizedClientList = clientList.map((client) => ({
+      ...client,
+      // Never ship the real hash to the browser — the frontend only needs to know
+      // whether a secret exists (Confidential badge, edit-form client type).
+      clientSecretHash: client.clientSecretHash ? true : null
+    }));
     return {
-      data: clientList,
+      data: sanitizedClientList,
       pagination: {
         page,
         limit,
